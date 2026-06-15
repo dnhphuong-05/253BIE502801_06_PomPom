@@ -1,0 +1,80 @@
+package com.pompom.group6.database;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import com.pompom.group6.models.PromotionProduct;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PromotionDAO {
+    private static final String TAG = "PromotionDAO";
+    private final DatabaseHelper dbHelper;
+
+    public PromotionDAO(Context context) {
+        this.dbHelper = new DatabaseHelper(context);
+    }
+
+    public List<PromotionProduct> getFlashSaleProducts(int limit) {
+        List<PromotionProduct> products = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        // Join promotions with promotion_details and products to get sale details
+        String query = "SELECT p.product_id, p.name, p.price as original_price, " +
+                      "pd.discount_percent, pd.discount_amount, pi.image_url " +
+                      "FROM promotions pr " +
+                      "JOIN promotion_details pd ON pr.promotion_id = pd.promotion_id " +
+                      "JOIN products p ON pd.product_id = p.product_id " +
+                      "LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.sort_order = 1 " +
+                      "WHERE pr.type = 'flash_sale' AND pr.is_active = 1 " +
+                      "LIMIT ?";
+
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery(query, new String[]{String.valueOf(limit)});
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow("product_id"));
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+                    double originalPrice = cursor.getDouble(cursor.getColumnIndexOrThrow("original_price"));
+                    int discountPercent = cursor.getInt(cursor.getColumnIndexOrThrow("discount_percent"));
+                    String imageUrl = cursor.getString(cursor.getColumnIndexOrThrow("image_url"));
+
+                    double salePrice = originalPrice;
+                    if (discountPercent > 0) {
+                        salePrice = originalPrice * (1 - discountPercent / 100.0);
+                    } else {
+                        double discountAmount = cursor.getDouble(cursor.getColumnIndexOrThrow("discount_amount"));
+                        if (discountAmount > 0) {
+                            salePrice = originalPrice - discountAmount;
+                            discountPercent = (int) ((discountAmount / originalPrice) * 100);
+                        }
+                    }
+                    
+                    // Mock stock data for design consistency
+                    int totalStock = 400;
+                    int soldCount = (int) (Math.random() * 200 + 50);
+
+                    products.add(new PromotionProduct(id, name, imageUrl, originalPrice, salePrice, discountPercent, totalStock, soldCount));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching flash sale products", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+
+        // Fallback for demo if database query returns nothing
+        if (products.isEmpty()) {
+            products.add(new PromotionProduct(1, "Unicorn Magic Palette", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344448/PomPom_Unicorn_Magic_Palette_p82y28.webp", 249000, 124500, 50, 400, 120));
+            products.add(new PromotionProduct(3, "Cloud Cushion", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344277/PomPom_Cloud_Cushion_kwewua.webp", 399000, 199500, 50, 400, 85));
+            products.add(new PromotionProduct(7, "Butterfly Highlight", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340911/ma_hong_r2373s.webp", 189000, 94500, 50, 400, 210));
+            products.add(new PromotionProduct(18, "Heart Brush Set", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340910/co_trang_diem_zgi4dz.webp", 450000, 225000, 50, 400, 45));
+        }
+
+        return products;
+    }
+}
