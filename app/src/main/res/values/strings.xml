@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">PomPom</string>
+    <string name="slogan">Live Your Fairytales</string>
+
+    <string name="onboarding_title_1">01 Ready To Gift</string>
+    <string name="onboarding_desc_1">Mỗi món quà đều là\nmột câu chuyện cổ tích</string>
+
+    <string name="onboarding_title_2">02 AI Makeup Artist</string>
+    <string name="onboarding_desc_2">Thử mọi phong cách trang điểm\nchỉ trong vài giây</string>
+
+    <string name="onboarding_title_3">03 Member Exclusive</string>
+    <string name="onboarding_desc_3">Nhận ưu đãi và\nvoucher độc quyền</string>
+
+    <string name="btn_continue">Tiếp tục</string>
+    <string name="btn_start">Bắt đầu ngay</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_shop">Shop</string>
+    <string name="nav_community">Community</string>
+    <string name="nav_me">Me</string>
+    <string name="nav_ai">AI</string>
+    <string name="about_brand">ABOUT POMPOM</string>
+
+    <string name="filter">FILTER</string>
+    <string name="sort_by">SORT BY</string>
+    <string name="cat_eyes">EYES</string>
+    <string name="cat_face">FACE</string>
+    <string name="cat_lips">LIPS</string>
+    <string name="cat_all_in">ALL-IN</string>
+    <string name="show_more">SHOW MORE</string>
+    <string name="recently_viewed">Recently Viewed</string>
+    <string name="shop_by_category">Shop By Category</string>
+    <string name="knight_unicorn">Knight Unicorn</string>
+</resources>

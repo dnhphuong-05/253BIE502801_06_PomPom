@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#40FFFFFF">
+    <item>
+        <layer-list>
+            <!-- Shadow/Outer Stroke -->
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="30dp" />
+                    <solid android:color="#20000000" />
+                </shape>
+            </item>
+            <!-- Main Button Body with "Inner Shadow" effect using gradient -->
+            <item
+                android:bottom="2dp"
+                android:left="1dp"
+                android:right="1dp"
+                android:top="1dp">
+                <shape android:shape="rectangle">
+                    <corners android:radius="30dp" />
+                    <gradient
+                        android:angle="270"
+                        android:endColor="@color/md_theme_light_primary"
+                        android:startColor="#FAD6D7" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="#40FFFFFF" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</ripple>
