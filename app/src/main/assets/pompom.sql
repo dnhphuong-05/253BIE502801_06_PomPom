@@ -1,5 +1,5 @@
 --
--- File generated with SQLiteStudio v3.4.21 on Sun Jun 14 14:12:02 2026
+-- File generated with SQLiteStudio v3.4.21 on Tue Jun 16 00:04:22 2026
 --
 -- Text encoding used: UTF-8
 --
@@ -216,26 +216,26 @@ CREATE TABLE IF NOT EXISTS community_posts (
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (product_tag) REFERENCES products(product_id)
 );
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (1, 1, 'Thích quá trời bảng Unicorn Magic, lên màu cực xinh!', '', 1, 15, 3, 0, '2025-01-10 10:30:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (2, 2, 'Son Velvet Rose mướt, không khô môi. Recommend nha.', '', 2, 22, 5, 0, '2025-01-11 14:20:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (3, 3, 'Cushion Cloud che phủ tốt, da mình khô vẫn mịn.', '', 3, 18, 2, 0, '2025-01-12 09:15:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (4, 4, 'Má hồng Bunny Blush dễ thương nhưng hơi nhạt.', '', 4, 8, 1, 0, '2025-01-13 18:00:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (5, 5, 'Eyeliner Starry kẻ một đường là chuẩn, không lem.', '', 5, 12, 0, 0, '2025-01-14 12:00:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (6, 6, 'Set Sweet Bear làm quà tặng sinh nhật bạn thân, cô ấy thích lắm!', '', 10, 34, 7, 0, '2025-01-15 20:30:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (7, 7, 'Highlight Butterfly lên da căng bóng tự nhiên.', '', 7, 25, 4, 0, '2025-01-16 08:45:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (8, 8, 'Kẹp tóc Unicorn dễ thương, nhưng hơi yếu.', '', 8, 6, 2, 0, '2025-01-17 17:20:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (9, 9, 'Bộ cọ Heart mềm, không rụng lông.', '', 18, 10, 1, 0, '2025-01-18 10:00:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (10, 10, 'Mình thử AI Makeup Artist, kết quả shock luôn, hợp lắm.', '', NULL, 45, 12, 0, '2025-01-19 22:10:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (11, 1, 'Son Cherry Lip Tint lâu trôi nhưng hơi khó tán.', '', 15, 14, 3, 0, '2025-01-20 14:00:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (12, 2, 'Bảng Galaxy Eyeshadow nhũ đẹp mê hồn.', '', 22, 28, 6, 0, '2025-01-21 09:30:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (13, 3, 'Hướng dẫn makeup bằng PomPom set đây! Ai cần không?', '', 25, 52, 14, 0, '2025-01-22 16:00:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (14, 4, 'Xịt khóa lớp Angel Setting giữ được 8 tiếng.', '', 14, 11, 2, 0, '2025-01-23 11:15:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (15, 5, 'Highlight Mermaid lên chân mày cũng đẹp.', '', 16, 9, 1, 0, '2025-01-24 19:40:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (16, 6, 'Phấn phủ Peach Blur kiềm dầu tốt, da lì nhẹ.', '', 17, 17, 3, 0, '2025-01-25 13:00:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (17, 7, 'Son lì dạng nước Matte Liquid màu đỏ cam rất tôn da.', '', 12, 20, 4, 0, '2025-01-26 15:30:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (18, 8, 'Gương Cute Mirror siêu nhỏ gọn, bỏ túi được.', '', 20, 7, 1, 0, '2025-01-27 10:00:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (19, 9, 'Nước hoa Vanilla thơm ngọt, lưu hương 6 tiếng.', '', 19, 13, 2, 0, '2025-01-28 21:15:00', 'review');
-INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (20, 10, 'Review từ A-Z set Ultimate Makeup, xứng đáng với giá sale.', '', 25, 38, 9, 0, '2025-01-29 08:00:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (1, 1, 'Thích quá trời bảng Unicorn Magic, lên màu cực xinh!', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781529924/pos1_zvo164.png', 1, 15, 3, 0, '2025-01-10 10:30:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (2, 2, 'Son Velvet Rose mướt, không khô môi. Recommend nha.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532226/pos2_z8pge2.png', 2, 22, 5, 0, '2025-01-11 14:20:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (3, 3, 'Cushion Cloud che phủ tốt, da mình khô vẫn mịn.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532228/pos3_lllu1n.png', 3, 18, 2, 0, '2025-01-12 09:15:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (4, 4, 'Má hồng Bunny Blush dễ thương nhưng hơi nhạt.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532236/pos4_a1ojqr.png', 4, 8, 1, 0, '2025-01-13 18:00:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (5, 5, 'Eyeliner Starry kẻ một đường là chuẩn, không lem.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532230/pos5_rje33p.png', 5, 12, 0, 0, '2025-01-14 12:00:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (6, 6, 'Set Sweet Bear làm quà tặng sinh nhật bạn thân, cô ấy thích lắm!', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532231/pos6_kmabag.png', 10, 34, 7, 0, '2025-01-15 20:30:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (7, 7, 'Highlight Butterfly lên da căng bóng tự nhiên.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781529924/pos1_zvo164.png', 7, 25, 4, 0, '2025-01-16 08:45:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (8, 8, 'Kẹp tóc Unicorn dễ thương, nhưng hơi yếu.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532226/pos2_z8pge2.png', 8, 6, 2, 0, '2025-01-17 17:20:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (9, 9, 'Bộ cọ Heart mềm, không rụng lông.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532228/pos3_lllu1n.png', 18, 10, 1, 0, '2025-01-18 10:00:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (10, 10, 'Mình thử AI Makeup Artist, kết quả shock luôn, hợp lắm.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532236/pos4_a1ojqr.png', NULL, 45, 12, 0, '2025-01-19 22:10:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (11, 1, 'Son Cherry Lip Tint lâu trôi nhưng hơi khó tán.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532230/pos5_rje33p.png', 15, 14, 3, 0, '2025-01-20 14:00:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (12, 2, 'Bảng Galaxy Eyeshadow nhũ đẹp mê hồn.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532231/pos6_kmabag.png', 22, 28, 6, 0, '2025-01-21 09:30:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (13, 3, 'Hướng dẫn makeup bằng PomPom set đây! Ai cần không?', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781529924/pos1_zvo164.png', 25, 52, 14, 0, '2025-01-22 16:00:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (14, 4, 'Xịt khóa lớp Angel Setting giữ được 8 tiếng.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532226/pos2_z8pge2.png', 14, 11, 2, 0, '2025-01-23 11:15:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (15, 5, 'Highlight Mermaid lên chân mày cũng đẹp.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532228/pos3_lllu1n.png', 16, 9, 1, 0, '2025-01-24 19:40:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (16, 6, 'Phấn phủ Peach Blur kiềm dầu tốt, da lì nhẹ.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532236/pos4_a1ojqr.png', 17, 17, 3, 0, '2025-01-25 13:00:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (17, 7, 'Son lì dạng nước Matte Liquid màu đỏ cam rất tôn da.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532230/pos5_rje33p.png', 12, 20, 4, 0, '2025-01-26 15:30:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (18, 8, 'Gương Cute Mirror siêu nhỏ gọn, bỏ túi được.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532231/pos6_kmabag.png', 20, 7, 1, 0, '2025-01-27 10:00:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (19, 9, 'Nước hoa Vanilla thơm ngọt, lưu hương 6 tiếng.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781529924/pos1_zvo164.png', 19, 13, 2, 0, '2025-01-28 21:15:00', 'review');
+INSERT INTO community_posts (post_id, user_id, content, images, product_tag, like_count, comment_count, is_hidden, created_at, post_type) VALUES (20, 10, 'Review từ A-Z set Ultimate Makeup, xứng đáng với giá sale.', 'https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532226/pos2_z8pge2.png', 25, 38, 9, 0, '2025-01-29 08:00:00', 'review');
 
 -- Table: follows
 DROP TABLE IF EXISTS follows;
@@ -704,6 +704,12 @@ CREATE TABLE IF NOT EXISTS promotion_details (
     FOREIGN KEY (product_id) REFERENCES products(product_id),
     FOREIGN KEY (get_product_id) REFERENCES products(product_id)
 );
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (1, 1, 18, 1, 18, 1, NULL, NULL);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (2, 2, 1, 1, NULL, NULL, 30.0, NULL);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (3, 3, NULL, 1, NULL, NULL, 15.0, NULL);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (4, 4, NULL, 1, NULL, NULL, NULL, 0.0);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (5, 5, 2, 1, 2, 1, NULL, NULL);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (6, 5, 12, 1, 12, 1, NULL, NULL);
 
 -- Table: promotions
 DROP TABLE IF EXISTS promotions;
@@ -715,6 +721,15 @@ CREATE TABLE IF NOT EXISTS promotions (
     end_date TEXT,
     is_active INTEGER DEFAULT 1
 );
+INSERT INTO promotions (promotion_id, name, type, start_date, end_date, is_active) VALUES (1, 'Mua 1 tặng 1 chổi trang điểm', 'bogo', '2025-06-01 00:00:00', '2025-06-30 23:59:59', 1);
+INSERT INTO promotions (promotion_id, name, type, start_date, end_date, is_active) VALUES (2, 'Flash sale 12h trưa', 'flash_sale', '2025-01-15 12:00:00', '2025-01-15 13:00:00', 1);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (7, 2, 1, 1, NULL, 0, 50, NULL);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (8, 2, 3, 1, NULL, 0, 50, NULL);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (9, 2, 7, 1, NULL, 0, 50, NULL);
+INSERT INTO promotion_details (detail_id, promotion_id, product_id, buy_quantity, get_product_id, get_quantity, discount_percent, discount_amount) VALUES (10, 2, 18, 1, NULL, 0, 50, NULL);
+INSERT INTO promotions (promotion_id, name, type, start_date, end_date, is_active) VALUES (3, 'Giảm 15% cho hội viên', 'percent_discount', '2025-06-01 00:00:00', '2025-06-30 23:59:59', 1);
+INSERT INTO promotions (promotion_id, name, type, start_date, end_date, is_active) VALUES (4, 'Freeship toàn quốc', 'free_shipping', '2025-06-01 00:00:00', '2025-06-25 23:59:59', 1);
+INSERT INTO promotions (promotion_id, name, type, start_date, end_date, is_active) VALUES (5, 'Mua 1 tặng 1 son môi', 'bogo', '2025-07-01 00:00:00', '2025-07-31 23:59:59', 1);
 
 -- Table: recently_viewed
 DROP TABLE IF EXISTS recently_viewed;

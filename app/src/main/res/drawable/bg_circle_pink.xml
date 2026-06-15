@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <solid android:color="@color/md_theme_light_primary" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Main circular background -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/brand_pink_light" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/md_theme_light_secondaryContainer" />
+        </shape>
+    </item>
+
+    <!-- Inner highlight for glassy depth -->
+    <item android:bottom="4dp" android:left="4dp" android:right="4dp" android:top="4dp">
+        <shape android:shape="oval">
+            <gradient
+                android:centerX="0.5"
+                android:centerY="0.5"
+                android:endColor="@color/brand_pink_light"
+                android:gradientRadius="40dp"
+                android:startColor="@color/white"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list>

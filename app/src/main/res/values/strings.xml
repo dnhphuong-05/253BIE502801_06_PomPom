@@ -31,4 +31,16 @@
     <string name="recently_viewed">Recently Viewed</string>
     <string name="shop_by_category">Shop By Category</string>
     <string name="knight_unicorn">Knight Unicorn</string>
+
+    <string name="search_hint">Tìm sản phẩm, bộ sưu tập...</string>
+    <string name="promo_title">MUA 1 TẶNG 1\nCHỔI TRANG ĐIỂM</string>
+    <string name="buy_now">MUA NGAY</string>
+    <string name="ai_makeup">AI Makeup</string>
+    <string name="voucher">Voucher</string>
+    <string name="membership">Membership</string>
+    <string name="community">Community</string>
+    <string name="featured_collections">Bộ sưu tập nổi bật</string>
+    <string name="view_all">Xem tất cả ></string>
+    <string name="knight_unicorn_collection">Knight Unicorn Collection</string>
+    <string name="label_new">New</string>
 </resources>
