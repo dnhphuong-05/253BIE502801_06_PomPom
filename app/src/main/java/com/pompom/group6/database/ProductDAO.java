@@ -32,6 +32,40 @@ public class ProductDAO {
         return getProductsByQuery(query, new String[]{String.valueOf(limit)});
     }
 
+    public List<Product> getProductsPaginated(int limit, int offset) {
+        String query = "SELECT * FROM products WHERE is_active = 1 LIMIT ? OFFSET ?";
+        return getProductsByQuery(query, new String[]{String.valueOf(limit), String.valueOf(offset)});
+    }
+
+    public Product getProductById(int productId) {
+        String query = "SELECT * FROM products WHERE product_id = ?";
+        List<Product> products = getProductsByQuery(query, new String[]{String.valueOf(productId)});
+        if (products.isEmpty()) return null;
+        
+        Product product = products.get(0);
+        // Lấy thêm mô tả nếu có
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery("SELECT description FROM products WHERE product_id = ?", new String[]{String.valueOf(productId)})) {
+            if (cursor.moveToFirst()) {
+                product.setDescription(cursor.getString(0));
+            }
+        }
+        return product;
+    }
+
+    public List<String> getProductImages(int productId) {
+        List<String> images = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery("SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC", new String[]{String.valueOf(productId)})) {
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    images.add(cursor.getString(0));
+                } while (cursor.moveToNext());
+            }
+        }
+        return images;
+    }
+
     private List<Product> getProductsByQuery(String query, String[] args) {
         List<Product> products = new ArrayList<>();
         SQLiteDatabase db = null;

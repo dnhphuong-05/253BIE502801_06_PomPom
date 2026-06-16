@@ -5,7 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.pompom.group6.models.Comment;
 import com.pompom.group6.models.CommunityPost;
+import com.pompom.group6.models.Product;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,38 +21,145 @@ public class CommunityDAO {
     }
 
     public List<CommunityPost> getTopHighlights(int limit) {
+        return getPostsByType(null, limit);
+    }
+
+    public List<CommunityPost> getPostsByType(String type, int limit) {
         List<CommunityPost> posts = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         
-        String query = "SELECT cp.*, u.full_name, u.avatar_url " +
-                      "FROM community_posts cp " +
-                      "JOIN users u ON cp.user_id = u.user_id " +
-                      "WHERE cp.is_hidden = 0 " +
-                      "ORDER BY (cp.like_count + cp.comment_count) DESC LIMIT ?";
+        StringBuilder query = new StringBuilder(
+            "SELECT cp.*, u.full_name, u.avatar_url " +
+            "FROM community_posts cp " +
+            "JOIN users u ON cp.user_id = u.user_id "
+        );
         
-        Cursor cursor = null;
-        try {
-            cursor = db.rawQuery(query, new String[]{String.valueOf(limit)});
-            if (cursor != null && cursor.moveToFirst()) {
+        List<String> args = new ArrayList<>();
+        if (type != null && !type.equalsIgnoreCase("For you")) {
+            query.append("WHERE cp.post_type = ? ");
+            args.add(type);
+        }
+        
+        query.append("ORDER BY cp.created_at DESC LIMIT ?");
+        args.add(String.valueOf(limit));
+
+        try (Cursor cursor = db.rawQuery(query.toString(), args.toArray(new String[0]))) {
+            if (cursor.moveToFirst()) {
                 do {
-                    int id = cursor.getInt(cursor.getColumnIndexOrThrow("post_id"));
+                    int postId = cursor.getInt(cursor.getColumnIndexOrThrow("post_id"));
                     int userId = cursor.getInt(cursor.getColumnIndexOrThrow("user_id"));
                     String content = cursor.getString(cursor.getColumnIndexOrThrow("content"));
-                    String images = cursor.getString(cursor.getColumnIndexOrThrow("images"));
+                    String imageUrl = cursor.getString(cursor.getColumnIndexOrThrow("images"));
                     int likes = cursor.getInt(cursor.getColumnIndexOrThrow("like_count"));
                     int comments = cursor.getInt(cursor.getColumnIndexOrThrow("comment_count"));
-                    String type = cursor.getString(cursor.getColumnIndexOrThrow("post_type"));
-                    String userName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
-                    String userAvatar = cursor.getString(cursor.getColumnIndexOrThrow("avatar_url"));
-                    
-                    posts.add(new CommunityPost(id, userId, content, images, likes, comments, type, userName, userAvatar));
+                    String pType = cursor.getString(cursor.getColumnIndexOrThrow("post_type"));
+                    String uName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
+                    String uAvatar = cursor.getString(cursor.getColumnIndexOrThrow("avatar_url"));
+
+                    posts.add(new CommunityPost(postId, userId, content, imageUrl, likes, comments, pType, uName, uAvatar));
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error fetching community highlights", e);
-        } finally {
-            if (cursor != null) cursor.close();
+            Log.e(TAG, "Error fetching posts: " + e.getMessage());
         }
+        
+        if (posts.isEmpty()) {
+            posts.add(new CommunityPost(1, 1, "Makeup trong veo cho buổi hẹn hò ✨", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781529924/pos1_zvo164.png", 1200, 89, "Looks", "@fairy_makeup", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340916/face_cpqlrz.webp"));
+            posts.add(new CommunityPost(2, 2, "Review bộ sưu tập Unicorn siêu xinh!", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532226/pos2_z8pge2.png", 850, 45, "Review", "@pompom_fan", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344277/PomPom_Cloud_Cushion_kwewua.webp"));
+        }
+        
         return posts;
+    }
+
+    public CommunityPost getPostById(int postId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT cp.*, u.full_name, u.avatar_url " +
+                      "FROM community_posts cp " +
+                      "JOIN users u ON cp.user_id = u.user_id " +
+                      "WHERE cp.post_id = ?";
+        
+        try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(postId)})) {
+            if (cursor.moveToFirst()) {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("post_id"));
+                int userId = cursor.getInt(cursor.getColumnIndexOrThrow("user_id"));
+                String content = cursor.getString(cursor.getColumnIndexOrThrow("content"));
+                String imageUrl = cursor.getString(cursor.getColumnIndexOrThrow("images"));
+                int likes = cursor.getInt(cursor.getColumnIndexOrThrow("like_count"));
+                int comments = cursor.getInt(cursor.getColumnIndexOrThrow("comment_count"));
+                String type = cursor.getString(cursor.getColumnIndexOrThrow("post_type"));
+                String uName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
+                String uAvatar = cursor.getString(cursor.getColumnIndexOrThrow("avatar_url"));
+
+                return new CommunityPost(id, userId, content, imageUrl, likes, comments, type, uName, uAvatar);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching post by id: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public List<Comment> getCommentsForPost(int postId) {
+        List<Comment> comments = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT c.*, u.full_name, u.avatar_url " +
+                      "FROM comments c " +
+                      "JOIN users u ON c.user_id = u.user_id " +
+                      "WHERE c.post_id = ? " +
+                      "ORDER BY c.created_at DESC";
+        
+        try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(postId)})) {
+            if (cursor.moveToFirst()) {
+                do {
+                    int commentId = cursor.getInt(cursor.getColumnIndexOrThrow("comment_id"));
+                    int userId = cursor.getInt(cursor.getColumnIndexOrThrow("user_id"));
+                    String content = cursor.getString(cursor.getColumnIndexOrThrow("content"));
+                    String createdAt = cursor.getString(cursor.getColumnIndexOrThrow("created_at"));
+                    String uName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
+                    String uAvatar = cursor.getString(cursor.getColumnIndexOrThrow("avatar_url"));
+
+                    Comment comment = new Comment(commentId, userId, uName, uAvatar, content, createdAt);
+                    // Mock some data for UI consistency
+                    comment.setUserRank("VIP");
+                    comment.setLikes((int)(Math.random() * 50));
+                    comments.add(comment);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching comments: " + e.getMessage());
+        }
+        return comments;
+    }
+
+    public List<Product> getTaggedProducts(int postId) {
+        List<Product> products = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        // The community_posts table has a product_tag column
+        String query = "SELECT p.* FROM products p " +
+                      "JOIN community_posts cp ON cp.product_tag = p.product_id " +
+                      "WHERE cp.post_id = ?";
+        
+        try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(postId)})) {
+            if (cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow("product_id"));
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+                    String price = cursor.getString(cursor.getColumnIndexOrThrow("price"));
+                    
+                    Product product = new Product(id, name, price + "$", null);
+                    
+                    // Get first image
+                    try (Cursor imgCursor = db.query("product_images", new String[]{"image_url"}, 
+                            "product_id = ?", new String[]{String.valueOf(id)}, null, null, "sort_order ASC", "1")) {
+                        if (imgCursor.moveToFirst()) {
+                            product.setImageUrl(imgCursor.getString(0));
+                        }
+                    }
+                    products.add(product);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching tagged products: " + e.getMessage());
+        }
+        return products;
     }
 }

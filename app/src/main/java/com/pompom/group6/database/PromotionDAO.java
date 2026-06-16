@@ -77,4 +77,30 @@ public class PromotionDAO {
 
         return products;
     }
+
+    public List<String> getActivePromotionMessages() {
+        List<String> messages = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery("SELECT name FROM promotions WHERE is_active = 1", null);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    messages.add(cursor.getString(0));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching promotion messages", e);
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
+        }
+        
+        if (messages.isEmpty()) {
+            messages.add("Giảm 50% cho bộ sưu tập Knight Unicorn mới");
+            messages.add("Miễn phí vận chuyển cho đơn hàng từ 500.000đ!");
+            messages.add("Tặng ngay túi Rosy Pouch cho đơn hàng từ 1.000.000đ");
+        }
+        return messages;
+    }
 }

@@ -12,9 +12,13 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.pompom.group6.adapters.MainViewPagerAdapter;
 import com.pompom.group6.databinding.ActivityMainBinding;
 import com.pompom.group6.fragments.HomeFragment;
+import com.pompom.group6.fragments.ShopFragment;
+import com.pompom.group6.fragments.CommunityFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,36 +28,51 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.white));
+        // Edge-to-edge: Transparent status bar, matching nav bar color with bottom nav
+        int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        }
+        
+        getWindow().getDecorView().setSystemUiVisibility(flags);
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        // Match with the light background of the bottom navigation (#FEF0F0)
+        getWindow().setNavigationBarColor(android.graphics.Color.parseColor("#FEF0F0"));
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        if (savedInstanceState == null) {
-            loadFragment(new HomeFragment());
-        }
-        // Always set initial state explicitly after view is ready
-        selectTab(binding.navHome, binding.ivHome, binding.tvHome,
-                R.drawable.ic_home_pink, true);
-        selectTab(binding.navShop, binding.ivShop, binding.tvShop,
-                R.drawable.ic_shop_border, false);
-        selectTab(binding.navCommunity, binding.ivCommunity, binding.tvCommunity,
-                R.drawable.ic_community_border, false);
-        selectTab(binding.navMe, binding.ivMe, binding.tvMe,
-                R.drawable.ic_me_border, false);
-
+        setupViewPager();
         setupNavigation();
+
+        // Initial state
+        updateNavUI(0);
+    }
+
+    private void setupViewPager() {
+        MainViewPagerAdapter adapter = new MainViewPagerAdapter(this);
+        binding.viewPager.setAdapter(adapter);
+        binding.viewPager.setUserInputEnabled(true); // Enable swiping
+
+        binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                updateNavUI(position);
+            }
+        });
+        
+        // Prevent swiping away from Me screen if it's the last one, or keep it consistent
+        binding.viewPager.setOffscreenPageLimit(3);
     }
 
     private void setupNavigation() {
-        binding.navHome.setOnClickListener(v -> {
-            loadFragment(new HomeFragment());
-            updateNavUI(0);
-        });
-        binding.navShop.setOnClickListener(v -> updateNavUI(1));
-        binding.navCommunity.setOnClickListener(v -> updateNavUI(2));
-        binding.navMe.setOnClickListener(v -> updateNavUI(3));
+        binding.navHome.setOnClickListener(v -> binding.viewPager.setCurrentItem(0));
+        binding.navShop.setOnClickListener(v -> binding.viewPager.setCurrentItem(1));
+        binding.navCommunity.setOnClickListener(v -> binding.viewPager.setCurrentItem(2));
+        binding.navMe.setOnClickListener(v -> binding.viewPager.setCurrentItem(3));
         binding.btnAi.setOnClickListener(v -> {
             // Handle AI button click - bounce animation
             ObjectAnimator scaleX = ObjectAnimator.ofFloat(v, "scaleX", 1f, 1.15f, 1f);
@@ -99,12 +118,5 @@ public class MainActivity extends AppCompatActivity {
             icon.setScaleY(1f);
             label.setTextSize(11f);
         }
-    }
-
-    private void loadFragment(Fragment fragment) {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.fragment_container, fragment);
-        ft.commit();
     }
 }
