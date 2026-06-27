@@ -12,7 +12,6 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -22,7 +21,6 @@ import com.pompom.group6.adapters.PostAdapter;
 import com.pompom.group6.adapters.ProductAdapter;
 import com.pompom.group6.database.BannerDAO;
 import com.pompom.group6.database.CommunityDAO;
-import com.pompom.group6.database.DatabaseDebugger;
 import com.pompom.group6.database.ProductDAO;
 import com.pompom.group6.databinding.FragmentHomeBinding;
 import com.pompom.group6.models.Banner;
