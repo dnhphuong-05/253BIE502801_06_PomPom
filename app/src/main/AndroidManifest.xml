@@ -31,6 +31,16 @@
             android:name=".MainActivity"
             android:exported="false">
         </activity>
+
+        <activity
+            android:name=".activities.ProductDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.PostDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
     </application>
 
 </manifest>

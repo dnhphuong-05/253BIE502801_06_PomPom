@@ -8,13 +8,13 @@
     android:clipToPadding="false"
     android:background="@color/md_theme_light_onPrimary">
 
-    <!-- Fragment Container -->
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <!-- Fragment Container with ViewPager2 for swiping -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Custom Bottom Navigation Bar -->
     <androidx.constraintlayout.widget.ConstraintLayout

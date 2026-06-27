@@ -7,6 +7,7 @@ public class Product {
     private String originalPrice;
     private String imageUrl;
     private int imageResId;
+    private String description;
 
     public Product(int id, String title, String price, String originalPrice) {
         this.id = id;
@@ -23,4 +24,6 @@ public class Product {
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public int getImageResId() { return imageResId; }
     public void setImageResId(int imageResId) { this.imageResId = imageResId; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }
