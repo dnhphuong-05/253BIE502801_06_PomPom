@@ -34,6 +34,7 @@ import com.pompom.group6.fragments.CommunityFragment;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private MainViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +84,16 @@ public class MainActivity extends AppCompatActivity {
         updateNavUI(0);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (adapter != null) {
+            adapter.notifyItemChanged(4);
+        }
+    }
+
     private void setupViewPager() {
-        MainViewPagerAdapter adapter = new MainViewPagerAdapter(this);
+        adapter = new MainViewPagerAdapter(this);
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setUserInputEnabled(false); // Disable swiping as per user request
 

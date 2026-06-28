@@ -11,6 +11,7 @@ import com.pompom.group6.models.Review;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ProductDAO {
     private static final String TAG = "ProductDAO";
@@ -50,7 +51,10 @@ public class ProductDAO {
     }
 
     public Product getProductById(int productId) {
-        String query = "SELECT p.*, c.category_name FROM products p " +
+        String query = "SELECT p.*, c.category_name, " +
+                "(SELECT AVG(rating) FROM product_reviews pr WHERE pr.product_id = p.product_id) as avg_rating, " +
+                "(SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.product_id) as review_count " +
+                "FROM products p " +
                 "LEFT JOIN categories c ON p.category_id = c.category_id " +
                 "WHERE p.product_id = ?";
         
@@ -70,8 +74,13 @@ public class ProductDAO {
                 double priceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("price"));
                 double salePriceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("sale_price"));
                 
-                String priceStr = String.format("%.0fđ", salePriceVal > 0 ? salePriceVal : priceVal);
-                String originalPriceStr = salePriceVal > 0 ? String.format("%.0fđ", priceVal) : null;
+                // Resilience for swapped data
+                if (salePriceVal > priceVal) {
+                    double t = priceVal; priceVal = salePriceVal; salePriceVal = t;
+                }
+
+                String priceStr = String.format(Locale.getDefault(), "%.0fđ", (salePriceVal > 0 && salePriceVal < priceVal) ? salePriceVal : priceVal);
+                String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal) ? String.format(Locale.getDefault(), "%.0fđ", priceVal) : null;
 
                 product = new Product(id, name, priceStr, originalPriceStr);
                 product.setDescription(cursor.getString(cursor.getColumnIndexOrThrow("description")));
@@ -79,24 +88,12 @@ public class ProductDAO {
                 product.setStock(cursor.getInt(cursor.getColumnIndexOrThrow("stock")));
                 product.setBrandName(cursor.getString(cursor.getColumnIndexOrThrow("brand")));
                 product.setCategoryName(cursor.getString(cursor.getColumnIndexOrThrow("category_name")));
+                product.setRating(cursor.getFloat(cursor.getColumnIndexOrThrow("avg_rating")));
+                product.setReviewCount(cursor.getInt(cursor.getColumnIndexOrThrow("review_count")));
                 
-                if (salePriceVal > 0 && priceVal > 0) {
+                if (salePriceVal > 0 && priceVal > 0 && salePriceVal < priceVal) {
                     int discount = (int) ((1 - (salePriceVal / priceVal)) * 100);
                     product.setDiscountPercent(discount);
-                }
-
-                // Fetch rating info
-                try {
-                    String ratingQuery = "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count " +
-                            "FROM product_reviews WHERE product_id = ?";
-                    try (Cursor rCursor = db.rawQuery(ratingQuery, new String[]{String.valueOf(productId)})) {
-                        if (rCursor.moveToFirst()) {
-                            product.setRating(rCursor.getFloat(rCursor.getColumnIndexOrThrow("avg_rating")));
-                            product.setReviewCount(rCursor.getInt(rCursor.getColumnIndexOrThrow("review_count")));
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error fetching rating info: " + e.getMessage());
                 }
 
                 // Fetch first image
@@ -224,31 +221,28 @@ public class ProductDAO {
                     double priceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("price"));
                     double salePriceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("sale_price"));
 
-                    // Logic from getProductById to handle sale price correctly
-                    String priceStr = String.format(java.util.Locale.getDefault(), "%.0fđ",
+                    // Swap if needed
+                    if (salePriceVal > priceVal) {
+                        double t = priceVal; priceVal = salePriceVal; salePriceVal = t;
+                    }
+
+                    String priceStr = String.format(Locale.getDefault(), "%.0fđ", 
                             (salePriceVal > 0 && salePriceVal < priceVal) ? salePriceVal : priceVal);
-                    String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal) ?
-                            String.format(java.util.Locale.getDefault(), "%.0fđ", priceVal) : null;
+                    String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal) ? 
+                            String.format(Locale.getDefault(), "%.0fđ", priceVal) : null;
 
                     Product product = new Product(id, name, priceStr, originalPriceStr);
 
-                    // Add rating and review count if available in cursor
                     int ratingIdx = cursor.getColumnIndex("avg_rating");
-                    if (ratingIdx != -1) {
-                        product.setRating(cursor.getFloat(ratingIdx));
-                    }
-                    int reviewCountIdx = cursor.getColumnIndex("review_count");
-                    if (reviewCountIdx != -1) {
-                        product.setReviewCount(cursor.getInt(reviewCountIdx));
-                    }
+                    if (ratingIdx != -1) product.setRating(cursor.getFloat(ratingIdx));
+                    int countIdx = cursor.getColumnIndex("review_count");
+                    if (countIdx != -1) product.setReviewCount(cursor.getInt(countIdx));
 
-                    // Calculate discount percent
                     if (salePriceVal > 0 && salePriceVal < priceVal) {
                         int discount = (int) ((1 - (salePriceVal / priceVal)) * 100);
                         product.setDiscountPercent(discount);
                     }
                     
-                    // Fetch first image from product_images
                     try (Cursor imgCursor = db.query("product_images", new String[]{"image_url"},
                             "product_id = ?", new String[]{String.valueOf(id)}, null, null, "sort_order ASC", "1")) {
                         if (imgCursor != null && imgCursor.moveToFirst()) {
@@ -264,9 +258,7 @@ public class ProductDAO {
         } catch (Exception e) {
             Log.e(TAG, "Error querying products: " + e.getMessage(), e);
         } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            if (cursor != null) cursor.close();
         }
         return products;
     }

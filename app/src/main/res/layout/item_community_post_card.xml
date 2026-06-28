@@ -1,128 +1,326 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="16dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="12dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="24dp"
     app:cardElevation="2dp"
     app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <FrameLayout
+        <!-- Header: User Info -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="240dp">
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivUserAvatar"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_avatar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/CircleShape" />
+
+            <TextView
+                android:id="@+id/tvUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Linh Ngọc"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                app:layout_constraintStart_toEndOf="@id/ivUserAvatar"
+                app:layout_constraintTop_toTopOf="@id/ivUserAvatar" />
 
             <ImageView
-                android:id="@+id/ivPostImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ai_makeup" />
+                android:id="@+id/ivVerified"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/ic_pin"
+                app:layout_constraintBottom_toBottomOf="@id/tvUserName"
+                app:layout_constraintStart_toEndOf="@id/tvUserName"
+                app:layout_constraintTop_toTopOf="@id/tvUserName"
+                app:tint="@color/brand_pink"
+                android:contentDescription="@null" />
 
-            <!-- User Info Overlay (Top) -->
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvPostTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:fontFamily="@font/poppins_regular"
+                android:text="2 giờ trước • Skincare"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@id/tvUserName"
+                app:layout_constraintTop_toBottomOf="@id/tvUserName" />
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
-                    <ImageView
-                        android:id="@+id/ivUserAvatar"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/logo_pompom" />
-                </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFollow"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:backgroundTint="@color/brand_pink_light"
+                android:fontFamily="@font/poppins_medium"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="Theo dõi"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_pink"
+                android:textSize="12sp"
+                app:cornerRadius="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnMore"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/tvUserName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="@fairy_makeup"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:shadowColor="#80000000"
-                    android:shadowDx="1"
-                    android:shadowDy="1"
-                    android:shadowRadius="2"/>
+            <ImageView
+                android:id="@+id/btnMore"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_menu"
+                android:rotation="270"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/text_secondary"
+                android:contentDescription="@null" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Content: Text -->
+        <TextView
+            android:id="@+id/tvPostTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/poppins_regular"
+            android:lineSpacingExtra="4dp"
+            android:text="Set makeup hồng ngọt ngào cho buổi hẹn hò ✨"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+
+        <!-- Content: Images (Conditional Layout handled in Adapter) -->
+        <!-- SINGLE IMAGE LAYOUT -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivPostImageSingle"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginTop="16dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:shapeAppearanceOverlay="@style/RoundedImageView"
+            tools:src="@drawable/promotion1"
+            tools:visibility="visible" />
+
+        <!-- MULTI IMAGE LAYOUT -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutMultiImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivPostImageMain"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/promotion1"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/layoutSideImages"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/RoundedImageView" />
+
+            <LinearLayout
+                android:id="@+id/layoutSideImages"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="@id/ivPostImageMain"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/ivPostImageMain"
+                app:layout_constraintWidth_percent="0.35">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivPostImageSide1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/promotion2"
+                    app:shapeAppearanceOverlay="@style/RoundedImageView" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivPostImageSide2"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="1"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/promotion3"
+                    app:shapeAppearanceOverlay="@style/RoundedImageView" />
             </LinearLayout>
 
-            <!-- Stats Overlay (Bottom) -->
-            <LinearLayout
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Content: Hashtags -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_margin="12dp"
+                android:background="@drawable/bg_label_pink"
+                android:backgroundTint="#FFF0F2"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="#Skincare"
+                android:textColor="@color/brand_pink"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_label_pink"
+                android:backgroundTint="#FFF0F2"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="#Routine"
+                android:textColor="@color/brand_pink"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_label_pink"
+                android:backgroundTint="#FFF0F2"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="#PomPomBeauty"
+                android:textColor="@color/brand_pink"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Footer: Social Actions -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:paddingBottom="4dp">
+
+            <LinearLayout
+                android:id="@+id/layoutLike"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_heart"
-                    app:tint="@color/white" />
+                    app:tint="@color/text_secondary"
+                    android:contentDescription="@null" />
 
                 <TextView
                     android:id="@+id/tvLikeCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:fontFamily="@font/poppins_regular"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="@font/poppins_medium"
                     android:text="1.2K"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:shadowColor="#80000000"
-                    android:shadowDx="1"
-                    android:shadowDy="1"
-                    android:shadowRadius="2" />
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:gravity="center_vertical"
+                app:layout_constraintStart_toEndOf="@id/layoutLike"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="12dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_comment"
-                    app:tint="@color/white" />
+                    app:tint="@color/text_secondary"
+                    android:contentDescription="@null" />
 
                 <TextView
                     android:id="@+id/tvCommentCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="89"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:shadowColor="#80000000"
-                    android:shadowDx="1"
-                    android:shadowDy="1"
-                    android:shadowRadius="2" />
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="86"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
             </LinearLayout>
-        </FrameLayout>
 
-        <TextView
-            android:id="@+id/tvPostTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:fontFamily="@font/garamond_condensed_bold"
-            android:text="Makeup trong veo cho buổi hẹn hò ✨"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:maxLines="2"
-            android:ellipsize="end" />
+            <LinearLayout
+                android:id="@+id/layoutShare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:gravity="center_vertical"
+                app:layout_constraintStart_toEndOf="@id/layoutComment"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_share"
+                    app:tint="@color/text_secondary"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/tvShareCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="132"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/btnBookmark"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_bookmark"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/text_secondary"
+                android:contentDescription="@null" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
