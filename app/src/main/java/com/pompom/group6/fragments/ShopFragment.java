@@ -70,11 +70,9 @@ public class ShopFragment extends Fragment {
             binding.ivRow1.setImageResource(R.drawable.ic_row1_pink);
             binding.ivRow2.setImageResource(R.drawable.ic_row2);
             
-            // Set to 1 column
-            androidx.recyclerview.widget.GridLayoutManager layoutManager = new androidx.recyclerview.widget.GridLayoutManager(requireContext(), 1);
+            productAdapter.setHorizontal(true);
+            GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 1);
             binding.rvProducts.setLayoutManager(layoutManager);
-            // Ensure horizontal mode is OFF so it uses the vertical card (item_product)
-            productAdapter.setHorizontal(false);
             productAdapter.notifyDataSetChanged();
         });
 
@@ -82,17 +80,17 @@ public class ShopFragment extends Fragment {
             binding.ivRow1.setImageResource(R.drawable.ic_row1);
             binding.ivRow2.setImageResource(R.drawable.ic_row2_pink);
             
-            // Set to 2 columns
-            androidx.recyclerview.widget.GridLayoutManager layoutManager = new androidx.recyclerview.widget.GridLayoutManager(requireContext(), 2);
-            layoutManager.setSpanSizeLookup(new androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
+            productAdapter.setHorizontal(false);
+            GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 2);
+            layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    return productAdapter.getItemViewType(position) == 1 ? 2 : 1;
+                    int type = productAdapter.getItemViewType(position);
+                    // VIEW_TYPE_LOADING = 2, VIEW_TYPE_HORIZONTAL = 1
+                    return (type == 1 || type == 2) ? 2 : 1;
                 }
             });
             binding.rvProducts.setLayoutManager(layoutManager);
-            // Ensure horizontal mode is OFF so it uses the vertical card (item_product) for both columns
-            productAdapter.setHorizontal(false);
             productAdapter.notifyDataSetChanged();
         });
     }
@@ -124,11 +122,14 @@ public class ShopFragment extends Fragment {
 
     private void setupProducts() {
         productAdapter = new ProductAdapter();
+        // Default to 2 columns
         GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 2);
         layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                return productAdapter.getItemViewType(position) == 1 ? 2 : 1;
+                int type = productAdapter.getItemViewType(position);
+                // VIEW_TYPE_LOADING = 2, VIEW_TYPE_HORIZONTAL = 1
+                return (type == 1 || type == 2) ? 2 : 1;
             }
         });
         binding.rvProducts.setLayoutManager(layoutManager);
