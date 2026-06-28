@@ -35,66 +35,66 @@ public class MeFragment extends Fragment {
         return binding.getRoot();
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setupListeners();
-        setupMenuItems();
-    }
+//    @Override
+//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+//        super.onViewCreated(view, savedInstanceState);
+//        setupListeners();
+//        setupMenuItems();
+//    }
+//
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        checkLoginStatus();
+//    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        checkLoginStatus();
-    }
-
-    private void checkLoginStatus() {
-        if (binding == null) return;
-        
-        Context context = getContext();
-        if (context == null) return;
-
-        SharedPreferences prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
-        int userId = prefs.getInt("user_id", -1);
-
-        if (isLoggedIn && userId != -1) {
-            binding.layoutLoggedOut.setVisibility(View.GONE);
-            binding.layoutLoggedIn.setVisibility(View.VISIBLE);
-            loadUserData(userId);
-        } else {
-            binding.layoutLoggedOut.setVisibility(View.VISIBLE);
-            binding.layoutLoggedIn.setVisibility(View.GONE);
-        }
-    }
-
-    private void loadUserData(int userId) {
-        try {
-            User user = userDAO.getUserById(userId);
-            if (user != null && binding != null) {
-                binding.tvUserName.setText(user.getFullName());
-                binding.tvMemberLevel.setText(user.getMembershipLevel());
-                binding.tvPoints.setText(String.format("%,d điểm", user.getPoints()));
-                binding.tvVoucherCount.setText(String.format("%d Voucher", user.getVoucherCount()));
-
-                if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
-                    Glide.with(this).load(user.getAvatarUrl()).into(binding.ivUserAvatar);
-                }
-            }
-        } catch (Exception e) {
-            android.util.Log.e("MeFragment", "Error loading user data: " + e.getMessage());
-        }
-    }
-
-    private void setupMenuItems() {
-        setupMenuRow(binding.menuAccountInfo.getRoot(), R.drawable.ic_user, "Thông tin tài khoản");
-        setupMenuRow(binding.menuAddressBook.getRoot(), R.drawable.ic_bookmark, "Sổ địa chỉ");
-        setupMenuRow(binding.menuPayment.getRoot(), R.drawable.ic_bag, "Thanh toán");
-        setupMenuRow(binding.menuMyPoints.getRoot(), R.drawable.ic_rank, "Điểm của tôi");
-        setupMenuRow(binding.menuWishlist.getRoot(), R.drawable.ic_heart, "Yêu thích");
-        setupMenuRow(binding.menuRecentlyViewed.getRoot(), R.drawable.ic_history, "Đã xem gần đây");
-        setupMenuRow(binding.menuSettings.getRoot(), R.drawable.ic_settings, "Cài đặt");
-    }
+//    private void checkLoginStatus() {
+//        if (binding == null) return;
+//
+//        Context context = getContext();
+//        if (context == null) return;
+//
+//        SharedPreferences prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+//        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
+//        int userId = prefs.getInt("user_id", -1);
+//
+//        if (isLoggedIn && userId != -1) {
+//            binding.layoutLoggedOut.setVisibility(View.GONE);
+//            binding.layoutLoggedIn.setVisibility(View.VISIBLE);
+//            loadUserData(userId);
+//        } else {
+//            binding.layoutLoggedOut.setVisibility(View.VISIBLE);
+//            binding.layoutLoggedIn.setVisibility(View.GONE);
+//        }
+//    }
+//
+//    private void loadUserData(int userId) {
+//        try {
+//            User user = userDAO.getUserById(userId);
+//            if (user != null && binding != null) {
+//                binding.tvUserName.setText(user.getFullName());
+//                binding.tvMemberLevel.setText(user.getMembershipLevel());
+//                binding.tvPoints.setText(String.format("%,d điểm", user.getPoints()));
+//                binding.tvVoucherCount.setText(String.format("%d Voucher", user.getVoucherCount()));
+//
+//                if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
+//                    Glide.with(this).load(user.getAvatarUrl()).into(binding.ivUserAvatar);
+//                }
+//            }
+//        } catch (Exception e) {
+//            android.util.Log.e("MeFragment", "Error loading user data: " + e.getMessage());
+//        }
+//    }
+//
+//    private void setupMenuItems() {
+//        setupMenuRow(binding.menuAccountInfo.getRoot(), R.drawable.ic_user, "Thông tin tài khoản");
+//        setupMenuRow(binding.menuAddressBook.getRoot(), R.drawable.ic_bookmark, "Sổ địa chỉ");
+//        setupMenuRow(binding.menuPayment.getRoot(), R.drawable.ic_bag, "Thanh toán");
+//        setupMenuRow(binding.menuMyPoints.getRoot(), R.drawable.ic_rank, "Điểm của tôi");
+//        setupMenuRow(binding.menuWishlist.getRoot(), R.drawable.ic_heart, "Yêu thích");
+//        setupMenuRow(binding.menuRecentlyViewed.getRoot(), R.drawable.ic_history, "Đã xem gần đây");
+//        setupMenuRow(binding.menuSettings.getRoot(), R.drawable.ic_settings, "Cài đặt");
+//    }
 
     private void setupMenuRow(View root, int iconRes, String title) {
         ItemMenuMeBinding itemBinding = ItemMenuMeBinding.bind(root);
@@ -112,12 +112,12 @@ public class MeFragment extends Fragment {
             startActivity(intent);
         });
 
-        binding.btnLogout.setOnClickListener(v -> {
-            SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-            prefs.edit().clear().apply();
-            checkLoginStatus();
-            Toast.makeText(getContext(), "Đã đăng xuất", Toast.LENGTH_SHORT).show();
-        });
+//        binding.btnLogout.setOnClickListener(v -> {
+//            SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+//            prefs.edit().clear().apply();
+//            checkLoginStatus();
+//            Toast.makeText(getContext(), "Đã đăng xuất", Toast.LENGTH_SHORT).show();
+//        });
         
         // ... (other social buttons if needed)
     }

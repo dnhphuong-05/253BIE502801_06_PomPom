@@ -48,6 +48,8 @@ public class HomeFragment extends Fragment {
     private ViewPager2.OnPageChangeCallback bannerPageChangeCallback;
     private android.animation.ObjectAnimator progressAnimator;
     private android.os.CountDownTimer flashSaleTimer;
+    private android.animation.ValueAnimator marqueeAnimatorTop;
+    private android.animation.ValueAnimator marqueeAnimatorBottom;
 
     @Nullable
     @Override
@@ -69,7 +71,61 @@ public class HomeFragment extends Fragment {
         setupBestSellers();
         setupCommunityHighlights();
         setupFlashSale();
+        setupMarquee();
         android.util.Log.d("HomeFragment", "=== onViewCreated finished ===");
+    }
+
+    private void setupMarquee() {
+        binding.hsvMarqueeTop.setOnTouchListener((v, event) -> true);
+        binding.hsvMarqueeBottom.setOnTouchListener((v, event) -> true);
+
+        applyHollowStyle(binding.layoutMarqueeTop);
+        applyHollowStyle(binding.layoutMarqueeBottom);
+
+        binding.layoutMarqueeTop.post(() -> {
+            int totalWidth = binding.layoutMarqueeTop.getWidth();
+            int scrollRange = totalWidth / 2;
+            if (scrollRange <= 0) return;
+
+            marqueeAnimatorTop = android.animation.ValueAnimator.ofInt(scrollRange, 0); // Scroll Right
+            marqueeAnimatorTop.setDuration(15000);
+            marqueeAnimatorTop.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            marqueeAnimatorTop.setInterpolator(new android.view.animation.LinearInterpolator());
+            marqueeAnimatorTop.addUpdateListener(animation -> {
+                if (binding != null) {
+                    binding.hsvMarqueeTop.setScrollX((int) animation.getAnimatedValue());
+                }
+            });
+            marqueeAnimatorTop.start();
+        });
+
+        binding.layoutMarqueeBottom.post(() -> {
+            int totalWidth = binding.layoutMarqueeBottom.getWidth();
+            int scrollRange = totalWidth / 2;
+            if (scrollRange <= 0) return;
+
+            marqueeAnimatorBottom = android.animation.ValueAnimator.ofInt(0, scrollRange); // Scroll Left
+            marqueeAnimatorBottom.setDuration(15000);
+            marqueeAnimatorBottom.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            marqueeAnimatorBottom.setInterpolator(new android.view.animation.LinearInterpolator());
+            marqueeAnimatorBottom.addUpdateListener(animation -> {
+                if (binding != null) {
+                    binding.hsvMarqueeBottom.setScrollX((int) animation.getAnimatedValue());
+                }
+            });
+            marqueeAnimatorBottom.start();
+        });
+    }
+
+    private void applyHollowStyle(android.view.ViewGroup layout) {
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            android.view.View v = layout.getChildAt(i);
+            if (v instanceof android.widget.TextView && "hollow".equals(v.getTag())) {
+                android.widget.TextView tv = (android.widget.TextView) v;
+                tv.getPaint().setStyle(android.graphics.Paint.Style.STROKE);
+                tv.getPaint().setStrokeWidth(2f);
+            }
+        }
     }
 
     private void setupBanners() {
@@ -216,6 +272,12 @@ public class HomeFragment extends Fragment {
         }
         if (flashSaleTimer != null) {
             flashSaleTimer.cancel();
+        }
+        if (marqueeAnimatorTop != null) {
+            marqueeAnimatorTop.cancel();
+        }
+        if (marqueeAnimatorBottom != null) {
+            marqueeAnimatorBottom.cancel();
         }
         bannerHandler.removeCallbacksAndMessages(null);
         binding = null;

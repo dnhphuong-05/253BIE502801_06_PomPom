@@ -10,14 +10,15 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/md_theme_light_background"
+        android:background="@color/md_theme_light_primary"
+        android:fitsSystemWindows="true"
         app:elevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/md_theme_light_background"
+            android:background="@color/md_theme_light_primary"
             android:paddingBottom="8dp">
 
             <!-- Custom Top Bar (Fixed) -->
@@ -25,7 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
-                android:paddingTop="40dp"
+                android:paddingTop="16dp"
                 android:paddingBottom="8dp">
 
                 <ImageView
@@ -37,18 +38,20 @@
                     android:src="@drawable/ic_notification"
                     app:layout_constraintBottom_toBottomOf="@id/iv_logo"
                     app:layout_constraintTop_toTopOf="@id/iv_logo"
-                    app:tint="@color/brand_pink" />
+                    app:tint="@color/brand_background"/>
 
-                <ImageView
+                <TextView
                     android:id="@+id/iv_logo"
-                    android:layout_width="120dp"
-                    android:layout_height="48dp"
-                    android:contentDescription="@null"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/logo_pompom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:text="Pom Pom"
+                    android:textColor="@color/brand_background"
+                    android:textSize="26sp"
+                    android:fontFamily="@font/cinzel_bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"/>
 
                 <ImageView
                     android:id="@+id/iv_profile"
@@ -59,7 +62,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/iv_logo"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/iv_logo"
-                    app:tint="@color/brand_pink" />
+                    app:tint="@color/brand_background" />
 
                 <!-- Search Bar -->
                 <com.google.android.material.card.MaterialCardView
@@ -261,115 +264,69 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Best Sellers Section -->
+            <!-- Marquee Scrolling Text (Dual Row) -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:background="@drawable/bg_best_sellers_container"
+                android:layout_height="80dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_marquee_ribbon"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:paddingVertical="4dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <!-- Top Row (Scrolls Right) -->
+                <HorizontalScrollView
+                    android:id="@+id/hsvMarqueeTop"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:scrollbars="none"
+                    android:overScrollMode="never">
 
                     <LinearLayout
+                        android:id="@+id/layoutMarqueeTop"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:gravity="center_vertical"
-                        android:orientation="vertical"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        android:orientation="horizontal">
 
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/garamond_condensed_bold"
-                                android:text="SẢN PHẨM BÁN CHẠY"
-                                android:textColor="@color/brand_pink"
-                                android:textSize="18sp" />
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_marginStart="8dp"
-                                android:src="@drawable/ic_crown_gold" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_medium"
-                            android:text="✦ Best Sellers ✦"
-                            android:textColor="@color/brand_gold"
-                            android:textSize="14sp"
-                            android:layout_marginTop="-2dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="FLASH SALE" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" android:tag="hollow" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="POMPOM" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="FLASH SALE" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" android:tag="hollow" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="POMPOM" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="FLASH SALE" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" android:tag="hollow" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="POMPOM" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="FLASH SALE" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" android:tag="hollow" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="POMPOM" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" />
                     </LinearLayout>
+                </HorizontalScrollView>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_white_pill_button"
-                        android:fontFamily="@font/poppins_regular"
-                        android:gravity="top"
-                        android:text="Xem tất cả ›"
-                        android:textColor="@color/brand_pink"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.0" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvBestSellers"
+                <!-- Bottom Row (Scrolls Left) -->
+                <HorizontalScrollView
+                    android:id="@+id/hsvMarqueeBottom"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:clipToPadding="false"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:scrollbars="none"
+                    android:overScrollMode="never">
+
+                    <LinearLayout
+                        android:id="@+id/layoutMarqueeBottom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="FLASH SALE" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="POMPOM" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" android:tag="hollow" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="FLASH SALE" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="POMPOM" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" android:tag="hollow" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="FLASH SALE" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="POMPOM" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" android:tag="hollow" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="FLASH SALE" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="10dp" android:text="POMPOM" android:textColor="@color/brand_pink" android:textSize="18sp" android:fontFamily="@font/poppins_semibold" android:tag="hollow" />
+                    </LinearLayout>
+                </HorizontalScrollView>
             </LinearLayout>
-
-            <!-- Community Highlights Section -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/communityHighlightsHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/garamond_condensed_bold"
-                    android:text="Bài viết nổi bật"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="24sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvCommunityHighlights"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
             <!-- Flash Sale Section -->
             <LinearLayout
@@ -504,6 +461,117 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
+
+            <!-- Best Sellers Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:background="@drawable/bg_best_sellers_container"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/garamond_condensed_bold"
+                                android:text="SẢN PHẨM BÁN CHẠY"
+                                android:textColor="@color/brand_pink"
+                                android:textSize="18sp" />
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginStart="8dp"
+                                android:src="@drawable/ic_crown_gold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="✦ Best Sellers ✦"
+                            android:textColor="@color/brand_gold"
+                            android:textSize="14sp"
+                            android:layout_marginTop="-2dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_white_pill_button"
+                        android:fontFamily="@font/poppins_regular"
+                        android:gravity="top"
+                        android:text="Xem tất cả ›"
+                        android:textColor="@color/brand_pink"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvBestSellers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            </LinearLayout>
+
+            <!-- Community Highlights Section -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/communityHighlightsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/garamond_condensed_bold"
+                    android:text="Bài viết nổi bật"
+                    android:textColor="@color/brand_pink"
+                    android:textSize="24sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCommunityHighlights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

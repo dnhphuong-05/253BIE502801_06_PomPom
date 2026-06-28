@@ -87,8 +87,38 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (holder instanceof ProductViewHolder) {
             Product product = products.get(position);
             ProductViewHolder productHolder = (ProductViewHolder) holder;
+            
+            // Unify design: Ensure consistent width logic if needed, 
+            // but the XML 'match_parent' handles it when LayoutManager changes columns.
+
             productHolder.tvTitle.setText(product.getTitle());
             productHolder.tvPrice.setText(product.getPrice());
+
+            // Handle Discount Badge
+            if (productHolder.tvDiscountBadge != null) {
+                if (product.getDiscountPercent() > 0) {
+                    productHolder.tvDiscountBadge.setVisibility(View.VISIBLE);
+                    productHolder.tvDiscountBadge.setText(String.format(java.util.Locale.getDefault(), "%d%% OFF", product.getDiscountPercent()));
+                } else {
+                    productHolder.tvDiscountBadge.setVisibility(View.GONE);
+                }
+            }
+
+            // Handle Original Price
+            if (productHolder.tvOriginalPrice != null) {
+                if (product.getOriginalPrice() != null) {
+                    productHolder.tvOriginalPrice.setVisibility(View.VISIBLE);
+                    productHolder.tvOriginalPrice.setText(product.getOriginalPrice());
+                    productHolder.tvOriginalPrice.setPaintFlags(productHolder.tvOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                } else {
+                    productHolder.tvOriginalPrice.setVisibility(View.GONE);
+                }
+            }
+
+            // Handle Review Count
+            if (productHolder.tvReviewCount != null) {
+                productHolder.tvReviewCount.setText(String.format(java.util.Locale.getDefault(), "%d reviews", product.getReviewCount()));
+            }
 
             Glide.with(holder.itemView.getContext())
                     .load(product.getImageUrl())
@@ -100,6 +130,13 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 intent.putExtra("product_id", product.getId());
                 v.getContext().startActivity(intent);
             });
+
+            if (productHolder.btnAddToCart != null) {
+                productHolder.btnAddToCart.setOnClickListener(v -> {
+                    // Placeholder for add to cart logic
+                    android.widget.Toast.makeText(v.getContext(), "Added " + product.getTitle() + " to bag", android.widget.Toast.LENGTH_SHORT).show();
+                });
+            }
         }
     }
 
@@ -110,13 +147,18 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
-        TextView tvTitle, tvPrice;
+        TextView tvTitle, tvPrice, tvOriginalPrice, tvDiscountBadge, tvReviewCount;
+        View btnAddToCart;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             ivImage = itemView.findViewById(R.id.ivProductImage);
             tvTitle = itemView.findViewById(R.id.tvProductTitle);
             tvPrice = itemView.findViewById(R.id.tvProductPrice);
+            tvOriginalPrice = itemView.findViewById(R.id.tvOriginalPrice);
+            tvDiscountBadge = itemView.findViewById(R.id.tvDiscountBadge);
+            tvReviewCount = itemView.findViewById(R.id.tvReviewCount);
+            btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
         }
     }
 

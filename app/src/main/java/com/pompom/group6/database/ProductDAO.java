@@ -21,21 +21,31 @@ public class ProductDAO {
     }
 
     public List<Product> getAllProducts() {
-        return getProductsByQuery("SELECT * FROM products WHERE is_active = 1", null);
+        String query = "SELECT p.*, " +
+                "(SELECT AVG(rating) FROM product_reviews pr WHERE pr.product_id = p.product_id) as avg_rating, " +
+                "(SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.product_id) as review_count " +
+                "FROM products p WHERE p.is_active = 1";
+        return getProductsByQuery(query, null);
     }
 
     public List<Product> getBestSellers(int limit) {
-        String query = "SELECT p.*, SUM(oi.quantity) as total_sold " +
-                      "FROM products p " +
-                      "LEFT JOIN order_items oi ON p.product_id = oi.product_id " +
-                      "WHERE p.is_active = 1 " +
-                      "GROUP BY p.product_id " +
-                      "ORDER BY total_sold DESC LIMIT ?";
+        String query = "SELECT p.*, " +
+                "(SELECT AVG(rating) FROM product_reviews pr WHERE pr.product_id = p.product_id) as avg_rating, " +
+                "(SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.product_id) as review_count, " +
+                "SUM(oi.quantity) as total_sold " +
+                "FROM products p " +
+                "LEFT JOIN order_items oi ON p.product_id = oi.product_id " +
+                "WHERE p.is_active = 1 " +
+                "GROUP BY p.product_id " +
+                "ORDER BY total_sold DESC LIMIT ?";
         return getProductsByQuery(query, new String[]{String.valueOf(limit)});
     }
 
     public List<Product> getProductsPaginated(int limit, int offset) {
-        String query = "SELECT * FROM products WHERE is_active = 1 LIMIT ? OFFSET ?";
+        String query = "SELECT p.*, " +
+                "(SELECT AVG(rating) FROM product_reviews pr WHERE pr.product_id = p.product_id) as avg_rating, " +
+                "(SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.product_id) as review_count " +
+                "FROM products p WHERE p.is_active = 1 LIMIT ? OFFSET ?";
         return getProductsByQuery(query, new String[]{String.valueOf(limit), String.valueOf(offset)});
     }
 
@@ -211,18 +221,32 @@ public class ProductDAO {
                 do {
                     int id = cursor.getInt(cursor.getColumnIndexOrThrow("product_id"));
                     String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
-                    
-                    // Handle potential double or string price
-                    String priceStr;
-                    int priceIdx = cursor.getColumnIndex("price");
-                    try {
-                        double priceVal = cursor.getDouble(priceIdx);
-                        priceStr = String.format("%.0fđ", priceVal);
-                    } catch (Exception e) {
-                        priceStr = cursor.getString(priceIdx);
+                    double priceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("price"));
+                    double salePriceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("sale_price"));
+
+                    // Logic from getProductById to handle sale price correctly
+                    String priceStr = String.format(java.util.Locale.getDefault(), "%.0fđ",
+                            (salePriceVal > 0 && salePriceVal < priceVal) ? salePriceVal : priceVal);
+                    String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal) ?
+                            String.format(java.util.Locale.getDefault(), "%.0fđ", priceVal) : null;
+
+                    Product product = new Product(id, name, priceStr, originalPriceStr);
+
+                    // Add rating and review count if available in cursor
+                    int ratingIdx = cursor.getColumnIndex("avg_rating");
+                    if (ratingIdx != -1) {
+                        product.setRating(cursor.getFloat(ratingIdx));
+                    }
+                    int reviewCountIdx = cursor.getColumnIndex("review_count");
+                    if (reviewCountIdx != -1) {
+                        product.setReviewCount(cursor.getInt(reviewCountIdx));
                     }
 
-                    Product product = new Product(id, name, priceStr, null);
+                    // Calculate discount percent
+                    if (salePriceVal > 0 && salePriceVal < priceVal) {
+                        int discount = (int) ((1 - (salePriceVal / priceVal)) * 100);
+                        product.setDiscountPercent(discount);
+                    }
                     
                     // Fetch first image from product_images
                     try (Cursor imgCursor = db.query("product_images", new String[]{"image_url"},

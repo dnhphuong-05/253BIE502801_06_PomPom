@@ -2,8 +2,11 @@ package com.pompom.group6;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 import com.pompom.group6.activities.AiChatActivity;
 import android.content.Intent;
 import android.view.View;
@@ -12,6 +15,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -31,22 +39,41 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Edge-to-edge: Transparent status bar, matching nav bar color with bottom nav
-        int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-        
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        // Modern Edge-to-Edge: Content flows behind status and navigation bars
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        // Make navigation bar truly transparent to allow app background to show through
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+
+        // Disable system-enforced contrast to keep the bar truly transparent (Android 10+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setNavigationBarContrastEnforced(false);
         }
-        
-        getWindow().getDecorView().setSystemUiVisibility(flags);
-        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
-        // Make the navigation bar transparent to match the bottom nav container
-        getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Handle navigation bar insets for bottom nav
+        // We apply padding to the inner LinearLayout so the background of the ConstraintLayout (parent)
+        // can bleed into the system navigation bar area.
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavContainer, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            if (v instanceof ViewGroup && ((ViewGroup) v).getChildCount() > 0) {
+                View innerLayout = ((ViewGroup) v).getChildAt(0);
+                // Simple bottom padding to lift icons above the system navigation bar
+                innerLayout.setPadding(0, innerLayout.getPaddingTop(),
+                        0, systemBars.bottom);
+            }
+            return insets;
+        });
+
+        // Handle status bar insets if needed for other components
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Root padding should not be applied if we want full screen, 
+            // but we can pass it down if needed.
+            return insets;
+        });
 
         setupViewPager();
         setupNavigation();
@@ -140,6 +167,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateNavUI(int index) {
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        
+        if (controller != null) {
+            // Dynamic Status Bar Icon Color based on Fragment background
+            if (index == 0 || index == 1 || index == 4) { // Home (0), Shop (1) or Me (4) have pink headers
+                // Pink background -> White icons (disable light status bar)
+                controller.setAppearanceLightStatusBars(false);
+            } else {
+                // White background -> Dark icons
+                controller.setAppearanceLightStatusBars(true);
+            }
+            
+            // Always keep light navigation bar as bottom nav is light-colored
+            controller.setAppearanceLightNavigationBars(true);
+        }
+
         selectTab(binding.navHome, binding.ivHome, binding.tvHome,
                 index == 0 ? R.drawable.ic_home_pink : R.drawable.ic_home_border, index == 0);
         selectTab(binding.navShop, binding.ivShop, binding.tvShop,

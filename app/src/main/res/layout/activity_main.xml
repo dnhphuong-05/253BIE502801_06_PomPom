@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:background="@color/md_theme_light_onPrimary">
+    android:background="@color/md_theme_light_background">
 
     <!-- Fragment Container with ViewPager2 for swiping -->
     <androidx.viewpager2.widget.ViewPager2
@@ -20,7 +20,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_nav_container"
         android:layout_width="match_parent"
-        android:layout_height="90dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:elevation="16dp"
@@ -35,6 +35,9 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             android:orientation="horizontal"
+            android:gravity="top"
+            android:paddingTop="10dp"
+            android:paddingBottom="24dp"
             android:weightSum="5">
 
             <!-- 1. Home -->
