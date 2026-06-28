@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <!-- AI Avatar Background -->
+    <ImageView
+        android:id="@+id/iv_ai_avatar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/spalsh2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/v_avatar_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#60000000"
+        android:alpha="0.4"/>
+
+    <!-- Top Bar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_left_chevron"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="AI Dermatologist"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Bác sĩ da liễu AI"
+                android:textColor="#E0E0E0"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_white_pill_button"
+                android:backgroundTint="#20FFFFFF"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp">
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_circle_white"
+                    android:backgroundTint="#4CAF50" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Đang trực tuyến"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_dialog_info"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- AI Dialogue Bubble -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_dialogue"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="32dp"
+        app:cardBackgroundColor="#CC000000"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@id/call_controls"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_ai_speech"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Xin chào Linh! 👋\nTôi là bác sĩ da liễu AI của bạn. Bạn muốn tôi kiểm tra tình trạng da cho bạn chứ?"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Call Controls -->
+    <LinearLayout
+        android:id="@+id/call_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/bottom_panel">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_toggle_mic"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardBackgroundColor="#40FFFFFF"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp">
+                <ImageView
+                    android:id="@+id/iv_mic_status"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/stat_notify_call_mute"
+                    app:tint="@color/white"/>
+            </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/tv_mic_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Tắt mic"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="40dp"
+            android:gravity="center"
+            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_end_call"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:cardBackgroundColor="#FF5252"
+                app:cardCornerRadius="40dp"
+                app:cardElevation="8dp">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    app:tint="@color/white"/>
+            </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Kết thúc"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_toggle_camera"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardBackgroundColor="#40FFFFFF"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp">
+                <ImageView
+                    android:id="@+id/iv_camera_status"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_menu_camera"
+                    app:tint="@color/white"/>
+            </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/tv_camera_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Camera"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom Panel (User Preview + Analysis) -->
+    <LinearLayout
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_product_content"
+        android:backgroundTint="#F5F5F5"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- User Preview -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="120dp"
+            android:layout_height="160dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp">
+            <androidx.camera.view.PreviewView
+                android:id="@+id/camera_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:text="Bạn"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium"
+                android:shadowColor="@color/black"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Analysis Results -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Phân tích da trực tiếp"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_analysis_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Đang phân tích..."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <Space android:layout_width="match_parent" android:layout_height="8dp"/>
+
+            <!-- Progress Bars -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="4dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Độ dầu" android:textSize="11sp" android:textColor="@color/text_primary"/>
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/pb_oil" android:layout_width="0dp" android:layout_weight="1" android:layout_height="4dp" android:progress="85" android:progressTint="#FF5252" android:layout_marginHorizontal="8dp"/>
+                <TextView android:id="@+id/tvOilVal" android:layout_width="32dp" android:layout_height="wrap_content" android:text="85%" android:textSize="11sp" android:textColor="@color/text_secondary"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="4dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Mụn" android:textSize="11sp" android:textColor="@color/text_primary"/>
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/pb_acne" android:layout_width="0dp" android:layout_weight="1" android:layout_height="4dp" android:progress="62" android:progressTint="#FF5252" android:layout_marginHorizontal="8dp"/>
+                <TextView android:id="@+id/tvAcneVal" android:layout_width="32dp" android:layout_height="wrap_content" android:text="62%" android:textSize="11sp" android:textColor="@color/text_secondary"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="4dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Lỗ chân lông" android:textSize="11sp" android:textColor="@color/text_primary"/>
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/pb_pores" android:layout_width="0dp" android:layout_weight="1" android:layout_height="4dp" android:progress="72" android:progressTint="#FF5252" android:layout_marginHorizontal="8dp"/>
+                <TextView android:id="@+id/tvPoresVal" android:layout_width="32dp" android:layout_height="wrap_content" android:text="72%" android:textSize="11sp" android:textColor="@color/text_secondary"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="4dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Nếp nhăn" android:textSize="11sp" android:textColor="@color/text_primary"/>
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/pb_wrinkles" android:layout_width="0dp" android:layout_weight="1" android:layout_height="4dp" android:progress="30" android:progressTint="#FF5252" android:layout_marginHorizontal="8dp"/>
+                <TextView android:id="@+id/tvWrinklesVal" android:layout_width="32dp" android:layout_height="wrap_content" android:text="30%" android:textSize="11sp" android:textColor="@color/text_secondary"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="4dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Độ đều màu" android:textSize="11sp" android:textColor="@color/text_primary"/>
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/pb_tone" android:layout_width="0dp" android:layout_weight="1" android:layout_height="4dp" android:progress="66" android:progressTint="#FF5252" android:layout_marginHorizontal="8dp"/>
+                <TextView android:id="@+id/tvToneVal" android:layout_width="32dp" android:layout_height="wrap_content" android:text="66%" android:textSize="11sp" android:textColor="@color/text_secondary"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

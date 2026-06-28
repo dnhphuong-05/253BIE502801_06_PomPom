@@ -76,7 +76,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.d(TAG, "onCreate called. Initializing database schema.");
-        executeSqlScript(db, "pompom.sql");
+        db.beginTransaction();
+        try {
+            executeSqlScript(db, "pompom.sql");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void executeSqlScript(SQLiteDatabase db, String scriptName) {
@@ -87,23 +93,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String line;
             int statementCount = 0;
             while ((line = reader.readLine()) != null) {
-                String trimmedLine = line.trim();
-                if (trimmedLine.isEmpty() || trimmedLine.startsWith("--") || trimmedLine.startsWith("/*")) {
+                // Strip single-line comments (--) 
+                // DO NOT strip // as it breaks https:// URLs
+                String cleanLine = line;
+                int dashComment = line.indexOf("--");
+                if (dashComment != -1) cleanLine = line.substring(0, dashComment);
+                
+                String trimmedLine = cleanLine.trim();
+                if (trimmedLine.isEmpty()) {
+                    continue;
+                }
+
+                // Skip transaction markers from the file as we wrap the whole script in a transaction
+                if (trimmedLine.toUpperCase().startsWith("BEGIN TRANSACTION") || 
+                    trimmedLine.toUpperCase().startsWith("COMMIT")) {
                     continue;
                 }
                 
-                currentStatement.append(line);
+                currentStatement.append(trimmedLine).append(" ");
                 if (trimmedLine.endsWith(";")) {
                     String sql = currentStatement.toString().trim();
                     if (!sql.isEmpty()) {
                         try {
                             db.execSQL(sql);
                             statementCount++;
-                            if (sql.contains("banners") || sql.contains("INSERT INTO banners")) {
-                                Log.d(TAG, "Executed: " + sql.substring(0, Math.min(100, sql.length())));
-                            }
                         } catch (Exception e) {
-                            Log.e(TAG, "SQL execution failed: " + sql.substring(0, Math.min(100, sql.length())), e);
+                            Log.e(TAG, "SQL execution failed: " + sql, e);
                         }
                     }
                     currentStatement = new StringBuilder();
@@ -133,19 +148,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Handle upgrade if needed
+        Log.d(TAG, "onUpgrade called. Resetting database schema.");
+        // Drop all tables
+        Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name!='android_metadata'", null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String tableName = cursor.getString(0);
+                if (!tableName.startsWith("sqlite_")) {
+                    db.execSQL("DROP TABLE IF EXISTS " + tableName);
+                }
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        onCreate(db);
     }
 
     public void resetDatabaseForDebug(Context context) {
         Log.d(TAG, "Resetting database for debug purposes...");
-        try {
-            SQLiteDatabase.deleteDatabase(new java.io.File(dbPath));
-            Log.d(TAG, "Database file deleted. Will reinitialize on next access.");
-            // Force reinitialization
-            initializeDatabase();
-        } catch (Exception e) {
-            Log.e(TAG, "Error resetting database: " + e.getMessage());
-        }
+        context.deleteDatabase(Constants.DATABASE_NAME);
+        Log.d(TAG, "Database file deleted via context. Will reinitialize on next access.");
+        // Re-initialize logic
+        SQLiteDatabase db = getWritableDatabase();
+        onCreate(db);
+        db.close();
     }
 
     public void printDatabaseLocation() {

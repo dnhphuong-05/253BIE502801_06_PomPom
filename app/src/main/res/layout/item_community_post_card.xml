@@ -72,7 +72,7 @@
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:src="@drawable/ic_heart_pink"
+                    android:src="@drawable/ic_heart"
                     app:tint="@color/white" />
 
                 <TextView
@@ -93,7 +93,7 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_marginStart="12dp"
-                    android:src="@android:drawable/stat_notify_chat"
+                    android:src="@drawable/ic_comment"
                     app:tint="@color/white" />
 
                 <TextView

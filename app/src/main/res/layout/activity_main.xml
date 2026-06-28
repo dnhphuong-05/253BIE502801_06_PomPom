@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:background="@color/md_theme_light_onPrimary">
+    android:background="@color/md_theme_light_background">
 
     <!-- Fragment Container with ViewPager2 for swiping -->
     <androidx.viewpager2.widget.ViewPager2
@@ -20,7 +20,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_nav_container"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:elevation="16dp"
@@ -35,6 +35,9 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             android:orientation="horizontal"
+            android:gravity="top"
+            android:paddingTop="10dp"
+            android:paddingBottom="24dp"
             android:weightSum="5">
 
             <!-- 1. Home -->
@@ -46,11 +49,10 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/iv_home"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/nav_home"
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_home_border" />
@@ -75,11 +77,10 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/iv_shop"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/nav_shop"
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_shop_border" />
@@ -104,12 +105,10 @@
                 android:clipChildren="false"
                 android:clipToPadding="false">
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/btn_ai"
-                    android:layout_width="105dp"
-                    android:layout_height="105dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_width="95dp"
+                    android:layout_height="95dp"
                     android:contentDescription="@string/nav_ai"
                     android:layout_gravity="center"
                     android:elevation="6dp"
@@ -126,11 +125,10 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/iv_community"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/nav_community"
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_community_border" />
@@ -155,11 +153,10 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/iv_me"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/nav_me"
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_me_border" />
@@ -178,5 +175,20 @@
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Floating Mascot -->
+    <ImageView
+        android:id="@+id/iv_floating_mascot"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/mascot_pompom"
+        android:elevation="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/mascot_description"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

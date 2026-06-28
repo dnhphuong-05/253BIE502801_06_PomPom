@@ -89,10 +89,6 @@ public class PostDetailActivity extends AppCompatActivity {
         binding.btnFollow.setOnClickListener(v -> {
             Toast.makeText(this, "Đã theo dõi người dùng", Toast.LENGTH_SHORT).show();
         });
-
-        binding.btnMore.setOnClickListener(v -> {
-            Toast.makeText(this, "Thêm tùy chọn", Toast.LENGTH_SHORT).show();
-        });
     }
 
     private void loadPostData() {

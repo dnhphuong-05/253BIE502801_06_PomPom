@@ -43,4 +43,21 @@
     <string name="view_all">Xem tất cả ></string>
     <string name="knight_unicorn_collection">Knight Unicorn Collection</string>
     <string name="label_new">New</string>
+    <string name="mascot_description">Mascot PomPom</string>
+    <string name="ai_client_advisor">AI Client Advisor</string>
+    <string name="ai_dermatologist">AI Dermatologist</string>
+    <string name="ai_dermatologist_title">Bác sĩ da liễu AI</string>
+    <string name="ai_dermatologist_desc">Phân tích da chuyên sâu và tư vấn chăm sóc da phù hợp với bạn</string>
+    <string name="ai_makeup_artist">AI Makeup Artist</string>
+    <string name="ai_makeup_artist_title">Chuyên gia trang điểm AI</string>
+    <string name="ai_makeup_artist_desc">Tư vấn phong cách makeup và thử makeup ảo trực tiếp qua video call</string>
+    <string name="ai_client_advisor_title">Trợ lý mua sắm AI</string>
+    <string name="ai_client_advisor_desc">Tư vấn sản phẩm phù hợp và gợi ý theo nhu cầu của bạn</string>
+    <string name="call_now">Gọi ngay</string>
+    <string name="chat_now">Chat ngay</string>
+    <string name="other_features">Tính năng khác</string>
+    <string name="history">Lịch sử</string>
+    <string name="saved_results">Kết quả đã lưu</string>
+    <string name="beauty_report">Beauty Report</string>
+    <string name="ai_settings">Cài đặt AI</string>
 </resources>

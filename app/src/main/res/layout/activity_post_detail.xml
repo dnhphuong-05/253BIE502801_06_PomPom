@@ -23,7 +23,7 @@
                     android:id="@+id/btnBack"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_revert"
+                    android:src="@drawable/ic_left_chevron"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -40,18 +40,6 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:id="@+id/btnMore"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@android:drawable/ic_menu_more"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/text_primary" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -227,7 +215,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_heart_pink" />
+                            android:src="@drawable/ic_heart"
+                            android:gravity="center"/>
 
                         <TextView
                             android:id="@+id/tvLikeCount"
@@ -254,7 +243,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@android:drawable/stat_notify_chat"
+                            android:src="@drawable/ic_comment"
                             app:tint="@color/text_secondary" />
 
                         <TextView
@@ -273,7 +262,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_marginStart="24dp"
-                        android:src="@android:drawable/ic_menu_share"
+                        android:src="@drawable/ic_share"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@id/layoutComments"
                         app:layout_constraintTop_toTopOf="parent"
@@ -281,9 +270,9 @@
 
                     <ImageView
                         android:id="@+id/btnBookmark"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@android:drawable/btn_star_big_off"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_save"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -345,16 +334,30 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_regular"
-                        android:text="Mới nhất ▾"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:orientation="horizontal"
+                        android:layout_marginStart="300dp"
+                        android:gravity="center_vertical"
+                        android:padding="5dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Mới nhất"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                        <ImageView
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:src="@drawable/ic_arrow"
+                            android:gravity="center"
+                            android:layout_marginStart="5dp"/>
+                    </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -383,31 +386,53 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <EditText
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_white_pill_button"
-            android:backgroundTint="#F8F8F8"
-            android:fontFamily="@font/poppins_regular"
-            android:hint="Viết bình luận..."
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="14sp" />
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            app:cardBackgroundColor="#0A000000"
+            app:cardCornerRadius="64dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/pink_brand"
+            app:strokeWidth="1dp">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="12dp"
-            android:src="@android:drawable/ic_menu_gallery"
-            app:tint="@color/text_secondary" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="12dp"
-            android:src="@android:drawable/ic_input_add"
-            app:tint="@color/text_secondary" />
+                <EditText
+                    android:id="@+id/etComment"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_white_pill_button"
+                    android:backgroundTint="#F8F8F8"
+                    android:fontFamily="@font/poppins_regular"
+                    android:hint="Viết bình luận..."
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/ic_images"
+                    app:tint="@color/text_secondary" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/ic_emoji"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
 
     </LinearLayout>
 

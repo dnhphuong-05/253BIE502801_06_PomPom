@@ -8,72 +8,65 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/md_theme_light_background"
+        android:background="@color/md_theme_light_primary"
+        android:fitsSystemWindows="true"
         app:elevation="0dp">
 
         <!-- Top Bar -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:layout_marginTop="25dp">
-
-            <ImageView
-                android:id="@+id/ivMenu"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_launcher_foreground"
-                app:layout_constraintBottom_toBottomOf="@id/ivLogo"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/ivLogo"
-                app:tint="@color/brand_pink" />
-
-            <ImageView
-                android:id="@+id/ivLogo"
-                android:layout_width="120dp"
-                android:layout_height="48dp"
-                android:contentDescription="@null"
-                android:scaleType="fitCenter"
-                android:src="@drawable/logo_pompom"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/ivSearch"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="@null"
-                android:src="@android:drawable/ic_menu_search"
-                app:layout_constraintBottom_toBottomOf="@id/ivLogo"
-                app:layout_constraintEnd_toStartOf="@id/ivProfile"
-                app:layout_constraintTop_toTopOf="@id/ivLogo"
-                app:tint="@color/brand_pink" />
-
-            <ImageView
-                android:id="@+id/ivProfile"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_me_border"
-                app:layout_constraintBottom_toBottomOf="@id/ivLogo"
-                app:layout_constraintEnd_toStartOf="@id/ivCart"
-                app:layout_constraintTop_toTopOf="@id/ivLogo"
-                app:tint="@color/brand_pink" />
+            android:paddingHorizontal="8dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:background="@color/md_theme_light_primary">
 
             <ImageView
                 android:id="@+id/ivCart"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:contentDescription="@null"
-                android:src="@android:drawable/ic_input_add"
-                app:layout_constraintBottom_toBottomOf="@id/ivLogo"
+                android:src="@drawable/ic_bag2"
+                app:layout_constraintBottom_toBottomOf="@id/tvLogo"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvLogo"
+                app:tint="@color/brand_background"/>
+
+            <TextView
+                android:id="@+id/tvLogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="10dp"
+                android:text="Pom Pom"
+                android:textColor="@color/brand_background"
+                android:textSize="26sp"
+                android:fontFamily="@font/cinzel_bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/ivLogo"
-                app:tint="@color/brand_pink" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ImageView
+                android:id="@+id/ivSearch"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_search"
+                app:layout_constraintBottom_toBottomOf="@id/tvLogo"
+                app:layout_constraintEnd_toStartOf="@id/ivProfile"
+                app:layout_constraintTop_toTopOf="@id/tvLogo"
+                app:tint="@color/brand_background" />
+
+            <ImageView
+                android:id="@+id/ivProfile"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_user2"
+                app:layout_constraintBottom_toBottomOf="@id/tvLogo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvLogo"
+                app:tint="@color/brand_background" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -107,7 +100,8 @@
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:background="@color/md_theme_light_background">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -142,14 +136,71 @@
                 android:layout_marginTop="8dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-            <!-- Products -->
+            <!-- Filter and Layout Toggle Bar -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp">
 
+                <LinearLayout
+                    android:id="@+id/layoutFilter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_filter"
+                        app:tint="@color/brand_pink" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Lọc"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/ivRow1"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_row1"
+                        android:contentDescription="1 Column" />
+
+                    <ImageView
+                        android:id="@+id/ivRow2"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="16dp"
+                        android:src="@drawable/ic_row2_pink"
+                        android:contentDescription="2 Columns" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Products -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvProducts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:layout_marginTop="8dp"/>
+                android:paddingHorizontal="8dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

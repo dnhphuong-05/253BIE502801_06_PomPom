@@ -30,15 +30,21 @@ public class ProductImageAdapter extends RecyclerView.Adapter<ProductImageAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        Glide.with(holder.itemView.getContext())
-                .load(images.get(position))
-                .placeholder(R.drawable.logo_pompom)
-                .into(holder.ivProduct);
+        String imageUrl = images.get(position);
+        if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(imageUrl.trim())
+                    .placeholder(R.drawable.logo_pompom)
+                    .error(R.drawable.logo_pompom)
+                    .into(holder.ivProduct);
+        } else {
+            holder.ivProduct.setImageResource(R.drawable.logo_pompom);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return images.size();
+        return images != null ? images.size() : 0;
     }
 
     static class ImageViewHolder extends RecyclerView.ViewHolder {

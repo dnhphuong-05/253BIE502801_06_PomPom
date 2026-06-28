@@ -63,7 +63,9 @@
     <color name="white">#FFFFFF</color>
     <color name="pink_light">#FAD6D7</color>
     <color name="pink_brand">#E8989A</color>
+    <color name="pink_button">#ff6080</color>
     <color name="text_grey">#6D5A5D</color>
     <color name="text_dark">#3B2E31</color>
+    <color name="black">#000000</color>
 
 </resources>

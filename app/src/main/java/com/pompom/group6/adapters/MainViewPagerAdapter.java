@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.pompom.group6.fragments.AiHubFragment;
 import com.pompom.group6.fragments.CommunityFragment;
 import com.pompom.group6.fragments.HomeFragment;
 import com.pompom.group6.fragments.MeFragment;
@@ -20,6 +21,7 @@ public class MainViewPagerAdapter extends FragmentStateAdapter {
         super(fragmentActivity);
         fragments.add(new HomeFragment());
         fragments.add(new ShopFragment());
+        fragments.add(new AiHubFragment());
         fragments.add(new CommunityFragment());
         fragments.add(new MeFragment());
     }

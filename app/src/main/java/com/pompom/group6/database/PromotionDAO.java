@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.pompom.group6.models.PromotionProduct;
+import com.pompom.group6.models.Voucher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,5 +103,37 @@ public class PromotionDAO {
             messages.add("Tặng ngay túi Rosy Pouch cho đơn hàng từ 1.000.000đ");
         }
         return messages;
+    }
+
+    public List<Voucher> getAllVouchers() {
+        List<Voucher> vouchers = new ArrayList<>();
+        SQLiteDatabase db;
+        try {
+            db = dbHelper.getReadableDatabase();
+        } catch (Exception e) {
+            Log.e(TAG, "Error opening database in getAllVouchers", e);
+            return vouchers;
+        }
+        String query = "SELECT * FROM vouchers WHERE is_active = 1";
+        try (Cursor cursor = db.rawQuery(query, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    Voucher voucher = new Voucher(
+                            cursor.getInt(cursor.getColumnIndexOrThrow("voucher_id")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("code")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("discount_type")),
+                            cursor.getDouble(cursor.getColumnIndexOrThrow("discount_value")),
+                            cursor.getDouble(cursor.getColumnIndexOrThrow("min_order_amount")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("end_date")),
+                            cursor.getInt(cursor.getColumnIndexOrThrow("usage_limit")) - cursor.getInt(cursor.getColumnIndexOrThrow("used_count"))
+                    );
+                    vouchers.add(voucher);
+                } while (cursor.moveToNext());
+            }
+            Log.d(TAG, "Loaded " + vouchers.size() + " vouchers");
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching vouchers: " + e.getMessage());
+        }
+        return vouchers;
     }
 }

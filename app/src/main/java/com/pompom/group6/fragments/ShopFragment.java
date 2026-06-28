@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.pompom.group6.R;
 import com.pompom.group6.adapters.CategoryAdapter;
 import com.pompom.group6.adapters.ProductAdapter;
 import com.pompom.group6.database.CategoryDAO;
@@ -58,9 +59,42 @@ public class ShopFragment extends Fragment {
         setupMarquee();
         setupCategories();
         setupProducts();
+        setupGridToggle();
         setupPagination();
         
         loadInitialData();
+    }
+
+    private void setupGridToggle() {
+        binding.ivRow1.setOnClickListener(v -> {
+            binding.ivRow1.setImageResource(R.drawable.ic_row1_pink);
+            binding.ivRow2.setImageResource(R.drawable.ic_row2);
+            
+            // Set to 1 column
+            androidx.recyclerview.widget.GridLayoutManager layoutManager = new androidx.recyclerview.widget.GridLayoutManager(requireContext(), 1);
+            binding.rvProducts.setLayoutManager(layoutManager);
+            // Ensure horizontal mode is OFF so it uses the vertical card (item_product)
+            productAdapter.setHorizontal(false);
+            productAdapter.notifyDataSetChanged();
+        });
+
+        binding.ivRow2.setOnClickListener(v -> {
+            binding.ivRow1.setImageResource(R.drawable.ic_row1);
+            binding.ivRow2.setImageResource(R.drawable.ic_row2_pink);
+            
+            // Set to 2 columns
+            androidx.recyclerview.widget.GridLayoutManager layoutManager = new androidx.recyclerview.widget.GridLayoutManager(requireContext(), 2);
+            layoutManager.setSpanSizeLookup(new androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    return productAdapter.getItemViewType(position) == 1 ? 2 : 1;
+                }
+            });
+            binding.rvProducts.setLayoutManager(layoutManager);
+            // Ensure horizontal mode is OFF so it uses the vertical card (item_product) for both columns
+            productAdapter.setHorizontal(false);
+            productAdapter.notifyDataSetChanged();
+        });
     }
 
     private void setupMarquee() {

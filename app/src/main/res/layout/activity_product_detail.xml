@@ -39,14 +39,14 @@
                     app:tabMinWidth="8dp"
                     app:tabPaddingEnd="4dp"
                     app:tabPaddingStart="4dp"
-                    app:tabRippleColor="@null" />
+                    app:tabRippleColor="@android:color/transparent" />
             </FrameLayout>
 
             <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="56dp"
                 app:layout_collapseMode="pin"
-                android:layout_marginTop="25dp">
+                android:layout_marginTop="32dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -63,12 +63,11 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_gravity="center"
-                            android:src="@android:drawable/ic_menu_revert"
-                            android:rotation="0"
+                            android:src="@drawable/ic_left_chevron"
                             app:tint="@color/text_primary" />
                     </com.google.android.material.card.MaterialCardView>
 
@@ -88,7 +87,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:layout_gravity="center"
-                            android:src="@android:drawable/ic_menu_share"
+                            android:src="@drawable/ic_share"
                             app:tint="@color/text_primary" />
                     </com.google.android.material.card.MaterialCardView>
 
@@ -108,7 +107,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/ic_heart_pink" />
+                            android:src="@drawable/ic_heart" />
                     </com.google.android.material.card.MaterialCardView>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -120,7 +119,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="-40dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/bg_product_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -128,16 +127,64 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvProductId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_label_pink"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:text="Mã SP: #PRD00125"
+                    android:textColor="@color/brand_pink"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_medium"/>
+
+                <TextView
+                    android:id="@+id/tvStockStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:background="#E8F5E9"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:text="Còn hàng"
+                    android:textColor="#2E7D32"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_medium"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvProductName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:fontFamily="@font/garamond_condensed_bold"
                 android:text="Knight Unicorn Blush"
                 android:textColor="@color/text_primary"
                 android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/tvProductMeta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Má hồng • Pom Pom Beauty"
+                android:textColor="#9E9E9E"
+                android:textSize="14sp" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -169,19 +216,184 @@
                     app:layout_constraintStart_toEndOf="@id/ratingBar"
                     app:layout_constraintTop_toTopOf="parent" />
 
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/tvProductDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/poppins_regular"
+                android:lineSpacingExtra="6dp"
+                android:text="Phấn má hồng với sắc hồng nhẹ nhàng, lên màu tự nhiên, giúp gương mặt tươi tắn và rạng rỡ cả ngày dài."
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
                 <TextView
                     android:id="@+id/tvProductPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
+                    android:fontFamily="@font/poppins_semibold"
                     android:text="799.000đ"
                     android:textColor="@color/brand_pink"
-                    android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:textSize="28sp" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/tvOriginalPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="1.100.000đ"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvDiscountBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_label_pink"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:text="-27%"
+                    android:textColor="@color/brand_pink"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_semibold"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvStockCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="Tồn kho: 45 sản phẩm"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="12dp"
+                    android:background="#E0E0E0" />
+
+                <TextView
+                    android:id="@+id/tvProductSKU"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="SKU: POMPOM-BLUSH-01"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:cardBackgroundColor="#FAFAFA"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#F0F0F0"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:gravity="center_vertical">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_tag_pink"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Danh mục"
+                                android:textSize="10sp"
+                                android:textColor="#9E9E9E"/>
+                            <TextView
+                                android:id="@+id/tvCategoryName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Trang điểm / Má hồng"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/poppins_medium"
+                                android:textColor="@color/text_primary"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:cardBackgroundColor="#FAFAFA"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#F0F0F0"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:gravity="center_vertical">
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/favicon_pompom"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Thương hiệu"
+                                android:textSize="10sp"
+                                android:textColor="#9E9E9E"/>
+                            <TextView
+                                android:id="@+id/tvBrandName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pom Pom Beauty"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/poppins_medium"
+                                android:textColor="@color/text_primary"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -237,8 +449,6 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_white_pill_button"
-                    android:backgroundTint="#FDF8F8"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="4dp"
@@ -251,33 +461,31 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp">
+                        app:cardCornerRadius="16dp">
                         <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
                             android:layout_gravity="center"
-                            android:src="@android:drawable/ic_delete"
+                            android:src="@drawable/ic_minus"
                             app:tint="#757575" />
                     </com.google.android.material.card.MaterialCardView>
 
                     <TextView
                         android:id="@+id/tvQuantity"
-                        android:layout_width="48dp"
+                        android:layout_width="40dp"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_semibold"
                         android:gravity="center"
                         android:text="1"
                         android:textColor="@color/text_primary"
-                        android:textSize="18sp" />
+                        android:textSize="16sp" />
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnPlus"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp">
+                        app:cardCornerRadius="16dp">
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
@@ -288,25 +496,331 @@
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="Mô tả sản phẩm"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/tvProductDesc"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:fontFamily="@font/poppins_regular"
-                android:lineSpacingExtra="6dp"
-                android:text="Sản phẩm cao cấp từ bộ sưu tập Knight Unicorn với thiết kế tinh xảo và chất phấn mịn màng..."
-                android:textColor="@color/text_secondary"
-                android:textSize="15sp" />
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="#FFF9F9"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#FCE4E4"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="Voucher áp dụng"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+                        <TextView
+                            android:id="@+id/btnSeeAllVouchers"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Xem tất cả (5)"
+                            android:textColor="@color/brand_pink"
+                            android:textSize="13sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvVouchers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#F5F5F5"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:id="@+id/tvReviewSectionTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="Đánh giá sản phẩm (120)"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+                        <TextView
+                            android:id="@+id/btnSeeAllReviews"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Xem tất cả"
+                            android:textColor="@color/brand_pink"
+                            android:textSize="13sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingEnd="24dp">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/tvRatingBig"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="4.9"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="28sp"
+                                    android:layout_gravity="bottom"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="/ 5"
+                                    android:textSize="16sp"
+                                    android:textColor="#9E9E9E"
+                                    android:layout_marginTop="-8dp"
+                                    android:layout_marginStart="5dp"
+                                    android:layout_gravity="bottom"/>
+                            </LinearLayout>
+
+                            <RatingBar
+                                style="?android:attr/ratingBarStyleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:numStars="5"
+                                android:rating="5"
+                                android:progressTint="#FFD700"/>
+                            <TextView
+                                android:id="@+id/tvReviewCountSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="(120 đánh giá)"
+                                android:textSize="12sp"
+                                android:textColor="#9E9E9E"
+                                android:layout_marginTop="4dp"/>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#F0F0F0"
+                            android:layout_marginVertical="8dp"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingStart="24dp">
+                            <!-- Rating bars for 5, 4, 3, 2, 1 stars would go here. For now just placeholder or simplified -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="30dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="5 sao"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+
+                                <ProgressBar
+                                    style="?android:attr/progressBarStyleHorizontal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="4dp"
+                                    android:layout_marginHorizontal="8dp"
+                                    android:layout_weight="1"
+                                    android:progress="83"
+                                    android:progressTint="@color/brand_pink" />
+
+                                <TextView
+                                    android:layout_width="40dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="100"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="30dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="4 sao"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+
+                                <ProgressBar
+                                    style="?android:attr/progressBarStyleHorizontal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="4dp"
+                                    android:layout_marginHorizontal="8dp"
+                                    android:layout_weight="1"
+                                    android:progress="13"
+                                    android:progressTint="@color/brand_pink" />
+
+                                <TextView
+                                    android:layout_width="40dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="15"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="30dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="3 sao"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+
+                                <ProgressBar
+                                    style="?android:attr/progressBarStyleHorizontal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="4dp"
+                                    android:layout_marginHorizontal="8dp"
+                                    android:layout_weight="1"
+                                    android:progress="2"
+                                    android:progressTint="@color/brand_pink" />
+
+                                <TextView
+                                    android:layout_width="40dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="3"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="30dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="2 sao"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+
+                                <ProgressBar
+                                    style="?android:attr/progressBarStyleHorizontal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="4dp"
+                                    android:layout_marginHorizontal="8dp"
+                                    android:layout_weight="1"
+                                    android:progress="1"
+                                    android:progressTint="@color/brand_pink" />
+
+                                <TextView
+                                    android:layout_width="40dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="1"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="30dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="1 sao"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+
+                                <ProgressBar
+                                    style="?android:attr/progressBarStyleHorizontal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="4dp"
+                                    android:layout_marginHorizontal="8dp"
+                                    android:layout_weight="1"
+                                    android:progress="1"
+                                    android:progressTint="@color/brand_pink" />
+
+                                <TextView
+                                    android:layout_width="40dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="1"
+                                    android:textColor="#9E9E9E"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvReviews"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Spacing for bottom bar -->
             <View
@@ -323,7 +837,27 @@
         android:background="#FFF5F5"
         android:elevation="12dp"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="8dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnChat"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_marginEnd="12dp"
+            app:cardBackgroundColor="#CCFFFFFF"
+            app:cardCornerRadius="27dp"
+            app:strokeColor="@color/pink_light"
+            app:strokeWidth="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_chat"
+                app:tint="@color/brand_pink" />
+        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddToCart"
@@ -348,7 +882,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBuyNow"
             android:layout_width="0dp"
-            android:layout_height="54dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@drawable/bg_buy_now_gradient"
             android:fontFamily="@font/poppins_medium"
@@ -357,7 +891,7 @@
             android:textAllCaps="false"
             app:backgroundTint="@null"
             app:cornerRadius="27dp"
-            app:elevation="4dp" />
+            app:elevation="4dp"/>
 
     </LinearLayout>
 
