@@ -1,5 +1,6 @@
 package com.pompom.group6.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.pompom.group6.R;
+import com.pompom.group6.activities.CartActivity;
 import com.pompom.group6.adapters.ProductImageAdapter;
 import com.pompom.group6.adapters.ReviewAdapter;
 import com.pompom.group6.adapters.VariantAdapter;
@@ -18,10 +20,12 @@ import com.pompom.group6.adapters.VoucherAdapter;
 import com.pompom.group6.database.ProductDAO;
 import com.pompom.group6.database.PromotionDAO;
 import com.pompom.group6.databinding.ActivityProductDetailBinding;
+import com.pompom.group6.models.CartItem;
 import com.pompom.group6.models.Product;
 import com.pompom.group6.models.ProductVariant;
 import com.pompom.group6.models.Review;
 import com.pompom.group6.models.Voucher;
+import com.pompom.group6.utils.CartManager;
 
 import java.util.List;
 
@@ -30,9 +34,11 @@ public class ProductDetailActivity extends AppCompatActivity {
     private ActivityProductDetailBinding binding;
     private ProductDAO productDAO;
     private PromotionDAO promotionDAO;
+    private CartManager cartManager;
     private int productId;
     private int quantity = 1;
     private GestureDetector gestureDetector;
+    private Product currentProduct;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             android.util.Log.d("ProductDetailActivity", "productId=" + productId);
             productDAO = new ProductDAO(this);
             promotionDAO = new PromotionDAO(this);
+            cartManager = CartManager.getInstance(this);
 
             setupSwipeBack();
             setupListeners();
@@ -122,11 +129,31 @@ public class ProductDetailActivity extends AppCompatActivity {
         });
 
         binding.btnAddToCart.setOnClickListener(v -> {
-            Toast.makeText(this, "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
+            if (currentProduct == null) return;
+            CartItem item = new CartItem(
+                    currentProduct.getId(),
+                    currentProduct.getTitle(),
+                    currentProduct.getPrice(),
+                    currentProduct.getImageUrl(),
+                    quantity
+            );
+            cartManager.addItem(item);
+            Toast.makeText(this, "✓ Đã thêm " + quantity + " sản phẩm vào giỏ hàng", Toast.LENGTH_SHORT).show();
         });
 
         binding.btnBuyNow.setOnClickListener(v -> {
-            Toast.makeText(this, "Tiến hành thanh toán", Toast.LENGTH_SHORT).show();
+            if (currentProduct == null) return;
+            CartItem item = new CartItem(
+                    currentProduct.getId(),
+                    currentProduct.getTitle(),
+                    currentProduct.getPrice(),
+                    currentProduct.getImageUrl(),
+                    quantity
+            );
+            cartManager.addItem(item);
+            Intent intent = new Intent(this, CartActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
         
         binding.btnWishlist.setOnClickListener(v -> {
@@ -141,6 +168,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             Product product = productDAO.getProductById(productId);
             android.util.Log.d("ProductDetailActivity", "getProductById returned: " + (product == null ? "null" : product.getTitle()));
             if (product != null) {
+                currentProduct = product;
                 binding.tvProductName.setText(product.getTitle());
                 binding.tvProductPrice.setText(product.getPrice());
                 

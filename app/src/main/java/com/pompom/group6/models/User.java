@@ -10,6 +10,9 @@ public class User {
     private String membershipLevel;
     private int points;
     private int voucherCount;
+    private String gender;
+    private String birthDate;
+    private String skinType;
 
     public User() {}
 
@@ -48,4 +51,13 @@ public class User {
 
     public int getVoucherCount() { return voucherCount; }
     public void setVoucherCount(int voucherCount) { this.voucherCount = voucherCount; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public String getBirthDate() { return birthDate; }
+    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
+
+    public String getSkinType() { return skinType; }
+    public void setSkinType(String skinType) { this.skinType = skinType; }
 }

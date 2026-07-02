@@ -21,16 +21,38 @@
             android:paddingBottom="8dp"
             android:background="@color/md_theme_light_primary">
 
-            <ImageView
-                android:id="@+id/ivCart"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_bag2"
+            <!-- Cart icon with badge -->
+            <FrameLayout
+                android:id="@+id/cartIconContainer"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:clipChildren="false"
                 app:layout_constraintBottom_toBottomOf="@id/tvLogo"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvLogo"
-                app:tint="@color/brand_background"/>
+                app:layout_constraintTop_toTopOf="@id/tvLogo">
+
+                <ImageView
+                    android:id="@+id/ivCart"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_bag2"
+                    app:tint="@color/brand_background"/>
+
+                <TextView
+                    android:id="@+id/tvCartBadge"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/bg_circle_green"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@color/white"
+                    android:textSize="9sp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/tvLogo"
