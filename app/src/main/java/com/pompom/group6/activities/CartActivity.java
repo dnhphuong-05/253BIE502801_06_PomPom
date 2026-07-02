@@ -1,6 +1,9 @@
 package com.pompom.group6.activities;
 
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +28,7 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
         super.onCreate(savedInstanceState);
         binding = ActivityCartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        binding.promoBar.setSelected(true);
 
         cartManager = CartManager.getInstance(this);
         cartManager.addListener(this);
@@ -59,21 +63,17 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
     }
 
     private void setupListeners() {
-        binding.btnCloseCart.setOnClickListener(v -> closeCart());
-        binding.dimOverlay.setOnClickListener(v -> closeCart());
-        binding.btnCheckout.setOnClickListener(v -> {
-            // Future: Navigate to Checkout
-        });
-    }
+        // MODULE 1: Back arrow → finish()
+        binding.ivBack.setOnClickListener(v -> finish());
 
-    private void closeCart() {
-        finish();
-        overridePendingTransition(0, android.R.anim.fade_out);
+        binding.btnCheckout.setOnClickListener(v -> {
+            // Future: Navigate to Checkout screen
+        });
     }
 
     @Override
     public void onBackPressed() {
-        closeCart();
+        finish();
     }
 
     private void refreshUI() {
@@ -81,19 +81,35 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
         if (items.isEmpty()) {
             binding.rvCartItems.setVisibility(View.GONE);
             binding.layoutEmpty.setVisibility(View.VISIBLE);
-            binding.btnCheckout.setText("CART IS EMPTY");
+            binding.btnCheckout.setText("Giỏ hàng trống");
             binding.btnCheckout.setEnabled(false);
             binding.btnCheckout.setAlpha(0.5f);
+            binding.tvTotalPrice.setText("0đ");
         } else {
             binding.rvCartItems.setVisibility(View.VISIBLE);
             binding.layoutEmpty.setVisibility(View.GONE);
             binding.btnCheckout.setEnabled(true);
             binding.btnCheckout.setAlpha(1.0f);
-            
-            double total = cartManager.getTotalPrice();
-            binding.btnCheckout.setText(String.format(Locale.getDefault(), "CHECK OUT — $%.2f USD", total));
+            binding.btnCheckout.setText("THANH TOÁN");
+
+            // Total price in Vietnamese format
+            long totalLong = (long) cartManager.getTotalPrice();
+            binding.tvTotalPrice.setText(formatPriceSpan(totalLong));
         }
         adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Format price as dot-separated thousands with smaller "đ" suffix.
+     * e.g. 350000 → "350.000đ" (đ rendered at 0.65× size)
+     */
+    private SpannableString formatPriceSpan(long value) {
+        String formatted = String.format(Locale.US, "%,d", value).replace(",", ".");
+        String full = formatted + "đ";
+        SpannableString span = new SpannableString(full);
+        span.setSpan(new RelativeSizeSpan(0.65f), full.length() - 1, full.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return span;
     }
 
     @Override

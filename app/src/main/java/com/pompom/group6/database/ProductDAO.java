@@ -12,6 +12,7 @@ import com.pompom.group6.models.Review;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class ProductDAO {
     private static final String TAG = "ProductDAO";
@@ -50,6 +51,67 @@ public class ProductDAO {
         return getProductsByQuery(query, new String[]{String.valueOf(limit), String.valueOf(offset)});
     }
 
+    /**
+     * Filtered + paginated query for ShopFragment.
+     * Pass null/empty categoryIds to skip category filter.
+     * Pass 0 for minPrice/maxPrice to skip price bounds.
+     * Pass 0 for minRating to skip rating filter.
+     */
+    public List<Product> getProductsFiltered(Set<Integer> categoryIds,
+                                              long minPrice, long maxPrice,
+                                              float minRating,
+                                              int limit, int offset) {
+        List<String> argList = new ArrayList<>();
+        StringBuilder where = new StringBuilder("p.is_active = 1");
+
+        // Category filter (dynamic IN clause)
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            StringBuilder ph = new StringBuilder();
+            for (Integer id : categoryIds) {
+                if (ph.length() > 0) ph.append(",");
+                ph.append("?");
+                argList.add(String.valueOf(id));
+            }
+            where.append(" AND p.category_id IN (").append(ph).append(")");
+        }
+
+        // Effective price: use sale_price when it is lower than regular price
+        String effectivePrice =
+                "CASE WHEN p.sale_price > 0 AND p.sale_price < p.price " +
+                "THEN p.sale_price ELSE p.price END";
+
+        if (minPrice > 0) {
+            where.append(" AND (").append(effectivePrice).append(") >= ?");
+            argList.add(String.valueOf(minPrice));
+        }
+        if (maxPrice > 0) {
+            where.append(" AND (").append(effectivePrice).append(") <= ?");
+            argList.add(String.valueOf(maxPrice));
+        }
+
+        // Rating filter via correlated sub-query
+        String avgExpr =
+                "(SELECT COALESCE(AVG(rating), 0) FROM product_reviews pr " +
+                "WHERE pr.product_id = p.product_id)";
+        if (minRating > 0) {
+            where.append(" AND ").append(avgExpr).append(" >= ?");
+            argList.add(String.valueOf(minRating));
+        }
+
+        // LIMIT / OFFSET
+        argList.add(String.valueOf(limit));
+        argList.add(String.valueOf(offset));
+
+        String query = "SELECT p.*, " +
+                avgExpr + " as avg_rating, " +
+                "(SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.product_id) as review_count " +
+                "FROM products p " +
+                "WHERE " + where +
+                " LIMIT ? OFFSET ?";
+
+        return getProductsByQuery(query, argList.toArray(new String[0]));
+    }
+
     public Product getProductById(int productId) {
         String query = "SELECT p.*, c.category_name, " +
                 "(SELECT AVG(rating) FROM product_reviews pr WHERE pr.product_id = p.product_id) as avg_rating, " +
@@ -57,7 +119,7 @@ public class ProductDAO {
                 "FROM products p " +
                 "LEFT JOIN categories c ON p.category_id = c.category_id " +
                 "WHERE p.product_id = ?";
-        
+
         Product product = null;
         SQLiteDatabase db;
         try {
@@ -73,14 +135,15 @@ public class ProductDAO {
                 String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
                 double priceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("price"));
                 double salePriceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("sale_price"));
-                
-                // Resilience for swapped data
+
                 if (salePriceVal > priceVal) {
                     double t = priceVal; priceVal = salePriceVal; salePriceVal = t;
                 }
 
-                String priceStr = String.format(Locale.getDefault(), "%.0fđ", (salePriceVal > 0 && salePriceVal < priceVal) ? salePriceVal : priceVal);
-                String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal) ? String.format(Locale.getDefault(), "%.0fđ", priceVal) : null;
+                String priceStr = String.format(Locale.getDefault(), "%.0fđ",
+                        (salePriceVal > 0 && salePriceVal < priceVal) ? salePriceVal : priceVal);
+                String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal)
+                        ? String.format(Locale.getDefault(), "%.0fđ", priceVal) : null;
 
                 product = new Product(id, name, priceStr, originalPriceStr);
                 product.setDescription(cursor.getString(cursor.getColumnIndexOrThrow("description")));
@@ -90,16 +153,16 @@ public class ProductDAO {
                 product.setCategoryName(cursor.getString(cursor.getColumnIndexOrThrow("category_name")));
                 product.setRating(cursor.getFloat(cursor.getColumnIndexOrThrow("avg_rating")));
                 product.setReviewCount(cursor.getInt(cursor.getColumnIndexOrThrow("review_count")));
-                
+
                 if (salePriceVal > 0 && priceVal > 0 && salePriceVal < priceVal) {
                     int discount = (int) ((1 - (salePriceVal / priceVal)) * 100);
                     product.setDiscountPercent(discount);
                 }
 
-                // Fetch first image
                 try {
                     try (Cursor imgCursor = db.query("product_images", new String[]{"image_url"},
-                            "product_id = ?", new String[]{String.valueOf(id)}, null, null, "sort_order ASC", "1")) {
+                            "product_id = ?", new String[]{String.valueOf(id)},
+                            null, null, "sort_order ASC", "1")) {
                         if (imgCursor != null && imgCursor.moveToFirst()) {
                             product.setImageUrl(imgCursor.getString(0));
                         }
@@ -123,13 +186,13 @@ public class ProductDAO {
             Log.e(TAG, "Error opening database in getProductImages", e);
             return images;
         }
-        try (Cursor cursor = db.rawQuery("SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC", new String[]{String.valueOf(productId)})) {
+        try (Cursor cursor = db.rawQuery(
+                "SELECT image_url FROM product_images WHERE product_id = ? ORDER BY sort_order ASC",
+                new String[]{String.valueOf(productId)})) {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     String url = cursor.getString(0);
-                    if (url != null && !url.trim().isEmpty()) {
-                        images.add(url.trim());
-                    }
+                    if (url != null && !url.trim().isEmpty()) images.add(url.trim());
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
@@ -149,12 +212,11 @@ public class ProductDAO {
         }
         String query = "SELECT r.*, u.full_name, u.avatar_url FROM product_reviews r " +
                 "JOIN users u ON r.user_id = u.user_id " +
-                "WHERE r.product_id = ? " +
-                "ORDER BY r.created_at DESC";
+                "WHERE r.product_id = ? ORDER BY r.created_at DESC";
         try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(productId)})) {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
-                    Review review = new Review(
+                    reviews.add(new Review(
                             cursor.getInt(cursor.getColumnIndexOrThrow("review_id")),
                             cursor.getInt(cursor.getColumnIndexOrThrow("user_id")),
                             cursor.getString(cursor.getColumnIndexOrThrow("full_name")),
@@ -164,8 +226,7 @@ public class ProductDAO {
                             cursor.getString(cursor.getColumnIndexOrThrow("comment")),
                             cursor.getString(cursor.getColumnIndexOrThrow("images")),
                             cursor.getString(cursor.getColumnIndexOrThrow("created_at"))
-                    );
-                    reviews.add(review);
+                    ));
                 } while (cursor.moveToNext());
             }
             Log.d(TAG, "Loaded " + reviews.size() + " reviews for product " + productId);
@@ -205,6 +266,8 @@ public class ProductDAO {
         return variants;
     }
 
+    // ── Internal helper ───────────────────────────────────────────────────
+
     private List<Product> getProductsByQuery(String query, String[] args) {
         List<Product> products = new ArrayList<>();
         SQLiteDatabase db = null;
@@ -221,15 +284,14 @@ public class ProductDAO {
                     double priceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("price"));
                     double salePriceVal = cursor.getDouble(cursor.getColumnIndexOrThrow("sale_price"));
 
-                    // Swap if needed
                     if (salePriceVal > priceVal) {
                         double t = priceVal; priceVal = salePriceVal; salePriceVal = t;
                     }
 
-                    String priceStr = String.format(Locale.getDefault(), "%.0fđ", 
+                    String priceStr = String.format(Locale.getDefault(), "%.0fđ",
                             (salePriceVal > 0 && salePriceVal < priceVal) ? salePriceVal : priceVal);
-                    String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal) ? 
-                            String.format(Locale.getDefault(), "%.0fđ", priceVal) : null;
+                    String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal)
+                            ? String.format(Locale.getDefault(), "%.0fđ", priceVal) : null;
 
                     Product product = new Product(id, name, priceStr, originalPriceStr);
 
@@ -242,16 +304,17 @@ public class ProductDAO {
                         int discount = (int) ((1 - (salePriceVal / priceVal)) * 100);
                         product.setDiscountPercent(discount);
                     }
-                    
+
                     try (Cursor imgCursor = db.query("product_images", new String[]{"image_url"},
-                            "product_id = ?", new String[]{String.valueOf(id)}, null, null, "sort_order ASC", "1")) {
+                            "product_id = ?", new String[]{String.valueOf(id)},
+                            null, null, "sort_order ASC", "1")) {
                         if (imgCursor != null && imgCursor.moveToFirst()) {
                             product.setImageUrl(imgCursor.getString(0));
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error fetching image for product " + id, e);
                     }
-                    
+
                     products.add(product);
                 } while (cursor.moveToNext());
             }

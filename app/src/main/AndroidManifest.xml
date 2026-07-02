@@ -73,10 +73,11 @@
             android:theme="@style/Theme.Group6"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- YC1: Đổi từ Translucent sang Theme.Group6 để CartActivity hiển thị toàn màn hình -->
         <activity
             android:name=".activities.CartActivity"
             android:exported="false"
-            android:theme="@style/Theme.Group6.Translucent"
+            android:theme="@style/Theme.Group6"
             android:windowSoftInputMode="adjustResize" />
 
         <activity

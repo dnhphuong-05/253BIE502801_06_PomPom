@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_semibold"
                     android:text="$32.99"
-                    android:textColor="#005C7A"
+                    android:textColor="@color/md_theme_light_primary"
                     android:textSize="16sp" />
 
                 <TextView
@@ -105,35 +105,35 @@
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_star"
-                    app:tint="#005C7A"
+                    app:tint="@color/brand_gold"
                     tools:ignore="ContentDescription" />
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:layout_marginStart="2dp"
                     android:src="@drawable/ic_star"
-                    app:tint="#005C7A"
+                    app:tint="@color/brand_gold"
                     tools:ignore="ContentDescription" />
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:layout_marginStart="2dp"
                     android:src="@drawable/ic_star"
-                    app:tint="#005C7A"
+                    app:tint="@color/brand_gold"
                     tools:ignore="ContentDescription" />
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:layout_marginStart="2dp"
                     android:src="@drawable/ic_star"
-                    app:tint="#005C7A"
+                    app:tint="@color/brand_gold"
                     tools:ignore="ContentDescription" />
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:layout_marginStart="2dp"
                     android:src="@drawable/ic_star"
-                    app:tint="#005C7A"
+                    app:tint="@color/brand_gold"
                     tools:ignore="ContentDescription" />
 
                 <View
@@ -196,7 +196,7 @@
             android:fontFamily="@font/poppins_semibold"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="ADD TO BAG"
+            android:text="+ ADD TO BAG"
             android:textColor="#005C7A"
             android:textSize="12sp"
             app:cornerRadius="0dp" />

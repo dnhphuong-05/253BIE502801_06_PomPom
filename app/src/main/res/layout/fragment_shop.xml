@@ -12,23 +12,76 @@
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
-        <!-- Top Bar -->
+        <!-- ══ Top header bar ══ -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/md_theme_light_primary"
             android:paddingHorizontal="8dp"
             android:paddingTop="16dp"
             android:paddingBottom="8dp"
-            android:background="@color/md_theme_light_primary">
+            android:paddingLeft="12dp">
 
-            <!-- Cart icon with badge -->
+            <!-- Circular avatar (left) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAvatarProfile"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="@id/tvLogo"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvLogo"
+                app:strokeWidth="0dp"
+                android:backgroundTint="@color/brand_pink"
+                android:layout_marginLeft="6dp">
+
+                <ImageView
+                    android:id="@+id/ivProfile"
+                    android:layout_width="22dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:paddingLeft="3dp"
+                    android:src="@drawable/ic_user2"
+                    app:tint="@color/white" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Brand logo (center) -->
+            <TextView
+                android:id="@+id/tvLogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cinzel_bold"
+                android:paddingHorizontal="10dp"
+                android:text="Pom Pom"
+                android:textColor="@color/brand_background"
+                android:textSize="26sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Search icon -->
+            <ImageView
+                android:id="@+id/ivSearch"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_search"
+                app:layout_constraintBottom_toBottomOf="@id/tvLogo"
+                app:layout_constraintEnd_toStartOf="@id/cartIconContainer"
+                app:layout_constraintTop_toTopOf="@id/tvLogo"
+                app:tint="@color/brand_background" />
+
+            <!-- Cart icon + badge (right) -->
             <FrameLayout
                 android:id="@+id/cartIconContainer"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:clipChildren="false"
                 app:layout_constraintBottom_toBottomOf="@id/tvLogo"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/tvLogo">
 
                 <ImageView
@@ -38,7 +91,7 @@
                     android:layout_gravity="center"
                     android:contentDescription="@null"
                     android:src="@drawable/ic_bag2"
-                    app:tint="@color/brand_background"/>
+                    app:tint="@color/brand_background" />
 
                 <TextView
                     android:id="@+id/tvCartBadge"
@@ -46,49 +99,13 @@
                     android:layout_height="16dp"
                     android:layout_gravity="top|end"
                     android:background="@drawable/bg_circle_green"
+                    android:fontFamily="@font/poppins_medium"
                     android:gravity="center"
                     android:text="0"
                     android:textColor="@color/white"
                     android:textSize="9sp"
-                    android:fontFamily="@font/poppins_medium"
                     android:visibility="gone" />
             </FrameLayout>
-
-            <TextView
-                android:id="@+id/tvLogo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="10dp"
-                android:text="Pom Pom"
-                android:textColor="@color/brand_background"
-                android:textSize="26sp"
-                android:fontFamily="@font/cinzel_bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <ImageView
-                android:id="@+id/ivSearch"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_search"
-                app:layout_constraintBottom_toBottomOf="@id/tvLogo"
-                app:layout_constraintEnd_toStartOf="@id/ivProfile"
-                app:layout_constraintTop_toTopOf="@id/tvLogo"
-                app:tint="@color/brand_background" />
-
-            <ImageView
-                android:id="@+id/ivProfile"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_user2"
-                app:layout_constraintBottom_toBottomOf="@id/tvLogo"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvLogo"
-                app:tint="@color/brand_background" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -107,8 +124,8 @@
                 android:fontFamily="@font/poppins_medium"
                 android:gravity="center"
                 android:marqueeRepeatLimit="marquee_forever"
-                android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:paddingStart="16dp"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
                 android:text="Miễn phí vận chuyển cho đơn hàng từ 500.000đ"
@@ -118,12 +135,13 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- ══ Scrollable body ══ -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="@color/md_theme_light_background">
+        android:background="@color/md_theme_light_background"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -141,34 +159,38 @@
                     android:id="@+id/ivBanner"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:contentDescription="@null"
                     android:scaleType="centerCrop"
                     android:src="@drawable/banner_shop" />
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Categories -->
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCategories"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
-                android:orientation="horizontal"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
                 android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:paddingEnd="8dp"
+                android:paddingStart="8dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-            <!-- Filter and Layout Toggle Bar -->
+            <!-- Filter + Layout-Toggle bar -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp">
 
+                <!-- Lọc button (clickable → FilterSheetFragment) -->
                 <LinearLayout
                     android:id="@+id/layoutFilter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -176,21 +198,34 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@null"
                         android:src="@drawable/ic_filter"
                         app:tint="@color/brand_pink" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginStart="6dp"
                         android:fontFamily="@font/poppins_medium"
                         android:text="Lọc"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvClearFilter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="| Xóa"
+                        android:textColor="@color/brand_pink"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
                 </LinearLayout>
 
+                <!-- Row / Grid toggle icons (right side) -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -200,24 +235,28 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
+                    <!-- Row view toggle (1-col) -->
                     <ImageView
-                        android:id="@+id/ivRow1"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_row1"
-                        android:contentDescription="1 Column" />
+                        android:id="@+id/ivRowView"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:contentDescription="@null"
+                        app:tint="@color/brand_pink"
+                        android:src="@drawable/ic_rowview0" />
 
+                    <!-- Grid view toggle (2-col, default selected) -->
                     <ImageView
-                        android:id="@+id/ivRow2"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:id="@+id/ivGridView"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:layout_marginStart="16dp"
-                        android:src="@drawable/ic_row2_pink"
-                        android:contentDescription="2 Columns" />
+                        android:contentDescription="@null"
+                        app:tint="@color/brand_pink"
+                        android:src="@drawable/ic_gridview1" />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Products -->
+            <!-- Products RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvProducts"
                 android:layout_width="match_parent"
