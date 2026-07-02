@@ -3,7 +3,7 @@ package com.pompom.group6.utils;
 public class Constants {
     // Database Constants
     public static final String DATABASE_NAME = "pompom.db";
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 6;
 
     // Cloudinary Constants
     public static final String CLOUDINARY_CLOUD_NAME = "dwu6e0ian";

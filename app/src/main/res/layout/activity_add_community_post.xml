@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_cancel">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Tạo bài viết"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPostTop"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Đăng"
+                android:textColor="@color/brand_pink"
+                android:textSize="16sp" />
+
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- User Header Mock -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_avatar"
+                    app:shapeAppearanceOverlay="@style/CircleShape" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:text="Thảo Nguyên"
+                        android:textColor="@color/text_dark"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tvPostTypeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Công khai • Review"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Content Input -->
+            <EditText
+                android:id="@+id/etContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:fontFamily="@font/poppins_regular"
+                android:hint="Bạn đang nghĩ gì về sản phẩm này?"
+                android:inputType="textMultiLine"
+                android:minLines="5"
+                android:gravity="top"
+                android:textColor="@color/black"
+                android:textSize="17sp"
+                android:lineSpacingExtra="4dp" />
+
+            <!-- Selected Images Preview (RecyclerView) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvImagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_image_preview"
+                tools:visibility="visible" />
+
+            <!-- Hashtag Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_tag_pink" />
+
+                <EditText
+                    android:id="@+id/etHashtags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@null"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:hint="Thêm hashtag..."
+                    android:textColor="@color/brand_pink"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Recommended Hashtags Label -->
+            <TextView
+                android:id="@+id/tvHashtagLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Hashtag gợi ý"
+                android:textColor="@color/text_dark"
+                android:textSize="13sp" />
+
+            <!-- Recommended Hashtags (Analysis-based) -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgHashtagSuggestions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:chipSpacingHorizontal="8dp">
+                <!-- Chips will be added dynamically here -->
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Post Type Picker -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Chủ đề bài viết"
+                android:textColor="@color/text_dark" />
+
+            <RadioGroup
+                android:id="@+id/rgPostType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rbReview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:buttonTint="@color/brand_pink"
+                    android:text="Review"
+                    android:textColor="@color/text_dark" />
+
+                <RadioButton
+                    android:id="@+id/rbLooks"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="@color/brand_pink"
+                    android:text="Looks"
+                    android:textColor="@color/text_dark" />
+
+                <RadioButton
+                    android:id="@+id/rbTips"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="@color/brand_pink"
+                    android:text="Tips"
+                    android:textColor="@color/text_dark" />
+            </RadioGroup>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSelectImage"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#F5F5F5"
+                android:gravity="center_vertical|start"
+                android:paddingHorizontal="16dp"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_images"
+                app:iconTint="@color/brand_pink"
+                android:text="Thêm ảnh vào bài viết"
+                android:textColor="@color/text_dark"
+                android:fontFamily="@font/poppins_medium" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPostBottom"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
+                android:backgroundTint="@color/brand_pink"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="ĐĂNG BÀI NGAY"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

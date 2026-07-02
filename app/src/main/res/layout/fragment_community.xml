@@ -99,6 +99,7 @@
                 android:paddingHorizontal="16dp">
 
                 <LinearLayout
+                    android:id="@+id/layoutSearch"
                     android:layout_width="0dp"
                     android:layout_height="44dp"
                     android:background="@drawable/bg_white_pill_button"
@@ -117,14 +118,18 @@
                         app:tint="@color/text_secondary"
                         android:contentDescription="@null" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:layout_marginStart="12dp"
+                        android:background="@null"
                         android:fontFamily="@font/poppins_regular"
-                        android:text="Tìm kiếm bài viết, hashtag, người dùng..."
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
+                        android:hint="Tìm kiếm bài viết..."
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text" />
                 </LinearLayout>
 
                 <ImageView
@@ -140,24 +145,83 @@
                     android:contentDescription="@null" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Create Post Button (RE-STYLIZED) -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCreatePost"
+            <!-- Create Post Button (RE-STYLIZED) - REMOVED AS REQUESTED -->
+
+            <!-- Tabs Navigation -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="@color/brand_pink_light"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="Tạo bài viết"
-                android:textAllCaps="false"
-                android:textColor="@color/brand_pink"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_pin"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:iconSize="18dp"
-                app:iconTint="@color/brand_pink" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:id="@+id/tabReels"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:gravity="center"
+                    android:text="Reels"
+                    android:textColor="@color/brand_pink"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tabPosts"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tabPosts"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_medium"
+                    android:gravity="center"
+                    android:text="Bài viết"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tabSaved"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toEndOf="@+id/tabReels"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tabSaved"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_medium"
+                    android:gravity="center"
+                    android:text="Đã lưu"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tabMyPosts"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toEndOf="@+id/tabPosts"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tabMyPosts"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_medium"
+                    android:gravity="center"
+                    android:text="Của bạn"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toEndOf="@+id/tabSaved"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Tab Indicator Underline -->
+                <View
+                    android:id="@+id/tabIndicator"
+                    android:layout_width="40dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_label_pink"
+                    app:layout_constraintEnd_toEndOf="@+id/tabReels"
+                    app:layout_constraintStart_toStartOf="@+id/tabReels"
+                    app:layout_constraintTop_toBottomOf="@+id/tabReels" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Stories / Highlights Bar -->
             <androidx.recyclerview.widget.RecyclerView
@@ -169,72 +233,34 @@
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp" />
 
-            <!-- Tabs (Bài viết, Reels, Video, Đã lưu) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
-
-                <TextView
-                    android:id="@+id/tabPosts"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Bài viết"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tabReels"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Reels"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tabVideo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Video"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tabSaved"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Đã lưu"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <!-- Tab Indicator Underline (Active) -->
-            <View
-                android:id="@+id/tabIndicator"
-                android:layout_width="40dp"
-                android:layout_height="3dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_label_pink" />
-
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCommunity"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="20dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCommunity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="80dp" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="24dp"
+        android:src="@drawable/ic_plus"
+        app:backgroundTint="@color/brand_pink"
+        app:tint="@color/white"
+        app:elevation="6dp"
+        android:contentDescription="Tạo bài viết mới" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

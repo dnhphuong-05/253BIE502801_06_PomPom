@@ -1,17 +1,26 @@
 package com.pompom.group6.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.transition.TransitionManager;
 
 import com.pompom.group6.R;
+import com.pompom.group6.activities.AddCommunityPostActivity;
 import com.pompom.group6.adapters.CommunityPostAdapter;
 import com.pompom.group6.adapters.StoryAdapter;
 import com.pompom.group6.database.CommunityDAO;
@@ -27,7 +36,7 @@ public class CommunityFragment extends Fragment {
     private FragmentCommunityBinding binding;
     private CommunityDAO communityDAO;
     private CommunityPostAdapter postAdapter;
-    private String currentTab = "Bài viết";
+    private String currentTab = "Reels";
 
     @Nullable
     @Override
@@ -44,7 +53,70 @@ public class CommunityFragment extends Fragment {
         setupRecyclerView();
         setupStories();
         setupTabListeners();
-        loadPosts("Bài viết");
+        setupRefreshLayout();
+        setupFab();
+        setupSearch();
+        loadPosts("Reels");
+    }
+
+    private void setupSearch() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() >= 2) {
+                    performSearch(s.toString());
+                } else if (s.length() == 0) {
+                    loadPosts(currentTab);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        binding.etSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch(binding.etSearch.getText().toString());
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void performSearch(String keyword) {
+        List<CommunityPost> searchResults = communityDAO.searchPosts(keyword, 30);
+        postAdapter.setPosts(searchResults);
+    }
+
+    private void setupRefreshLayout() {
+        binding.swipeRefresh.setColorSchemeColors(getResources().getColor(R.color.brand_pink));
+        binding.swipeRefresh.setOnRefreshListener(() -> {
+            loadPosts(currentTab);
+            // Simulate network delay
+            binding.swipeRefresh.postDelayed(() -> binding.swipeRefresh.setRefreshing(false), 1000);
+        });
+    }
+
+    private void setupFab() {
+        binding.fabAddPost.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), AddCommunityPostActivity.class);
+            startActivity(intent);
+        });
+        
+        // Hide/Show FAB on scroll
+        binding.rvCommunity.addOnScrollListener(new androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull androidx.recyclerview.widget.RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0 && binding.fabAddPost.isShown()) {
+                    binding.fabAddPost.hide();
+                } else if (dy < 0 && !binding.fabAddPost.isShown()) {
+                    binding.fabAddPost.show();
+                }
+            }
+        });
     }
 
     private void setupRecyclerView() {
@@ -71,27 +143,32 @@ public class CommunityFragment extends Fragment {
     }
 
     private void setupTabListeners() {
-        binding.tabPosts.setOnClickListener(v -> selectTab("Bài viết", binding.tabPosts, 24));
-        binding.tabReels.setOnClickListener(v -> selectTab("Reels", binding.tabReels, 116));
-        binding.tabVideo.setOnClickListener(v -> selectTab("Video", binding.tabVideo, 204));
-        binding.tabSaved.setOnClickListener(v -> selectTab("Đã lưu", binding.tabSaved, 302));
+        binding.tabReels.setOnClickListener(v -> selectTab("Reels", binding.tabReels));
+        binding.tabPosts.setOnClickListener(v -> selectTab("Bài viết", binding.tabPosts));
+        binding.tabSaved.setOnClickListener(v -> selectTab("Đã lưu", binding.tabSaved));
+        binding.tabMyPosts.setOnClickListener(v -> selectTab("Của bạn", binding.tabMyPosts));
     }
 
-    private void selectTab(String tab, TextView tabView, int marginDp) {
+    private void selectTab(String tab, TextView tabView) {
         if (currentTab.equals(tab)) return;
         
-        resetTabUI(binding.tabPosts);
         resetTabUI(binding.tabReels);
-        resetTabUI(binding.tabVideo);
+        resetTabUI(binding.tabPosts);
         resetTabUI(binding.tabSaved);
+        resetTabUI(binding.tabMyPosts);
         
         tabView.setTextColor(getResources().getColor(R.color.brand_pink));
         tabView.setTypeface(null, android.graphics.Typeface.BOLD);
         
-        float density = getResources().getDisplayMetrics().density;
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.tabIndicator.getLayoutParams();
-        params.leftMargin = (int) (marginDp * density);
-        binding.tabIndicator.setLayoutParams(params);
+        // Di chuyển thanh gạch chân mượt mà bằng ConstraintSet
+        ConstraintLayout layout = (ConstraintLayout) binding.tabIndicator.getParent();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(layout);
+        constraintSet.connect(binding.tabIndicator.getId(), ConstraintSet.START, tabView.getId(), ConstraintSet.START);
+        constraintSet.connect(binding.tabIndicator.getId(), ConstraintSet.END, tabView.getId(), ConstraintSet.END);
+        
+        TransitionManager.beginDelayedTransition(layout);
+        constraintSet.applyTo(layout);
 
         currentTab = tab;
         loadPosts(tab);

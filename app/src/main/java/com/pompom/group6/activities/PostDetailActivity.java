@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
@@ -87,7 +88,22 @@ public class PostDetailActivity extends AppCompatActivity {
         binding.btnBack.setOnClickListener(v -> finish());
         
         binding.btnFollow.setOnClickListener(v -> {
-            Toast.makeText(this, "Đã theo dõi người dùng", Toast.LENGTH_SHORT).show();
+            boolean isFollowed = v.getTag() != null && (boolean) v.getTag();
+            com.google.android.material.button.MaterialButton btn = (com.google.android.material.button.MaterialButton) v;
+            
+            if (isFollowed) {
+                v.setTag(false);
+                btn.setText("Theo dõi");
+                btn.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.brand_pink_light));
+                btn.setTextColor(ContextCompat.getColor(this, R.color.brand_pink));
+                Toast.makeText(this, "Đã hủy theo dõi", Toast.LENGTH_SHORT).show();
+            } else {
+                v.setTag(true);
+                btn.setText("Đang theo dõi");
+                btn.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.text_secondary));
+                btn.setTextColor(android.graphics.Color.WHITE);
+                Toast.makeText(this, "Đã theo dõi người dùng này", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

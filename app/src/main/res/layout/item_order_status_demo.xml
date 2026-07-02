@@ -13,10 +13,11 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:id="@+id/ivStatusIcon"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_pin"
-            app:tint="@color/text_primary"
+            android:src="@drawable/ic_bag"
+            app:tint="@color/brand_pink"
             tools:ignore="ContentDescription" />
 
         <TextView
