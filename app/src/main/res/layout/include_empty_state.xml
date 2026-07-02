@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/ivEmptyIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:alpha="0.5"
+        android:src="@drawable/ic_bag"
+        app:tint="@color/brand_pink"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tvEmptyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/poppins_regular"
+        android:gravity="center"
+        android:text="Không có dữ liệu"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp" />
+</LinearLayout>
