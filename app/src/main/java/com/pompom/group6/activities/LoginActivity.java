@@ -11,11 +11,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import com.pompom.group6.R;
+import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.ActivityLoginBinding;
+import com.pompom.group6.models.User;
 
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
+    private UserDAO userDAO;
     private boolean isPasswordVisible = false;
 
     @Override
@@ -30,6 +33,8 @@ public class LoginActivity extends AppCompatActivity {
 
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        userDAO = new UserDAO(this);
 
         setupListeners();
     }
@@ -50,20 +55,25 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         binding.btnLoginSubmit.setOnClickListener(v -> {
-            String username = binding.etUsername.getText().toString().trim();
+            String email = binding.etUsername.getText().toString().trim();
             String password = binding.etPassword.getText().toString();
 
-            if (username.isEmpty() || password.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập Email và Mật khẩu", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Mock login success
+            User user = userDAO.authenticate(email, password);
+            if (user == null) {
+                Toast.makeText(this, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Persist the logged-in session
             SharedPreferences prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("is_logged_in", true);
-            // Default to user 1 (Nguyễn Thảo Nguyên) for now
-            editor.putInt("user_id", 1);
+            editor.putInt("user_id", user.getUserId());
             editor.apply();
 
             Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();

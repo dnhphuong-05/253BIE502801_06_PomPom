@@ -1,5 +1,6 @@
 package com.pompom.group6.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,7 +10,9 @@ import com.pompom.group6.models.PromotionProduct;
 import com.pompom.group6.models.Voucher;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PromotionDAO {
     private static final String TAG = "PromotionDAO";
@@ -135,5 +138,62 @@ public class PromotionDAO {
             Log.e(TAG, "Error fetching vouchers: " + e.getMessage());
         }
         return vouchers;
+    }
+
+    /**
+     * Returns the ids of vouchers this user has already saved (from the
+     * existing {@code user_vouchers} table).
+     */
+    public Set<Integer> getSavedVoucherIds(int userId) {
+        Set<Integer> ids = new HashSet<>();
+        SQLiteDatabase db;
+        try {
+            db = dbHelper.getReadableDatabase();
+        } catch (Exception e) {
+            Log.e(TAG, "Error opening database in getSavedVoucherIds", e);
+            return ids;
+        }
+        try (Cursor cursor = db.rawQuery(
+                "SELECT voucher_id FROM user_vouchers WHERE user_id = ?",
+                new String[]{String.valueOf(userId)})) {
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    ids.add(cursor.getInt(0));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching saved voucher ids: " + e.getMessage());
+        }
+        return ids;
+    }
+
+    /**
+     * Saves a voucher to the current user's account by inserting into the
+     * existing {@code user_vouchers} table. The (user_id, voucher_id) primary
+     * key means a duplicate save is ignored rather than failing.
+     *
+     * @return true if the voucher is now saved (either newly inserted or
+     *         already present), false only on a real DB error.
+     */
+    public boolean saveVoucherForUser(int userId, int voucherId) {
+        SQLiteDatabase db;
+        try {
+            db = dbHelper.getWritableDatabase();
+        } catch (Exception e) {
+            Log.e(TAG, "Error opening database in saveVoucherForUser", e);
+            return false;
+        }
+        try {
+            ContentValues values = new ContentValues();
+            values.put("user_id", userId);
+            values.put("voucher_id", voucherId);
+            // The (user_id, voucher_id) primary key makes a duplicate insert a no-op
+            // (CONFLICT_IGNORE), so re-saving is safe and still counts as "saved".
+            db.insertWithOnConflict("user_vouchers", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving voucher for user: " + e.getMessage());
+            return false;
+        }
     }
 }

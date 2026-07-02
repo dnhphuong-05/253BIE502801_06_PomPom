@@ -1,5 +1,6 @@
 package com.pompom.group6.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pompom.group6.R;
+import com.pompom.group6.activities.StoryViewerActivity;
 import com.pompom.group6.models.Story;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHolder> {
@@ -53,6 +56,29 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             } else {
                 holder.tvStorySubtitle.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.text_secondary));
             }
+
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), StoryViewerActivity.class);
+                
+                // Pass full list for auto-next
+                ArrayList<String> names = new ArrayList<>();
+                ArrayList<Integer> images = new ArrayList<>();
+                int startIndex = 0;
+                
+                for (int i = 0; i < stories.size(); i++) {
+                    if (stories.get(i).isCreateRoom()) continue;
+                    names.add(stories.get(i).getName());
+                    images.add(stories.get(i).getImageResId());
+                    if (stories.get(i).getId() == story.getId()) {
+                        startIndex = names.size() - 1;
+                    }
+                }
+                
+                intent.putStringArrayListExtra("names", names);
+                intent.putIntegerArrayListExtra("images", images);
+                intent.putExtra("startIndex", startIndex);
+                v.getContext().startActivity(intent);
+            });
         }
     }
 

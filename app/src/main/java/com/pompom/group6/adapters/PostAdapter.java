@@ -1,5 +1,6 @@
 package com.pompom.group6.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
+import com.pompom.group6.activities.PostDetailActivity;
 import com.pompom.group6.models.CommunityPost;
 
 import java.util.List;
@@ -60,6 +62,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         
         // Show HOT label for first 2 posts or if engagement is very high
         holder.layoutHot.setVisibility((position < 2 || engagement > 50) ? View.VISIBLE : View.GONE);
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
+            intent.putExtra("post_id", post.getPostId());
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override

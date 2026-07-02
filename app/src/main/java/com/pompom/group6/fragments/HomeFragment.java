@@ -1,5 +1,8 @@
 package com.pompom.group6.fragments;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,17 +18,26 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
+import com.pompom.group6.MainActivity;
 import com.pompom.group6.R;
+import com.pompom.group6.activities.ComingSoonActivity;
+import com.pompom.group6.activities.HoiVienPomPomActivity;
+import com.pompom.group6.activities.NotificationActivity;
+import com.pompom.group6.activities.SearchActivity;
+import com.pompom.group6.activities.VoucherListActivity;
 import com.pompom.group6.adapters.BannerAdapter;
 import com.pompom.group6.adapters.PostAdapter;
 import com.pompom.group6.adapters.ProductAdapter;
 import com.pompom.group6.database.BannerDAO;
 import com.pompom.group6.database.CommunityDAO;
 import com.pompom.group6.database.ProductDAO;
+import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.FragmentHomeBinding;
 import com.pompom.group6.models.Banner;
 import com.pompom.group6.models.CommunityPost;
 import com.pompom.group6.models.Product;
+import com.pompom.group6.models.User;
 
 import com.pompom.group6.adapters.FlashSaleAdapter;
 import com.pompom.group6.database.PromotionDAO;
@@ -65,14 +77,78 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        android.util.Log.d("HomeFragment", "=== onViewCreated started ===");
 
         setupBanners();
         setupBestSellers();
         setupCommunityHighlights();
         setupFlashSale();
         setupMarquee();
-        android.util.Log.d("HomeFragment", "=== onViewCreated finished ===");
+        setupHeaderAndFeatures();
+        updateProfileIcon();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh in case the user logged in / out on another tab.
+        if (binding != null) {
+            updateProfileIcon();
+        }
+    }
+
+    /**
+     * Logged out -> default user icon. Logged in -> avatar frame + the user's
+     * avatar loaded from the database.
+     */
+    private void updateProfileIcon() {
+        SharedPreferences prefs = requireContext()
+                .getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
+
+        if (isLoggedIn) {
+            int userId = prefs.getInt("user_id", 1);
+            User user = new UserDAO(requireContext()).getUserById(userId);
+            String avatarUrl = user != null ? user.getAvatarUrl() : null;
+
+            binding.ivProfile.setVisibility(View.GONE);
+            binding.ivProfileFrame.setVisibility(View.VISIBLE);
+            binding.ivProfileAvatar.setVisibility(View.VISIBLE);
+
+            Glide.with(this)
+                    .load(avatarUrl)
+                    .placeholder(R.drawable.ic_avatar)
+                    .error(R.drawable.ic_avatar)
+                    .into(binding.ivProfileAvatar);
+        } else {
+            binding.ivProfile.setVisibility(View.VISIBLE);
+            binding.ivProfileFrame.setVisibility(View.GONE);
+            binding.ivProfileAvatar.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupHeaderAndFeatures() {
+        binding.profileContainer.setOnClickListener(v -> switchToTab(4));
+        binding.ivNotification.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), NotificationActivity.class)));
+        binding.cardSearchBar.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), SearchActivity.class)));
+
+        binding.featureAiMakeup.setOnClickListener(v ->
+                ComingSoonActivity.start(requireContext(), getString(R.string.ai_makeup)));
+        binding.featureVoucher.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), VoucherListActivity.class)));
+        binding.featureMembership.setOnClickListener(v ->
+                startActivity(new Intent(getContext(), HoiVienPomPomActivity.class)));
+        binding.featureCommunity.setOnClickListener(v -> switchToTab(3));
+
+        binding.btnViewAllFlashSale.setOnClickListener(v -> switchToTab(1));
+        binding.btnViewAllBestSellers.setOnClickListener(v -> switchToTab(1));
+    }
+
+    private void switchToTab(int index) {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).switchToTab(index);
+        }
     }
 
     private void setupMarquee() {
@@ -130,7 +206,6 @@ public class HomeFragment extends Fragment {
 
     private void setupBanners() {
         List<Banner> banners = bannerDAO.getAllBanners();
-        android.util.Log.d("HomeFragment", "Banners loaded: " + banners.size());
 
         if (banners.isEmpty()) {
             banners.add(new Banner(1, R.drawable.promotion1, getString(R.string.promo_title)));

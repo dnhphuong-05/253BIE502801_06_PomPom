@@ -10,7 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/md_theme_light_primary"
-        app:elevation="0dp">
+        android:fitsSystemWindows="true"
+        app:elevation="0dp"
+        app:liftOnScroll="false"
+        app:statusBarForeground="@color/md_theme_light_primary">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/profileHeader"
@@ -49,8 +52,7 @@
                     android:layout_gravity="bottom|end"
                     android:layout_marginEnd="6dp"
                     android:layout_marginBottom="6dp"
-                    android:src="@drawable/ic_pin"
-                    app:tint="@color/brand_pink"
+                    android:src="@drawable/ic_crown_gold"
                     tools:ignore="ContentDescription" />
             </FrameLayout>
 
@@ -58,15 +60,14 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
                 android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="@id/avatarContainer"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/avatarContainer"
-                app:layout_constraintTop_toTopOf="@id/avatarContainer">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/avatarContainer">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
@@ -75,7 +76,9 @@
                         android:id="@+id/tvUserName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
                         android:fontFamily="@font/poppins_semibold"
+                        android:maxLines="1"
                         android:text="Phương Hoài"
                         android:textColor="@color/text_primary"
                         android:textSize="22sp" />
@@ -84,8 +87,7 @@
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         android:layout_marginStart="6dp"
-                        android:src="@drawable/ic_pin"
-                        app:tint="@color/brand_pink"
+                        android:src="@drawable/ic_crown_gold"
                         tools:ignore="ContentDescription" />
                 </LinearLayout>
 
@@ -102,8 +104,7 @@
                     <ImageView
                         android:layout_width="14dp"
                         android:layout_height="14dp"
-                        android:src="@drawable/ic_pin"
-                        app:tint="@color/brand_pink"
+                        android:src="@drawable/ic_crown_gold"
                         tools:ignore="ContentDescription" />
 
                     <TextView
@@ -154,6 +155,7 @@
 
             <!-- Top Icons -->
             <LinearLayout
+                android:id="@+id/topIcons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -163,16 +165,18 @@
                     android:id="@+id/btnNotifications"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:src="@drawable/ic_pin"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_notification"
                     app:tint="@color/text_primary"
                     tools:ignore="ContentDescription" />
 
                 <ImageView
-                    android:id="@+id/btnLogout"
+                    android:id="@+id/btnSettings"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_marginStart="16dp"
-                    android:src="@drawable/ic_pin"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_settings"
                     app:tint="@color/text_primary"
                     tools:ignore="ContentDescription" />
             </LinearLayout>
@@ -299,10 +303,13 @@
 
             <!-- Orders Grid -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMyOrders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="20dp"
+                android:clickable="true"
+                android:focusable="true"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
@@ -343,12 +350,11 @@
                         android:orientation="horizontal"
                         android:weightSum="5">
 
-                        <!-- Simplified for brevity, same icons using ic_pin -->
-                        <include layout="@layout/item_order_status_demo" />
-                        <include layout="@layout/item_order_status_demo" />
-                        <include layout="@layout/item_order_status_demo" />
-                        <include layout="@layout/item_order_status_demo" />
-                        <include layout="@layout/item_order_status_demo" />
+                        <include android:id="@+id/statusPending" layout="@layout/item_order_status_demo" />
+                        <include android:id="@+id/statusPacking" layout="@layout/item_order_status_demo" />
+                        <include android:id="@+id/statusShipping" layout="@layout/item_order_status_demo" />
+                        <include android:id="@+id/statusDelivered" layout="@layout/item_order_status_demo" />
+                        <include android:id="@+id/statusCompleted" layout="@layout/item_order_status_demo" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -379,6 +385,25 @@
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Logout -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Đăng xuất"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_pink"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_logout"
+                app:iconGravity="textStart"
+                app:iconTint="@color/brand_pink"
+                app:strokeColor="@color/brand_pink"
+                app:strokeWidth="1.5dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

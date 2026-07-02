@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pill indicator with horizontal/vertical insets so it never touches (and
+     gets clipped by) the TabLayout edges. Colour is tinted by tabIndicatorColor. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="6dp"
+    android:insetTop="4dp"
+    android:insetRight="6dp"
+    android:insetBottom="4dp">
+    <shape android:shape="rectangle">
+        <solid android:color="@color/brand_pink" />
+        <corners android:radius="22dp" />
+    </shape>
+</inset>

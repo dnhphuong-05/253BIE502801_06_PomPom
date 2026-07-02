@@ -10,7 +10,9 @@
         android:layout_height="wrap_content"
         android:background="@color/md_theme_light_primary"
         android:fitsSystemWindows="true"
-        app:elevation="0dp">
+        app:elevation="0dp"
+        app:liftOnScroll="false"
+        app:statusBarForeground="@color/md_theme_light_primary">
 
         <!-- ══ Top header bar ══ -->
         <androidx.constraintlayout.widget.ConstraintLayout
