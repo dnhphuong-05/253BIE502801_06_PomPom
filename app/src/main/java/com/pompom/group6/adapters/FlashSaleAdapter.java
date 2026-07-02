@@ -1,5 +1,6 @@
 package com.pompom.group6.adapters;
 
+import android.content.Intent;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
+import com.pompom.group6.activities.ProductDetailActivity;
 import com.pompom.group6.models.PromotionProduct;
 
 import java.util.List;
@@ -53,6 +55,12 @@ public class FlashSaleAdapter extends RecyclerView.Adapter<FlashSaleAdapter.View
                     .placeholder(R.drawable.promotion1)
                     .into(holder.ivImage);
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), ProductDetailActivity.class);
+            intent.putExtra("product_id", product.getProductId());
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override

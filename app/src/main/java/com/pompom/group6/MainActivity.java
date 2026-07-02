@@ -108,6 +108,10 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setOffscreenPageLimit(3);
     }
 
+    public void switchToTab(int index) {
+        binding.viewPager.setCurrentItem(index);
+    }
+
     private void setupNavigation() {
         binding.navHome.setOnClickListener(v -> binding.viewPager.setCurrentItem(0));
         binding.navShop.setOnClickListener(v -> binding.viewPager.setCurrentItem(1));

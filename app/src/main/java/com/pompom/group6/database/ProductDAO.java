@@ -42,6 +42,14 @@ public class ProductDAO {
         return getProductsByQuery(query, new String[]{String.valueOf(limit)});
     }
 
+    public List<Product> searchProducts(String keyword) {
+        String query = "SELECT p.*, " +
+                "(SELECT AVG(rating) FROM product_reviews pr WHERE pr.product_id = p.product_id) as avg_rating, " +
+                "(SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.product_id) as review_count " +
+                "FROM products p WHERE p.is_active = 1 AND p.name LIKE ?";
+        return getProductsByQuery(query, new String[]{"%" + keyword + "%"});
+    }
+
     public List<Product> getProductsPaginated(int limit, int offset) {
         String query = "SELECT p.*, " +
                 "(SELECT AVG(rating) FROM product_reviews pr WHERE pr.product_id = p.product_id) as avg_rating, " +

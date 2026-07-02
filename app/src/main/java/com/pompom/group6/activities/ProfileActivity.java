@@ -13,6 +13,7 @@ import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.ActivityProfileBinding;
 import com.pompom.group6.databinding.ItemProfileMenuBinding;
 import com.pompom.group6.models.User;
+import com.pompom.group6.utils.StatusBarUtils;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -23,11 +24,8 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Edge-to-edge transparency
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        );
-        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        // Transparent status bar: this screen's background shows through.
+        StatusBarUtils.applyTransparent(this);
 
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

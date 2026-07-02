@@ -10,7 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/md_theme_light_primary"
-        app:elevation="0dp">
+        android:fitsSystemWindows="true"
+        app:elevation="0dp"
+        app:liftOnScroll="false"
+        app:statusBarForeground="@color/md_theme_light_primary">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/profileHeader"

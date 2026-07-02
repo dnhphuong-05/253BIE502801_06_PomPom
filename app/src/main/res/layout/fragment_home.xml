@@ -12,7 +12,9 @@
         android:layout_height="wrap_content"
         android:background="@color/md_theme_light_primary"
         android:fitsSystemWindows="true"
-        app:elevation="0dp">
+        app:elevation="0dp"
+        app:liftOnScroll="false"
+        app:statusBarForeground="@color/md_theme_light_primary">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,6 +36,9 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginEnd="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
                     android:src="@drawable/ic_notification"
                     app:layout_constraintBottom_toBottomOf="@id/iv_logo"
@@ -53,22 +58,57 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"/>
 
-                <ImageView
-                    android:id="@+id/iv_profile"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_user2"
+                <FrameLayout
+                    android:id="@+id/profileContainer"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
                     app:layout_constraintBottom_toBottomOf="@id/iv_logo"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/iv_logo"
-                    app:tint="@color/brand_background" />
+                    app:layout_constraintTop_toTopOf="@id/iv_logo">
+
+                    <!-- Default icon (shown when logged out) -->
+                    <ImageView
+                        android:id="@+id/iv_profile"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_user2"
+                        app:tint="@color/brand_background" />
+
+                    <!-- Avatar frame (shown when logged in) -->
+                    <ImageView
+                        android:id="@+id/iv_profile_frame"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@null"
+                        android:src="@drawable/khung_avatar"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/iv_profile_avatar"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_avatar"
+                        android:visibility="gone"
+                        app:shapeAppearanceOverlay="@style/CircleShape" />
+                </FrameLayout>
 
                 <!-- Search Bar -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSearchBar"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_marginTop="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/md_theme_light_surface"
                     app:cardCornerRadius="22dp"
                     app:cardElevation="2dp"
@@ -169,9 +209,13 @@
 
                 <!-- AI Makeup -->
                 <LinearLayout
+                    android:id="@+id/featureAiMakeup"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -186,16 +230,20 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="@font/poppins_regular"
-                        android:text="@string/ai_makeup"
+                        android:text="Gọi AI"
                         android:textColor="@color/text_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
                 <!-- Voucher -->
                 <LinearLayout
+                    android:id="@+id/featureVoucher"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -217,9 +265,13 @@
 
                 <!-- Membership -->
                 <LinearLayout
+                    android:id="@+id/featureMembership"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -234,16 +286,20 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="@font/poppins_regular"
-                        android:text="@string/membership"
+                        android:text="Hội viên"
                         android:textColor="@color/text_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
                 <!-- Community -->
                 <LinearLayout
+                    android:id="@+id/featureCommunity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -258,7 +314,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:fontFamily="@font/poppins_regular"
-                        android:text="@string/community"
+                        android:text="Tạo bài viết"
                         android:textColor="@color/text_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -454,6 +510,8 @@
                     android:layout_height="40dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginStart="96dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:background="@drawable/bg_pink_gradient_button"
                     android:gravity="center"
                     android:text="XEM TẤT CẢ ›"
@@ -515,9 +573,12 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/btnViewAllBestSellers"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_white_pill_button"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:fontFamily="@font/poppins_regular"
                         android:gravity="top"
                         android:text="Xem tất cả ›"
