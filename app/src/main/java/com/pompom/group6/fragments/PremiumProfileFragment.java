@@ -49,9 +49,6 @@ public class PremiumProfileFragment extends Fragment {
     }
 
     private void setupLogout() {
-        binding.btnNotifications.setOnClickListener(v ->
-                toast("Bạn không có thông báo mới"));
-
         binding.btnSettings.setOnClickListener(v ->
                 startActivity(new android.content.Intent(requireContext(),
                         com.pompom.group6.activities.SettingsActivity.class)));
@@ -87,7 +84,7 @@ public class PremiumProfileFragment extends Fragment {
 
         currentUser = userDAO.getUserById(currentUserId);
         if (currentUser != null) {
-            binding.tvUserName.setText(currentUser.getFullName());
+            binding.tvUserName.setText(lastTwoWords(currentUser.getFullName()));
             binding.tvMemberLevel.setText(currentUser.getMembershipLevel());
             binding.tvBio.setText(currentUser.getBio() != null && !currentUser.getBio().isEmpty() ?
                     currentUser.getBio() : "Beauty lover 💖");
@@ -203,6 +200,22 @@ public class PremiumProfileFragment extends Fragment {
 
     private void toast(String message) {
         android.widget.Toast.makeText(getContext(), message, android.widget.Toast.LENGTH_SHORT).show();
+    }
+
+    /** Returns only the last two words of a full name (e.g. "Nguyễn Thảo Nguyên" -> "Thảo Nguyên"). */
+    private String lastTwoWords(String fullName) {
+        if (fullName == null) {
+            return "";
+        }
+        String trimmed = fullName.trim();
+        if (trimmed.isEmpty()) {
+            return "";
+        }
+        String[] parts = trimmed.split("\\s+");
+        if (parts.length <= 2) {
+            return trimmed;
+        }
+        return parts[parts.length - 2] + " " + parts[parts.length - 1];
     }
 
     @Override

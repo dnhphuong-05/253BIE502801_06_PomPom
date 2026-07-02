@@ -13,6 +13,7 @@
 
     <string name="btn_continue">Tiếp tục</string>
     <string name="btn_start">Bắt đầu ngay</string>
+    <string name="btn_skip">Bỏ qua</string>
 
     <string name="nav_home">Home</string>
     <string name="nav_shop">Shop</string>
