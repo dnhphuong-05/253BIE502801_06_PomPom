@@ -44,7 +44,8 @@
         <activity
             android:name=".activities.PostDetailActivity"
             android:exported="false"
-            android:theme="@style/Theme.Group6" />
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".activities.RegisterActivity"
@@ -72,6 +73,17 @@
             android:exported="false"
             android:theme="@style/Theme.Group6"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.AddCommunityPostActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.StoryViewerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6.FullScreen" />
     </application>
 
 </manifest>
