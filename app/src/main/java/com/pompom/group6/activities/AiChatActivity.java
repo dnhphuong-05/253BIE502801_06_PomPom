@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import com.pompom.group6.databinding.ActivityAiChatBinding;
+import com.pompom.group6.utils.StatusBarUtils;
 
 public class AiChatActivity extends AppCompatActivity {
 
@@ -12,9 +13,9 @@ public class AiChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Set status bar color and dark icons for better visibility of battery/wifi
-        getWindow().setStatusBarColor(android.graphics.Color.WHITE);
+
+        // Transparent status bar; keep dark icons as before.
+        StatusBarUtils.applyTransparent(this);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         binding = ActivityAiChatBinding.inflate(getLayoutInflater());

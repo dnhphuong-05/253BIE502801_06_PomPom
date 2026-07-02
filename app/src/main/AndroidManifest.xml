@@ -72,6 +72,32 @@
             android:exported="false"
             android:theme="@style/Theme.Group6"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.SearchActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.NotificationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.VoucherListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.ComingSoonActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.HoiVienPomPomActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
     </application>
 
 </manifest>
