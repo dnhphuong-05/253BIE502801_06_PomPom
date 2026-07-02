@@ -71,10 +71,24 @@ public class OnboardingActivity extends AppCompatActivity {
             if (binding.viewPager.getCurrentItem() + 1 < onboardingAdapter.getItemCount()) {
                 binding.viewPager.setCurrentItem(binding.viewPager.getCurrentItem() + 1);
             } else {
-                startActivity(new Intent(OnboardingActivity.this, MainActivity.class));
-                finish();
+                finishOnboarding();
             }
         });
+
+        binding.btnSkip.setOnClickListener(v -> finishOnboarding());
+    }
+
+    /**
+     * Marks onboarding as seen (in an app-level pref that survives logout) so it is
+     * not shown on later launches, then enters the app.
+     */
+    private void finishOnboarding() {
+        getSharedPreferences("app_prefs", MODE_PRIVATE)
+                .edit()
+                .putBoolean("onboarding_completed", true)
+                .apply();
+        startActivity(new Intent(OnboardingActivity.this, MainActivity.class));
+        finish();
     }
 
     private void setupOnboardingItems() {

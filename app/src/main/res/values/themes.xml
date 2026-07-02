@@ -3,6 +3,8 @@
     <style name="Base.Theme.Group6" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Brand-coloured window background so activity-launch gaps never flash black. -->
+        <item name="android:windowBackground">@color/md_theme_light_background</item>
     </style>
 
     <style name="Theme.Group6" parent="Base.Theme.Group6" />
