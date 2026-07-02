@@ -98,6 +98,11 @@
             android:name=".activities.HoiVienPomPomActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
     </application>
 
 </manifest>
