@@ -1,5 +1,6 @@
 package com.pompom.group6.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,6 +21,19 @@ public class CommunityDAO {
         this.dbHelper = new DatabaseHelper(context);
     }
 
+    public long insertPost(int userId, String content, String images, String postType) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("user_id", userId);
+        values.put("content", content);
+        values.put("images", images);
+        values.put("post_type", postType);
+        values.put("like_count", 0);
+        values.put("comment_count", 0);
+        
+        return db.insert("community_posts", null, values);
+    }
+
     public List<CommunityPost> getTopHighlights(int limit) {
         return getPostsByType(null, limit);
     }
@@ -35,7 +49,7 @@ public class CommunityDAO {
         );
         
         List<String> args = new ArrayList<>();
-        if (type != null && !type.equalsIgnoreCase("For you")) {
+        if (type != null && !type.equalsIgnoreCase("For you") && !type.equalsIgnoreCase("Bài viết")) {
             query.append("WHERE cp.post_type = ? ");
             args.add(type);
         }
@@ -63,11 +77,40 @@ public class CommunityDAO {
             Log.e(TAG, "Error fetching posts: " + e.getMessage());
         }
         
-        if (posts.isEmpty()) {
-            posts.add(new CommunityPost(1, 1, "Makeup trong veo cho buổi hẹn hò ✨", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781529924/pos1_zvo164.png", 1200, 89, "Looks", "@fairy_makeup", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340916/face_cpqlrz.webp"));
-            posts.add(new CommunityPost(2, 2, "Review bộ sưu tập Unicorn siêu xinh!", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781532226/pos2_z8pge2.png", 850, 45, "Review", "@pompom_fan", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344277/PomPom_Cloud_Cushion_kwewua.webp"));
-        }
+        return posts;
+    }
+
+    public List<CommunityPost> searchPosts(String keyword, int limit) {
+        List<CommunityPost> posts = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
         
+        String query = "SELECT cp.*, u.full_name, u.avatar_url " +
+                      "FROM community_posts cp " +
+                      "JOIN users u ON cp.user_id = u.user_id " +
+                      "WHERE cp.content LIKE ? OR u.full_name LIKE ? " +
+                      "ORDER BY cp.created_at DESC LIMIT ?";
+        
+        String keywordArg = "%" + keyword + "%";
+        
+        try (Cursor cursor = db.rawQuery(query, new String[]{keywordArg, keywordArg, String.valueOf(limit)})) {
+            if (cursor.moveToFirst()) {
+                do {
+                    int postId = cursor.getInt(cursor.getColumnIndexOrThrow("post_id"));
+                    int userId = cursor.getInt(cursor.getColumnIndexOrThrow("user_id"));
+                    String content = cursor.getString(cursor.getColumnIndexOrThrow("content"));
+                    String imageUrl = cursor.getString(cursor.getColumnIndexOrThrow("images"));
+                    int likes = cursor.getInt(cursor.getColumnIndexOrThrow("like_count"));
+                    int comments = cursor.getInt(cursor.getColumnIndexOrThrow("comment_count"));
+                    String pType = cursor.getString(cursor.getColumnIndexOrThrow("post_type"));
+                    String uName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
+                    String uAvatar = cursor.getString(cursor.getColumnIndexOrThrow("avatar_url"));
+
+                    posts.add(new CommunityPost(postId, userId, content, imageUrl, likes, comments, pType, uName, uAvatar));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error searching posts: " + e.getMessage());
+        }
         return posts;
     }
 

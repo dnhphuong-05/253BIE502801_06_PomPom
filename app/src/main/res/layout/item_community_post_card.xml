@@ -113,72 +113,42 @@
             android:textColor="@color/text_primary"
             android:textSize="14sp" />
 
-        <!-- Content: Images (Conditional Layout handled in Adapter) -->
-        <!-- SINGLE IMAGE LAYOUT -->
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivPostImageSingle"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:layout_marginTop="16dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            app:shapeAppearanceOverlay="@style/RoundedImageView"
-            tools:src="@drawable/promotion1"
-            tools:visibility="visible" />
-
-        <!-- MULTI IMAGE LAYOUT -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutMultiImage"
+        <!-- Content: Images Slider (ViewPager2) -->
+        <FrameLayout
+            android:id="@+id/layoutPostImages"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:visibility="gone"
-            tools:visibility="gone">
+            android:layout_marginTop="16dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivPostImageMain"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/promotion1"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toStartOf="@id/layoutSideImages"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/RoundedImageView" />
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpPostImages"
+                android:layout_width="match_parent"
+                android:layout_height="350dp" />
 
-            <LinearLayout
-                android:id="@+id/layoutSideImages"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="8dp"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="@id/ivPostImageMain"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/ivPostImageMain"
-                app:layout_constraintWidth_percent="0.35">
+            <ImageView
+                android:id="@+id/ivBigHeart"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:alpha="0"
+                android:scaleX="0"
+                android:scaleY="0"
+                android:src="@drawable/ic_heart"
+                app:tint="@color/white" />
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivPostImageSide1"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/promotion2"
-                    app:shapeAppearanceOverlay="@style/RoundedImageView" />
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivPostImageSide2"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_weight="1"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/promotion3"
-                    app:shapeAppearanceOverlay="@style/RoundedImageView" />
-            </LinearLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@android:color/transparent"
+                app:tabBackground="@drawable/indicator_selector"
+                app:tabGravity="center"
+                app:tabIndicatorHeight="0dp"
+                app:tabMaxWidth="12dp"
+                app:tabPaddingEnd="4dp"
+                app:tabPaddingStart="4dp" />
+        </FrameLayout>
 
         <!-- Content: Hashtags -->
         <LinearLayout

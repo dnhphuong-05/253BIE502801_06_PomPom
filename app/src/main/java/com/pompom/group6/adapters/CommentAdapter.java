@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -50,6 +51,24 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                 .circleCrop()
                 .placeholder(R.drawable.logo_pompom)
                 .into(holder.ivAvatar);
+
+        holder.btnLike.setOnClickListener(v -> {
+            boolean isLiked = v.getTag() != null && (boolean) v.getTag();
+            int currentLikes = comment.getLikes();
+            
+            if (isLiked) {
+                v.setTag(false);
+                ((ImageView) v).setImageResource(R.drawable.ic_heart);
+                ((ImageView) v).setColorFilter(ContextCompat.getColor(v.getContext(), R.color.text_secondary));
+                comment.setLikes(currentLikes - 1);
+            } else {
+                v.setTag(true);
+                ((ImageView) v).setImageResource(R.drawable.ic_heart);
+                ((ImageView) v).setColorFilter(ContextCompat.getColor(v.getContext(), R.color.brand_pink));
+                comment.setLikes(currentLikes + 1);
+            }
+            holder.tvLikes.setText(String.valueOf(comment.getLikes()));
+        });
     }
 
     @Override
@@ -58,12 +77,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     static class CommentViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivAvatar;
+        ImageView ivAvatar, btnLike;
         TextView tvName, tvRank, tvContent, tvTime, tvLikes;
 
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.ivUserAvatar);
+            btnLike = itemView.findViewById(R.id.btnLikeComment);
             tvName = itemView.findViewById(R.id.tvUserName);
             tvRank = itemView.findViewById(R.id.tvUserRank);
             tvContent = itemView.findViewById(R.id.tvCommentContent);

@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/indicator_active_pill" android:state_selected="true" />
-    <item android:drawable="@drawable/indicator_inactive_dot" />
+    <item android:state_selected="true">
+        <shape android:shape="oval">
+            <solid android:color="@color/brand_pink" />
+            <size android:width="8dp" android:height="8dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#D9D9D9" />
+            <size android:width="8dp" android:height="8dp" />
+        </shape>
+    </item>
 </selector>

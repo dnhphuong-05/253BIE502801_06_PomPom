@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)
+    implementation(libs.swiperefreshlayout)
     
     // Cloudinary
     implementation("com.cloudinary:cloudinary-android:3.1.2")
