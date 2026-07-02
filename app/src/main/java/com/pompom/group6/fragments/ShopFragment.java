@@ -1,5 +1,6 @@
 package com.pompom.group6.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.pompom.group6.R;
+import com.pompom.group6.activities.CartActivity;
 import com.pompom.group6.adapters.CategoryAdapter;
 import com.pompom.group6.adapters.ProductAdapter;
 import com.pompom.group6.database.CategoryDAO;
@@ -23,15 +25,17 @@ import com.pompom.group6.database.PromotionDAO;
 import com.pompom.group6.databinding.FragmentShopBinding;
 import com.pompom.group6.models.Category;
 import com.pompom.group6.models.Product;
+import com.pompom.group6.utils.CartManager;
 
 import java.util.List;
 
-public class ShopFragment extends Fragment {
+public class ShopFragment extends Fragment implements CartManager.CartChangeListener {
 
     private FragmentShopBinding binding;
     private ProductDAO productDAO;
     private CategoryDAO categoryDAO;
     private PromotionDAO promotionDAO;
+    private CartManager cartManager;
     
     private ProductAdapter productAdapter;
     private CategoryAdapter categoryAdapter;
@@ -55,7 +59,10 @@ public class ShopFragment extends Fragment {
         productDAO = new ProductDAO(requireContext());
         categoryDAO = new CategoryDAO(requireContext());
         promotionDAO = new PromotionDAO(requireContext());
+        cartManager = CartManager.getInstance(requireContext());
+        cartManager.addListener(this);
         
+        setupCartIcon();
         setupMarquee();
         setupCategories();
         setupProducts();
@@ -93,6 +100,33 @@ public class ShopFragment extends Fragment {
             binding.rvProducts.setLayoutManager(layoutManager);
             productAdapter.notifyDataSetChanged();
         });
+    }
+
+    private void setupCartIcon() {
+        binding.ivCart.setOnClickListener(v -> {
+            Intent intent = new Intent(requireActivity(), CartActivity.class);
+            startActivity(intent);
+            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        });
+        updateCartBadge(cartManager.getTotalCount());
+    }
+
+    private void updateCartBadge(int count) {
+        if (binding.tvCartBadge != null) {
+            if (count > 0) {
+                binding.tvCartBadge.setVisibility(View.VISIBLE);
+                binding.tvCartBadge.setText(count > 99 ? "99+" : String.valueOf(count));
+            } else {
+                binding.tvCartBadge.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    @Override
+    public void onCartChanged(int totalCount) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> updateCartBadge(totalCount));
+        }
     }
 
     private void setupMarquee() {
@@ -182,6 +216,7 @@ public class ShopFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (cartManager != null) cartManager.removeListener(this);
         binding = null;
     }
 }

@@ -72,6 +72,18 @@
             android:exported="false"
             android:theme="@style/Theme.Group6"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.CartActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6.Translucent"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.CheckoutActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
