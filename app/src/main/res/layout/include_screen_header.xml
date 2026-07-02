@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/brand_pink"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="14dp">
+
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp"
+        android:src="@drawable/ic_left_chevron"
+        app:tint="@color/white"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tvHeaderTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Title"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+</LinearLayout>

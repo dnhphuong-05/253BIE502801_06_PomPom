@@ -68,4 +68,7 @@
     <color name="text_dark">#3B2E31</color>
     <color name="black">#000000</color>
 
+    <!-- Neutral divider used by settings/profile rows -->
+    <color name="divider_light">#F2F2F7</color>
+
 </resources>

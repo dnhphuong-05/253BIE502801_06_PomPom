@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/md_theme_light_background"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/header"
+        layout="@layout/include_screen_header" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Phương thức thanh toán mặc định"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="0dp">
+
+        <RadioGroup
+            android:id="@+id/rgPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <RadioButton
+                android:id="@+id/rbCod"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:buttonTint="@color/brand_pink"
+                android:fontFamily="@font/poppins_regular"
+                android:paddingStart="8dp"
+                android:text="Thanh toán khi nhận hàng (COD)"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rbVisa"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:buttonTint="@color/brand_pink"
+                android:fontFamily="@font/poppins_regular"
+                android:paddingStart="8dp"
+                android:text="Thẻ VISA / Mastercard"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rbVnpay"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:buttonTint="@color/brand_pink"
+                android:fontFamily="@font/poppins_regular"
+                android:paddingStart="8dp"
+                android:text="VNPay"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rbMomo"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:buttonTint="@color/brand_pink"
+                android:fontFamily="@font/poppins_regular"
+                android:paddingStart="8dp"
+                android:text="Ví MoMo"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rbZalopay"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:buttonTint="@color/brand_pink"
+                android:fontFamily="@font/poppins_regular"
+                android:paddingStart="8dp"
+                android:text="ZaloPay"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+        </RadioGroup>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>
