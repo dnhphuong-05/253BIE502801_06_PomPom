@@ -1,143 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="160dp"
-    android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="0dp"
-    app:strokeColor="#FAD6D7"
-    app:strokeWidth="1dp">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:background="@color/white">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:clipChildren="false"
-            android:clipToPadding="false">
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivProductImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/promotion1"
-                app:shapeAppearanceOverlay="@style/RoundedImageView" />
-
-            <!-- Ranking Badge (Ribbon Style) -->
-            <FrameLayout
-                android:id="@+id/layoutRanking"
-                android:layout_width="40dp"
-                android:layout_height="54dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="-5dp"
-                android:visibility="visible"
-                android:clipChildren="false"
-                android:clipToPadding="false">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/ic_rank" />
-
-
-                <TextView
-                    android:id="@+id/tvRanking"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="22dp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:gravity="center"
-                    android:lineSpacingExtra="-2dp"
-                    android:text="TOP\n1"
-                    android:textColor="@color/white"
-                    android:textSize="9sp"
-                    android:textStyle="bold" />
-            </FrameLayout>
-
-            <!-- Wishlist Heart -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_gravity="top|end"
-                android:layout_margin="8dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_heart_pink" />
-            </com.google.android.material.card.MaterialCardView>
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/tvProductTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/poppins_medium"
-            android:maxLines="1"
-            android:text="Product Name"
-            android:textColor="@color/text_primary"
-            android:textSize="13sp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"/>
-
-        <TextView
-            android:id="@+id/tvProductPrice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_semibold"
-            android:text="799.000đ"
-            android:textColor="@color/md_theme_light_primary"
-            android:textSize="14sp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp">
-
-            <RatingBar
-                android:id="@+id/ratingBar"
-                style="@android:style/Widget.DeviceDefault.RatingBar.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:isIndicator="true"
-                android:numStars="5"
-                android:progressTint="@color/brand_gold"
-                android:rating="4.9"
-                android:scaleX="0.7"
-                android:scaleY="0.7"
-                android:transformPivotX="0dp" />
-
-            <TextView
-                android:id="@+id/tvRatingText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:text="4.9 (1.2k)"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+<!--  2-col GRID card  (VIEW_TYPE_VERTICAL / isHorizontal=false)  -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="6dp" app:cardBackgroundColor="@color/white" app:cardCornerRadius="16dp" app:cardElevation="0dp" app:strokeColor="@color/pink_light" app:strokeWidth="1dp">
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+        <!--  Product image (top, full width, 150dp height)  -->
+        <ImageView android:id="@+id/ivProductImage" android:layout_width="0dp" android:layout_height="150dp" android:scaleType="centerCrop" android:src="@drawable/promotion1" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" tools:ignore="ContentDescription"/>
+        <!--  Discount badge — top-left of CARD  -->
+        <TextView android:id="@+id/tvDiscountBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_discount_badge" android:elevation="6dp" android:fontFamily="@font/poppins_semibold" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="20% OFF" android:textColor="@color/white" android:textSize="10sp" android:visibility="gone" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" tools:ignore="SmallSp" tools:visibility="visible"/>
+        <!--  Wishlist heart — top-right of CARD  -->
+        <com.google.android.material.card.MaterialCardView android:id="@+id/cardWishlist" android:layout_width="30dp" android:layout_height="30dp" android:layout_margin="6dp" android:elevation="6dp" app:cardBackgroundColor="@color/white" app:cardCornerRadius="15dp" app:cardElevation="2dp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:strokeWidth="0dp">
+            <ImageView android:id="@+id/ivWishlistHeart" android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="center" android:src="@drawable/ic_heart_pink" tools:ignore="ContentDescription"/>
+        </com.google.android.material.card.MaterialCardView>
+        <!--  Product title  -->
+        <TextView android:id="@+id/tvProductTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_marginTop="8dp" android:layout_marginEnd="10dp" android:ellipsize="end" android:fontFamily="@font/poppins_semibold" android:maxLines="1" android:text="PomPom Unicorn Magic Palette" android:textColor="@color/text_primary" android:textSize="13sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/ivProductImage"/>
+        <!--  Price row  -->
+        <LinearLayout android:id="@+id/priceContainer" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_marginTop="4dp" android:layout_marginEnd="10dp" android:gravity="center_vertical" android:orientation="horizontal" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/tvProductTitle">
+            <TextView android:id="@+id/tvProductPrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/poppins_semibold" android:text="125.000đ" android:textColor="@color/brand_pink" android:textSize="15sp"/>
+            <TextView android:id="@+id/tvOriginalPrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:fontFamily="@font/poppins_regular" android:text="200.000đ" android:textColor="@color/text_secondary" android:textSize="11sp" android:visibility="gone" tools:visibility="visible"/>
         </LinearLayout>
-    </LinearLayout>
+        <!--  Rating row  -->
+        <LinearLayout android:id="@+id/ratingContainer" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_marginTop="2dp" android:layout_marginEnd="10dp" android:gravity="center_vertical" android:orientation="horizontal" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/priceContainer">
+            <RatingBar android:id="@+id/ratingBar" style="@android:style/Widget.DeviceDefault.RatingBar.Small" android:layout_width="wrap_content" android:layout_height="wrap_content" android:isIndicator="true" android:numStars="5" android:progressTint="@color/brand_gold" android:rating="4.0" android:scaleX="0.78" android:scaleY="0.78" android:stepSize="0.1" android:transformPivotX="0dp"/>
+            <TextView android:id="@+id/tvRatingText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/poppins_regular" android:text="4.0" android:textColor="@color/text_secondary" android:textSize="11sp"/>
+            <Space android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
+            <TextView android:id="@+id/tvReviewCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/poppins_regular" android:text="(0)" android:textColor="@color/text_secondary" android:textSize="11sp"/>
+        </LinearLayout>
+        <!--  Add to bag button  -->
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnAddToCart" android:layout_width="0dp" android:layout_height="36dp" android:layout_marginStart="10dp" android:layout_marginTop="8dp" android:layout_marginEnd="10dp" android:layout_marginBottom="10dp" android:fontFamily="@font/poppins_semibold" android:insetBottom="0dp" android:insetTop="0dp" android:text="Thêm vào túi" android:textColor="@color/brand_pink" android:textSize="12sp" app:backgroundTint="@color/brand_pink_light" app:cornerRadius="8dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/ratingContainer"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

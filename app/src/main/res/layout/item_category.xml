@@ -9,8 +9,9 @@
     android:background="@color/white">
 
     <com.google.android.material.card.MaterialCardView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:id="@+id/cardCategory"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         app:cardCornerRadius="32dp"
         app:cardElevation="0dp"
         app:strokeColor="@color/pink_light"

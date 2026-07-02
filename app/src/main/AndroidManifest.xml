@@ -103,67 +103,6 @@
             android:name=".activities.SettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6" />
-
-        <!-- Profile feature screens -->
-        <activity
-            android:name=".activities.AccountInfoActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".activities.AddressBookActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".activities.PaymentActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
-
-        <activity
-            android:name=".activities.PointsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
-
-        <activity
-            android:name=".activities.VouchersActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
-
-        <activity
-            android:name=".activities.WishlistActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
-
-        <activity
-            android:name=".activities.OrdersActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
-
-        <!-- Shopping / community screens (restored after merge) -->
-        <activity
-            android:name=".activities.CartActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
-
-        <activity
-            android:name=".activities.CheckoutActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".activities.AddCommunityPostActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".activities.StoryViewerActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
     </application>
 
 </manifest>
