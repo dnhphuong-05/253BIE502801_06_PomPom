@@ -3,24 +3,29 @@ package com.pompom.group6.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
-import com.google.android.material.tabs.TabLayoutMediator;
+import java.util.Locale;
+
 import com.pompom.group6.R;
 import com.pompom.group6.activities.CartActivity;
 import com.pompom.group6.activities.GuestOrderActivity;
 import com.pompom.group6.activities.ProductConsultationChatActivity;
 import com.pompom.group6.fragments.ProductOptionsBottomSheetDialog;
 import com.pompom.group6.fragments.VoucherSelectionBottomSheet;
+import com.pompom.group6.adapters.ProductAdapter;
 import com.pompom.group6.adapters.ProductImageAdapter;
 import com.pompom.group6.adapters.ReviewAdapter;
+import com.pompom.group6.adapters.ThumbnailAdapter;
 import com.pompom.group6.adapters.VariantAdapter;
 import com.pompom.group6.adapters.VoucherAdapter;
 import com.pompom.group6.database.ProductDAO;
@@ -35,16 +40,24 @@ import com.pompom.group6.utils.CartManager;
 
 import java.util.List;
 
-public class ProductDetailActivity extends AppCompatActivity {
+public class ProductDetailActivity extends AppCompatActivity
+        implements CartManager.CartChangeListener {
 
     private ActivityProductDetailBinding binding;
     private ProductDAO productDAO;
     private PromotionDAO promotionDAO;
     private CartManager cartManager;
     private int productId;
-    private GestureDetector gestureDetector;
     private Product currentProduct;
     private boolean isWishlisted = false; // fix 2A
+
+    // Edge-swipe-to-exit (vuốt mép trái sang phải để thoát)
+    private float swipeDownX, swipeDownY;
+    private boolean edgeSwipe, swipeDragging;
+    private float edgePx, slopPx;
+    private float colorStartPx, colorEndPx; // 10dp bắt đầu đổi màu → 20dp đổi hoàn toàn
+    private float iconLiftPx; // nâng icon lên trên ngón tay cho dễ nhìn
+    private final android.animation.ArgbEvaluator argbEvaluator = new android.animation.ArgbEvaluator();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +94,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             productDAO = new ProductDAO(this);
             promotionDAO = new PromotionDAO(this);
             cartManager = CartManager.getInstance(this);
+            cartManager.addListener(this);
+            updateCartBadge(cartManager.getTotalCount());
 
             setupSwipeBack();
             setupListeners();
@@ -92,29 +107,114 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void setupSwipeBack() {
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 != null && e2 != null) {
-                    float diffX = e2.getX() - e1.getX();
-                    float diffY = e2.getY() - e1.getY();
-                    // Detect swipe from left to right
-                    if (Math.abs(diffX) > Math.abs(diffY) && diffX > 150 && Math.abs(velocityX) > 100) {
-                        finish();
-                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (cartManager != null) updateCartBadge(cartManager.getTotalCount());
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (cartManager != null) cartManager.removeListener(this);
+    }
+
+    @Override
+    public void onCartChanged(int totalCount) {
+        runOnUiThread(() -> updateCartBadge(totalCount));
+    }
+
+    private void updateCartBadge(int count) {
+        if (binding == null || binding.tvCartBadge == null) return;
+        if (count > 0) {
+            binding.tvCartBadge.setVisibility(View.VISIBLE);
+            binding.tvCartBadge.setText(count > 99 ? "99+" : String.valueOf(count));
+        } else {
+            binding.tvCartBadge.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupSwipeBack() {
+        float density = getResources().getDisplayMetrics().density;
+        edgePx = 32 * density; // chỉ kích hoạt khi ngón chạm sát mép trái màn hình
+        slopPx = 8 * density;
+        colorStartPx = 20 * density; // kéo tới 20dp thì bắt đầu đổi màu nút
+        colorEndPx = 30 * density;   // kéo tới 30dp thì đổi màu hoàn toàn → thả để thoát
+        iconLiftPx = 64 * density;   // nâng icon cao hơn ngón cho dễ nhìn
+    }
+
+    /**
+     * Task 3 — Vuốt từ mép trái sang phải: màn hình kéo theo ngón + hiện mũi tên;
+     * thả tay khi kéo đủ xa thì thoát, chưa đủ thì bật lại.
+     */
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (gestureDetector != null) {
-            gestureDetector.onTouchEvent(ev);
+        if (binding == null) return super.dispatchTouchEvent(ev);
+        int screenW = getResources().getDisplayMetrics().widthPixels;
+
+        switch (ev.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                swipeDownX = ev.getX();
+                swipeDownY = ev.getY();
+                edgeSwipe = swipeDownX <= edgePx;
+                swipeDragging = false;
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                if (edgeSwipe && !swipeDragging) {
+                    float dx = ev.getX() - swipeDownX;
+                    float dy = ev.getY() - swipeDownY;
+                    if (dx > slopPx && dx > Math.abs(dy) * 1.5f) {
+                        swipeDragging = true;
+                        // Hủy sự kiện với các view con để không cuộn nhầm
+                        MotionEvent cancel = MotionEvent.obtain(ev);
+                        cancel.setAction(MotionEvent.ACTION_CANCEL);
+                        super.dispatchTouchEvent(cancel);
+                        cancel.recycle();
+                    }
+                }
+                if (swipeDragging) {
+                    float dx = Math.max(0, ev.getX() - swipeDownX);
+                    // Màn hình GIỮ CỐ ĐỊNH; icon di chuyển TỰ DO theo ngón (cả X và Y).
+                    View ind = binding.swipeBackIndicator;
+                    float homeCx = ind.getLeft() + ind.getWidth() / 2f;
+                    float homeCy = ind.getTop() + ind.getHeight() / 2f;
+                    ind.setAlpha(Math.min(1f, dx / (colorStartPx * 0.5f)));
+                    ind.setTranslationX(ev.getX() - homeCx);
+                    ind.setTranslationY(ev.getY() - homeCy - iconLiftPx);
+                    // 10dp bắt đầu đổi màu → 20dp đổi hoàn toàn:
+                    // nền + viền: trắng/hồng nhạt → hồng đậm; mũi tên: hồng nhạt → trắng.
+                    float t = Math.max(0f, Math.min(1f,
+                            (dx - colorStartPx) / (colorEndPx - colorStartPx)));
+                    int pinkLight = ContextCompat.getColor(this, R.color.brand_pink_light);
+                    int pinkDark = ContextCompat.getColor(this, R.color.pink_button);
+                    int bgColor = (int) argbEvaluator.evaluate(t, android.graphics.Color.WHITE, pinkDark);
+                    int strokeColor = (int) argbEvaluator.evaluate(t, pinkLight, pinkDark);
+                    int arrowColor = (int) argbEvaluator.evaluate(t, pinkLight, android.graphics.Color.WHITE);
+                    binding.swipeBackIndicator.setCardBackgroundColor(bgColor);
+                    binding.swipeBackIndicator.setStrokeColor(strokeColor);
+                    binding.ivSwipeArrow.setColorFilter(arrowColor);
+                    return true;
+                }
+                break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if (swipeDragging) {
+                    swipeDragging = false;
+                    edgeSwipe = false;
+                    float dx = Math.max(0, ev.getX() - swipeDownX);
+                    if (dx >= colorEndPx) {
+                        finish();
+                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                    } else {
+                        binding.swipeBackIndicator.animate()
+                                .alpha(0f).translationX(0f).translationY(0f).setDuration(180).start();
+                    }
+                    return true;
+                }
+                edgeSwipe = false;
+                break;
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -193,6 +293,35 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Task 1 — Slider ảnh chính + rail thumbnail bo tròn, đồng bộ hai chiều.
+     */
+    private void setupImageSlider(List<String> images) {
+        ProductImageAdapter pagerAdapter = new ProductImageAdapter(images);
+        binding.vpProductImages.setAdapter(pagerAdapter);
+
+        if (images.size() > 1) {
+            binding.rvThumbnails.setVisibility(View.VISIBLE);
+            binding.rvThumbnails.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(
+                    this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+            ThumbnailAdapter thumbAdapter = new ThumbnailAdapter(images,
+                    position -> binding.vpProductImages.setCurrentItem(position, true));
+            binding.rvThumbnails.setAdapter(thumbAdapter);
+
+            // Vuốt ảnh chính → cập nhật thumbnail đang chọn.
+            binding.vpProductImages.registerOnPageChangeCallback(
+                    new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+                        @Override
+                        public void onPageSelected(int position) {
+                            thumbAdapter.setSelectedPosition(position);
+                            binding.rvThumbnails.smoothScrollToPosition(position);
+                        }
+                    });
+        } else {
+            binding.rvThumbnails.setVisibility(View.GONE);
+        }
+    }
+
     private void loadProductData() {
         android.util.Log.d("ProductDetailActivity", "loadProductData() called with productId=" + productId);
         try {
@@ -267,20 +396,15 @@ public class ProductDetailActivity extends AppCompatActivity {
                 binding.tvReviewSectionTitle.setText("Đánh giá sản phẩm (" + product.getReviewCount() + ")");
                 binding.tvReviewCountSmall.setText("(" + product.getReviewCount() + " đánh giá)");
 
-                // Load images
+                // Load images (slider + thumbnail rail)
                 try {
                     List<String> images = productDAO.getProductImages(productId);
-                    if (images != null && !images.isEmpty()) {
-                        ProductImageAdapter adapter = new ProductImageAdapter(images);
-                        binding.vpProductImages.setAdapter(adapter);
-                        new TabLayoutMediator(binding.tabIndicator, binding.vpProductImages, (tab, position) -> {
-                        }).attach();
-                    } else if (product.getImageUrl() != null) {
-                        // Fallback to main image
-                        ProductImageAdapter adapter = new ProductImageAdapter(java.util.Collections.singletonList(product.getImageUrl()));
-                        binding.vpProductImages.setAdapter(adapter);
-                        new TabLayoutMediator(binding.tabIndicator, binding.vpProductImages, (tab, position) -> {
-                        }).attach();
+                    if (images == null || images.isEmpty()) {
+                        images = new java.util.ArrayList<>();
+                        if (product.getImageUrl() != null) images.add(product.getImageUrl());
+                    }
+                    if (!images.isEmpty()) {
+                        setupImageSlider(images);
                     }
                 } catch (Exception e) {
                     android.util.Log.e("ProductDetailActivity", "Error loading product images", e);
@@ -289,8 +413,12 @@ public class ProductDetailActivity extends AppCompatActivity {
                 // Load reviews list
                 try {
                     List<Review> reviews = productDAO.getReviewsForProduct(productId);
+                    bindReviewSummary(reviews);
                     if (reviews != null && !reviews.isEmpty()) {
                         binding.rvReviews.setVisibility(View.VISIBLE);
+                        binding.rvReviews.setLayoutManager(
+                                new androidx.recyclerview.widget.LinearLayoutManager(this));
+                        binding.rvReviews.setNestedScrollingEnabled(false);
                         ReviewAdapter reviewAdapter = new ReviewAdapter(reviews);
                         binding.rvReviews.setAdapter(reviewAdapter);
                     } else {
@@ -306,8 +434,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                     List<ProductVariant> variants = productDAO.getVariantsForProduct(productId);
                     if (variants != null && !variants.isEmpty()) {
                         binding.rvVariants.setVisibility(View.VISIBLE);
-                        // Display-only: no click, no selection highlight (fix 55)
-                        VariantAdapter variantAdapter = new VariantAdapter(variants, true);
+                        // Interactive: chọn màu → viền dày, các màu khác làm mờ (Task 2)
+                        VariantAdapter variantAdapter = new VariantAdapter(variants, variant -> { });
                         binding.rvVariants.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
                         binding.rvVariants.setAdapter(variantAdapter);
                     } else {
@@ -326,15 +454,35 @@ public class ProductDetailActivity extends AppCompatActivity {
                         VoucherAdapter voucherAdapter = new VoucherAdapter(vouchers);
                         binding.rvVouchers.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
                         binding.rvVouchers.setAdapter(voucherAdapter);
-                        binding.btnSeeAllVouchers.setText("Xem tất cả (" + vouchers.size() + ")");
-                        binding.btnSeeAllVouchers.setOnClickListener(v ->
-                                VoucherSelectionBottomSheet.show(getSupportFragmentManager(), code -> { }));
+                        binding.btnSeeAllVouchers.setText("Chọn voucher (" + vouchers.size() + ")");
+                        final List<Voucher> voucherList = vouchers;
+                        binding.btnSeeAllVouchers.setOnClickListener(v -> showVoucherRadioDialog(voucherList));
                     } else {
                         binding.rvVouchers.setVisibility(View.GONE);
                     }
                 } catch (Exception e) {
                     android.util.Log.e("ProductDetailActivity", "Error loading vouchers", e);
                     binding.rvVouchers.setVisibility(View.GONE);
+                }
+
+                // Load related products (Task 6 — lưới 2 cột)
+                try {
+                    List<Product> related = productDAO.getRelatedProducts(productId, 6);
+                    if (related != null && !related.isEmpty()) {
+                        binding.tvRelatedTitle.setVisibility(View.VISIBLE);
+                        binding.rvRelated.setVisibility(View.VISIBLE);
+                        binding.rvRelated.setLayoutManager(
+                                new androidx.recyclerview.widget.GridLayoutManager(this, 2));
+                        binding.rvRelated.setNestedScrollingEnabled(false);
+                        binding.rvRelated.setAdapter(new ProductAdapter(related));
+                    } else {
+                        binding.tvRelatedTitle.setVisibility(View.GONE);
+                        binding.rvRelated.setVisibility(View.GONE);
+                    }
+                } catch (Exception e) {
+                    android.util.Log.e("ProductDetailActivity", "Error loading related products", e);
+                    binding.tvRelatedTitle.setVisibility(View.GONE);
+                    binding.rvRelated.setVisibility(View.GONE);
                 }
             } else {
                 android.util.Log.e("ProductDetailActivity", "Product is null for id=" + productId);
@@ -350,5 +498,97 @@ public class ProductDetailActivity extends AppCompatActivity {
             android.util.Log.e("ProductDetailActivity", "FATAL ERROR in loadProductData", e);
             Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * Task 3 (fix) — Tính điểm trung bình, số đánh giá và phân bố sao THỰC TẾ từ DB
+     * rồi đổ vào phần tóm tắt (thay cho số liệu tĩnh hard-code).
+     */
+    private void bindReviewSummary(List<Review> reviews) {
+        int count = reviews != null ? reviews.size() : 0;
+        int[] dist = new int[6]; // dist[1..5]
+        long sum = 0;
+        if (reviews != null) {
+            for (Review r : reviews) {
+                int star = Math.max(1, Math.min(5, r.getRating()));
+                dist[star]++;
+                sum += r.getRating();
+            }
+        }
+        float avg = count > 0 ? (float) sum / count : 0f;
+
+        binding.tvRatingBig.setText(String.format(Locale.getDefault(), "%.1f", avg));
+        binding.rbAverage.setRating(avg);
+        binding.ratingBar.setRating(avg);
+        binding.tvRating.setText(String.format(Locale.getDefault(), "%.1f (%d đánh giá)", avg, count));
+        binding.tvReviewCountSmall.setText("(" + count + " đánh giá)");
+        binding.tvReviewSectionTitle.setText("Đánh giá sản phẩm (" + count + ")");
+
+        android.widget.ProgressBar[] bars = {
+                binding.pb1, binding.pb2, binding.pb3, binding.pb4, binding.pb5};
+        android.widget.TextView[] counts = {
+                binding.tvCount1, binding.tvCount2, binding.tvCount3, binding.tvCount4, binding.tvCount5};
+        for (int star = 1; star <= 5; star++) {
+            int percent = count > 0 ? Math.round(dist[star] * 100f / count) : 0;
+            bars[star - 1].setProgress(percent);
+            counts[star - 1].setText(String.valueOf(dist[star]));
+        }
+    }
+
+    /**
+     * Task 3 — Danh sách voucher dạng RadioGroup (chỉ chọn 1).
+     */
+    private void showVoucherRadioDialog(List<Voucher> vouchers) {
+        View content = LayoutInflater.from(this).inflate(R.layout.dialog_voucher_radio, null);
+        RadioGroup rg = content.findViewById(R.id.rgVouchers);
+        View btnApply = content.findViewById(R.id.btnApplyVoucherRadio);
+
+        int pink = ContextCompat.getColor(this, R.color.brand_pink);
+        int textPrimary = ContextCompat.getColor(this, R.color.text_primary);
+        int padV = (int) (12 * getResources().getDisplayMetrics().density);
+
+        for (int i = 0; i < vouchers.size(); i++) {
+            Voucher v = vouchers.get(i);
+            RadioButton rb = new RadioButton(this);
+            rb.setId(View.generateViewId());
+            rb.setTag(i);
+            rb.setText(buildVoucherLabel(v));
+            rb.setTextColor(textPrimary);
+            rb.setTextSize(13f);
+            rb.setLineSpacing(0f, 1.15f);
+            rb.setPadding(rb.getPaddingLeft() + padV / 2, padV, padV, padV);
+            rb.setButtonTintList(android.content.res.ColorStateList.valueOf(pink));
+            rg.addView(rb, new RadioGroup.LayoutParams(
+                    RadioGroup.LayoutParams.MATCH_PARENT, RadioGroup.LayoutParams.WRAP_CONTENT));
+        }
+
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog =
+                new com.google.android.material.bottomsheet.BottomSheetDialog(this);
+        dialog.setContentView(content);
+
+        btnApply.setOnClickListener(v -> {
+            int checkedId = rg.getCheckedRadioButtonId();
+            if (checkedId == -1) {
+                Toast.makeText(this, "Vui lòng chọn 1 voucher", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            RadioButton checked = content.findViewById(checkedId);
+            Voucher selected = vouchers.get((int) checked.getTag());
+            binding.btnSeeAllVouchers.setText("Mã: " + selected.getCode());
+            Toast.makeText(this, "Đã chọn voucher " + selected.getCode(), Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private String buildVoucherLabel(Voucher v) {
+        String discount = "percent".equalsIgnoreCase(v.getDiscountType())
+                ? "Giảm " + (int) v.getDiscountValue() + "%"
+                : "Giảm " + String.format(Locale.getDefault(), "%,.0fđ", v.getDiscountValue());
+        String minOrder = v.getMinOrderAmount() > 0
+                ? "  •  Đơn tối thiểu " + String.format(Locale.getDefault(), "%,.0fđ", v.getMinOrderAmount())
+                : "";
+        return v.getCode() + "\n" + discount + minOrder + "  •  HSD " + v.getExpiryDate();
     }
 }

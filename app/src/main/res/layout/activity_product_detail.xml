@@ -10,11 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        app:elevation="0dp">
+        app:elevation="0dp"
+        app:liftOnScroll="false">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:contentScrim="@android:color/transparent"
+            app:statusBarScrim="@android:color/transparent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <FrameLayout
@@ -26,97 +29,20 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tabIndicator"
+                <!-- Thumbnail rail (đè lên ảnh chính, căn giữa, sát mép dưới) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvThumbnails"
                     android:layout_width="wrap_content"
-                    android:layout_height="8dp"
+                    android:layout_height="68dp"
                     android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="48dp"
-                    android:background="@android:color/transparent"
-                    app:tabBackground="@drawable/indicator_selector"
-                    app:tabIndicatorHeight="0dp"
-                    app:tabMaxWidth="24dp"
-                    app:tabMinWidth="8dp"
-                    app:tabPaddingEnd="4dp"
-                    app:tabPaddingStart="4dp"
-                    app:tabRippleColor="@android:color/transparent" />
+                    android:layout_marginBottom="40dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:overScrollMode="never"
+                    android:visibility="gone"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </FrameLayout>
-
-            <androidx.appcompat.widget.Toolbar
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                app:layout_collapseMode="pin"
-                android:layout_marginTop="32dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/btnBack"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        app:cardBackgroundColor="#CCFFFFFF"
-                        app:cardCornerRadius="18dp"
-                        app:cardElevation="0dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                            <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_left_chevron"
-                            app:tint="@color/text_primary" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/btnCartTop"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginEnd="16dp"
-                        app:cardBackgroundColor="#CCFFFFFF"
-                        app:cardCornerRadius="18dp"
-                        app:cardElevation="0dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_bag2"
-                            app:tint="@color/text_primary" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardWishlist"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_margin="6dp"
-                        android:elevation="6dp"
-                        app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="15dp"
-                        app:cardElevation="2dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/btnCartTop"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:id="@+id/ivWishlistHeart"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_heart_outline"
-                            />
-                    </com.google.android.material.card.MaterialCardView>
-
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -124,7 +50,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="-30dp"
         android:background="@drawable/bg_product_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -553,6 +479,7 @@
                             </LinearLayout>
 
                             <RatingBar
+                                android:id="@+id/rbAverage"
                                 style="?android:attr/ratingBarStyleSmall"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -595,18 +522,21 @@
                                     android:textSize="10sp" />
 
                                 <ProgressBar
+                                    android:id="@+id/pb5"
                                     style="?android:attr/progressBarStyleHorizontal"
                                     android:layout_width="0dp"
                                     android:layout_height="4dp"
                                     android:layout_marginHorizontal="8dp"
                                     android:layout_weight="1"
-                                    android:progress="83"
+                                    android:max="100"
+                                    android:progress="0"
                                     android:progressTint="@color/brand_pink" />
 
                                 <TextView
+                                    android:id="@+id/tvCount5"
                                     android:layout_width="40dp"
                                     android:layout_height="wrap_content"
-                                    android:text="100"
+                                    android:text="0"
                                     android:textColor="#9E9E9E"
                                     android:textSize="10sp" />
                             </LinearLayout>
@@ -626,18 +556,21 @@
                                     android:textSize="10sp" />
 
                                 <ProgressBar
+                                    android:id="@+id/pb4"
                                     style="?android:attr/progressBarStyleHorizontal"
                                     android:layout_width="0dp"
                                     android:layout_height="4dp"
                                     android:layout_marginHorizontal="8dp"
                                     android:layout_weight="1"
-                                    android:progress="13"
+                                    android:max="100"
+                                    android:progress="0"
                                     android:progressTint="@color/brand_pink" />
 
                                 <TextView
+                                    android:id="@+id/tvCount4"
                                     android:layout_width="40dp"
                                     android:layout_height="wrap_content"
-                                    android:text="15"
+                                    android:text="0"
                                     android:textColor="#9E9E9E"
                                     android:textSize="10sp" />
                             </LinearLayout>
@@ -657,18 +590,21 @@
                                     android:textSize="10sp" />
 
                                 <ProgressBar
+                                    android:id="@+id/pb3"
                                     style="?android:attr/progressBarStyleHorizontal"
                                     android:layout_width="0dp"
                                     android:layout_height="4dp"
                                     android:layout_marginHorizontal="8dp"
                                     android:layout_weight="1"
-                                    android:progress="2"
+                                    android:max="100"
+                                    android:progress="0"
                                     android:progressTint="@color/brand_pink" />
 
                                 <TextView
+                                    android:id="@+id/tvCount3"
                                     android:layout_width="40dp"
                                     android:layout_height="wrap_content"
-                                    android:text="3"
+                                    android:text="0"
                                     android:textColor="#9E9E9E"
                                     android:textSize="10sp" />
                             </LinearLayout>
@@ -688,18 +624,21 @@
                                     android:textSize="10sp" />
 
                                 <ProgressBar
+                                    android:id="@+id/pb2"
                                     style="?android:attr/progressBarStyleHorizontal"
                                     android:layout_width="0dp"
                                     android:layout_height="4dp"
                                     android:layout_marginHorizontal="8dp"
                                     android:layout_weight="1"
-                                    android:progress="1"
+                                    android:max="100"
+                                    android:progress="0"
                                     android:progressTint="@color/brand_pink" />
 
                                 <TextView
+                                    android:id="@+id/tvCount2"
                                     android:layout_width="40dp"
                                     android:layout_height="wrap_content"
-                                    android:text="1"
+                                    android:text="0"
                                     android:textColor="#9E9E9E"
                                     android:textSize="10sp" />
                             </LinearLayout>
@@ -719,18 +658,21 @@
                                     android:textSize="10sp" />
 
                                 <ProgressBar
+                                    android:id="@+id/pb1"
                                     style="?android:attr/progressBarStyleHorizontal"
                                     android:layout_width="0dp"
                                     android:layout_height="4dp"
                                     android:layout_marginHorizontal="8dp"
                                     android:layout_weight="1"
-                                    android:progress="1"
+                                    android:max="100"
+                                    android:progress="0"
                                     android:progressTint="@color/brand_pink" />
 
                                 <TextView
+                                    android:id="@+id/tvCount1"
                                     android:layout_width="40dp"
                                     android:layout_height="wrap_content"
-                                    android:text="1"
+                                    android:text="0"
                                     android:textColor="#9E9E9E"
                                     android:textSize="10sp" />
                             </LinearLayout>
@@ -748,6 +690,27 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Các sản phẩm liên quan -->
+            <TextView
+                android:id="@+id/tvRelatedTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Sản phẩm liên quan"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRelated"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
+                android:visibility="gone" />
+
             <!-- Spacing for bottom bar -->
             <View
                 android:layout_width="match_parent"
@@ -762,6 +725,7 @@
         android:layout_gravity="bottom"
         android:background="#FFF5F5"
         android:elevation="12dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="8dp">
 
@@ -793,6 +757,10 @@
             android:layout_marginEnd="12dp"
             android:layout_weight="1.2"
             android:fontFamily="@font/poppins_medium"
+            android:gravity="center"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingHorizontal="8dp"
             android:text="Thêm vào giỏ"
             android:textColor="@color/brand_pink"
             android:textAllCaps="false"
@@ -800,7 +768,8 @@
             app:cornerRadius="27dp"
             app:icon="@drawable/ic_cart_pink"
             app:iconGravity="textStart"
-            app:iconPadding="8dp"
+            app:iconPadding="6dp"
+            app:iconSize="20dp"
             app:iconTint="@color/brand_pink"
             app:strokeColor="@color/brand_pink"
             app:strokeWidth="1.5dp" />
@@ -808,10 +777,13 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBuyNow"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="54dp"
             android:layout_weight="1"
             android:background="@drawable/bg_buy_now_gradient"
             android:fontFamily="@font/poppins_medium"
+            android:gravity="center"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="Mua ngay"
             android:textColor="@color/white"
             android:textAllCaps="false"
@@ -839,5 +811,124 @@
         app:icon="@drawable/ic_delivery"
         app:iconTint="@color/white"/>
 
+    <!-- Header cố định: luôn nằm trên cùng, không bị nội dung đè lên -->
+    <FrameLayout
+        android:id="@+id/headerBar"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:layout_gravity="top"
+        android:background="@color/white"
+        android:elevation="12dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                app:cardBackgroundColor="#F2F2F2"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_left_chevron"
+                    app:tint="@color/text_primary" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnCartTop"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="16dp"
+                app:cardBackgroundColor="#F2F2F2"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_bag2"
+                    app:tint="@color/text_primary" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Badge số lượng trong giỏ (giống trang Shop) -->
+            <TextView
+                android:id="@+id/tvCartBadge"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/bg_circle_green"
+                android:fontFamily="@font/poppins_medium"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="9sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/btnCartTop"
+                app:layout_constraintTop_toTopOf="@id/btnCartTop" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardWishlist"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="12dp"
+                app:cardBackgroundColor="#F2F2F2"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnCartTop"
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeWidth="0dp">
+
+                <ImageView
+                    android:id="@+id/ivWishlistHeart"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_heart_outline" />
+            </com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
+
+    <!-- Chỉ báo vuốt-để-thoát (ẩn, hiện khi vuốt từ mép trái sang phải) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/swipeBackIndicator"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="8dp"
+        android:alpha="0"
+        android:elevation="20dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/brand_pink_light"
+        app:strokeWidth="2dp">
+
+        <ImageView
+            android:id="@+id/ivSwipeArrow"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_left_chevron"
+            app:tint="@color/brand_pink_light" />
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

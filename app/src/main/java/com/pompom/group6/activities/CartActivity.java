@@ -8,6 +8,9 @@ import android.text.style.RelativeSizeSpan;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.pompom.group6.adapters.CartItemAdapter;
@@ -15,6 +18,7 @@ import com.pompom.group6.databinding.ActivityCartBinding;
 import com.pompom.group6.fragments.VoucherSelectionBottomSheet;
 import com.pompom.group6.models.CartItem;
 import com.pompom.group6.utils.CartManager;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +34,21 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
         super.onCreate(savedInstanceState);
         binding = ActivityCartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Edge-to-edge: transparent status bar, then push the header content below
+        // the status bar (pink fills the status-bar area → synced with the header)
+        // and keep the checkout footer above the navigation bar.
+        StatusBarUtils.applyTransparent(this);
+        ViewCompat.setOnApplyWindowInsetsListener(binding.headerBar, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), bars.top, v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+        });
+        ViewCompat.setOnApplyWindowInsetsListener(binding.footerContainer, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bars.bottom);
+            return insets;
+        });
 
         cartManager = CartManager.getInstance(this);
         cartManager.addListener(this);

@@ -24,7 +24,6 @@ import com.pompom.group6.R;
 import com.pompom.group6.activities.ComingSoonActivity;
 import com.pompom.group6.activities.HoiVienPomPomActivity;
 import com.pompom.group6.activities.NotificationActivity;
-import com.pompom.group6.activities.SearchActivity;
 import com.pompom.group6.activities.VoucherListActivity;
 import com.pompom.group6.adapters.BannerAdapter;
 import com.pompom.group6.adapters.PostAdapter;
@@ -130,8 +129,6 @@ public class HomeFragment extends Fragment {
         binding.profileContainer.setOnClickListener(v -> switchToTab(4));
         binding.ivNotification.setOnClickListener(v ->
                 startActivity(new Intent(getContext(), NotificationActivity.class)));
-        binding.cardSearchBar.setOnClickListener(v ->
-                startActivity(new Intent(getContext(), SearchActivity.class)));
 
         binding.featureAiMakeup.setOnClickListener(v ->
                 ComingSoonActivity.start(requireContext(), getString(R.string.ai_makeup)));

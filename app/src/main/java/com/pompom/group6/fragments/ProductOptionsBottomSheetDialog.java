@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -210,29 +209,32 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
             CartItem item = new CartItem(productId, title, price, imageUrl, quantity);
             CartManager.getInstance(requireContext()).addItem(item);
 
-            switch (actionType) {
-                case ACTION_ADD_TO_CART:
-                    // CASE 1: from product list — just dismiss; badge updates via listener
-                    dismiss();
-                    break;
+            if (actionType == ACTION_BUY_NOW) {
+                // "Mua ngay" — đi thẳng tới Checkout
+                dismiss();
+                Intent intent = new Intent(requireContext(),
+                        com.pompom.group6.activities.CheckoutActivity.class);
+                requireActivity().startActivity(intent);
+                requireActivity().overridePendingTransition(
+                        R.anim.slide_in_right, R.anim.slide_out_left);
+                return;
+            }
 
-                case ACTION_ADD_TO_CART_DETAIL:
-                    // CASE 2: from product detail — dismiss then show success toast
-                    dismiss();
-                    Toast.makeText(requireContext(),
-                            "✓ Đã thêm " + quantity + " sản phẩm vào giỏ hàng",
-                            Toast.LENGTH_SHORT).show();
-                    break;
-
-                case ACTION_BUY_NOW:
-                    // CASE 3: from product detail "Mua ngay" — go directly to CheckoutActivity
-                    dismiss();
-                    Intent intent = new Intent(requireContext(),
-                            com.pompom.group6.activities.CheckoutActivity.class);
-                    requireActivity().startActivity(intent);
-                    requireActivity().overridePendingTransition(
-                            R.anim.slide_in_right, R.anim.slide_out_left);
-                    break;
+            // ACTION_ADD_TO_CART / ACTION_ADD_TO_CART_DETAIL:
+            // Không toast — popup hóa thành bong bóng hồng bay vào giỏ hàng.
+            androidx.fragment.app.FragmentActivity act = getActivity();
+            int qty = quantity;
+            float startX = 0f, startY = 0f;
+            if (act != null && binding != null) {
+                View root = binding.getRoot();
+                int[] loc = new int[2];
+                root.getLocationOnScreen(loc);
+                startX = loc[0] + root.getWidth() / 2f;
+                startY = loc[1] + root.getHeight() / 2f;
+            }
+            dismiss();
+            if (act != null) {
+                com.pompom.group6.utils.CartFlyAnimator.fly(act, qty, startX, startY);
             }
         });
     }

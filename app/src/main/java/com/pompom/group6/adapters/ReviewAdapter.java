@@ -34,7 +34,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         Review review = reviews.get(position);
         if (review == null) return;
 
-        holder.binding.tvUserName.setText(review.getUserName() != null ? review.getUserName() : "Unknown");
+        holder.binding.tvUserName.setText(formatDisplayName(review.getUserName()));
         holder.binding.reviewRatingBar.setRating(review.getRating());
         holder.binding.tvRatingScore.setText(String.format("%.1f", (float) review.getRating()));
         holder.binding.tvReviewDate.setText(review.getCreatedAt() != null ? review.getCreatedAt() : "");
@@ -72,6 +72,26 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     @Override
     public int getItemCount() {
         return reviews != null ? reviews.size() : 0;
+    }
+
+    /**
+     * Tên quá dài → viết tắt từ đầu tiên thành chữ cái + "."
+     * Ví dụ: "Nguyễn Thảo Nguyên" → "N. Thảo Nguyên".
+     */
+    private String formatDisplayName(String name) {
+        if (name == null || name.trim().isEmpty()) return "Ẩn danh";
+        name = name.trim();
+        if (name.length() <= 15) return name;
+        String[] parts = name.split("\\s+");
+        if (parts.length >= 2 && !parts[0].isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(Character.toUpperCase(parts[0].charAt(0))).append('.');
+            for (int i = 1; i < parts.length; i++) {
+                sb.append(' ').append(parts[i]);
+            }
+            return sb.toString();
+        }
+        return name;
     }
 
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
