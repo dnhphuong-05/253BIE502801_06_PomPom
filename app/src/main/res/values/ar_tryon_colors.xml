@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lip / makeup shades used by AI Makeup Artist & AR Try-on swatches -->
+    <color name="shade_nude_pink">#C88B7A</color>
+    <color name="shade_peach">#E8848C</color>
+    <color name="shade_terracotta">#C15C3C</color>
+    <color name="shade_ruby">#B01E3C</color>
+    <color name="shade_baby_pink">#E894A8</color>
+    <color name="shade_plum">#7E3B54</color>
+
+    <!-- Beauty filter soft overlay tints (low alpha applied in code) -->
+    <color name="beauty_filter_natural">#00FFFFFF</color>
+    <color name="beauty_filter_warm">#33FFC8A0</color>
+    <color name="beauty_filter_rosy">#33FFB3C1</color>
+    <color name="beauty_filter_soft">#33FFFFFF</color>
+
+    <!-- Try-on / makeup call surfaces -->
+    <color name="tryon_scrim">#66000000</color>
+    <color name="tryon_panel_bg">#F7F2FA</color>
+</resources>
