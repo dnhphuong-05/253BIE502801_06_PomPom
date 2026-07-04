@@ -74,35 +74,29 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".activities.SearchActivity"
+            android:name=".activities.CartActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6.Translucent"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.CheckoutActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".activities.NotificationActivity"
+            android:name=".activities.GuestOrderActivity"
             android:exported="false"
-            android:theme="@style/Theme.Group6" />
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".activities.VoucherListActivity"
+            android:name=".activities.ProductConsultationChatActivity"
             android:exported="false"
-            android:theme="@style/Theme.Group6" />
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".activities.ComingSoonActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
-
-        <activity
-            android:name=".activities.HoiVienPomPomActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
-
-        <activity
-            android:name=".activities.SettingsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Group6" />
     </application>
 
 </manifest>

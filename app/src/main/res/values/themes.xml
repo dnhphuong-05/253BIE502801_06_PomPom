@@ -32,6 +32,12 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="ChatBubbleUserShape">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
     <style name="VoucherTabText" parent="TextAppearance.MaterialComponents.Subtitle2">
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">@font/poppins_semibold</item>

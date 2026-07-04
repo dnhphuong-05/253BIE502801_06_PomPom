@@ -1,10 +1,12 @@
 package com.pompom.group6.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.widget.ImageView;
 import android.view.View;
 import android.widget.Toast;
 
@@ -13,6 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.pompom.group6.R;
 import com.pompom.group6.activities.CartActivity;
+import com.pompom.group6.activities.GuestOrderActivity;
+import com.pompom.group6.activities.ProductConsultationChatActivity;
+import com.pompom.group6.fragments.ProductOptionsBottomSheetDialog;
+import com.pompom.group6.fragments.VoucherSelectionBottomSheet;
 import com.pompom.group6.adapters.ProductImageAdapter;
 import com.pompom.group6.adapters.ReviewAdapter;
 import com.pompom.group6.adapters.VariantAdapter;
@@ -36,9 +42,9 @@ public class ProductDetailActivity extends AppCompatActivity {
     private PromotionDAO promotionDAO;
     private CartManager cartManager;
     private int productId;
-    private int quantity = 1;
     private GestureDetector gestureDetector;
     private Product currentProduct;
+    private boolean isWishlisted = false; // fix 2A
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,50 +121,76 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private void setupListeners() {
         binding.btnBack.setOnClickListener(v -> finish());
-        
-        binding.btnPlus.setOnClickListener(v -> {
-            quantity++;
-            binding.tvQuantity.setText(String.valueOf(quantity));
-        });
 
-        binding.btnMinus.setOnClickListener(v -> {
-            if (quantity > 1) {
-                quantity--;
-                binding.tvQuantity.setText(String.valueOf(quantity));
-            }
-        });
-
+        // "Thêm vào giỏ hàng" → BottomSheet with variant/qty picker (fix 1B)
         binding.btnAddToCart.setOnClickListener(v -> {
             if (currentProduct == null) return;
-            CartItem item = new CartItem(
+            ProductOptionsBottomSheetDialog.show(getSupportFragmentManager(),
                     currentProduct.getId(),
                     currentProduct.getTitle(),
                     currentProduct.getPrice(),
                     currentProduct.getImageUrl(),
-                    quantity
-            );
-            cartManager.addItem(item);
-            Toast.makeText(this, "✓ Đã thêm " + quantity + " sản phẩm vào giỏ hàng", Toast.LENGTH_SHORT).show();
+                    ProductOptionsBottomSheetDialog.ACTION_ADD_TO_CART_DETAIL);
         });
-
-        binding.btnBuyNow.setOnClickListener(v -> {
-            if (currentProduct == null) return;
-            CartItem item = new CartItem(
-                    currentProduct.getId(),
-                    currentProduct.getTitle(),
-                    currentProduct.getPrice(),
-                    currentProduct.getImageUrl(),
-                    quantity
-            );
-            cartManager.addItem(item);
+        binding.btnCartTop.setOnClickListener(v -> {
             Intent intent = new Intent(this, CartActivity.class);
             startActivity(intent);
-            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left); // Tạo hiệu ứng chuyển cảnh mượt mà
         });
-        
-        binding.btnWishlist.setOnClickListener(v -> {
-            Toast.makeText(this, "Đã thêm vào danh sách yêu thích", Toast.LENGTH_SHORT).show();
+
+        // "Mua ngay" → BottomSheet that goes directly to CheckoutActivity (fix 1B)
+        binding.btnBuyNow.setOnClickListener(v -> {
+            if (currentProduct == null) return;
+            ProductOptionsBottomSheetDialog.show(getSupportFragmentManager(),
+                    currentProduct.getId(),
+                    currentProduct.getTitle(),
+                    currentProduct.getPrice(),
+                    currentProduct.getImageUrl(),
+                    ProductOptionsBottomSheetDialog.ACTION_BUY_NOW);
         });
+
+        // Wishlist toggle — ic_heart_outline ↔ ic_heart_filled (fix 2A)
+        // Wishlist toggle — ic_heart_outline ↔ ic_heart_filled (fix 2A)
+        binding.ivWishlistHeart.setOnClickListener(v -> {
+            isWishlisted = !isWishlisted;
+
+            // Thêm hiệu ứng hoạt họa bounce giống y chang dưới adapter cho xịn nè bồ
+            android.view.animation.Animation anim = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.heart_scale);
+            binding.ivWishlistHeart.startAnimation(anim); // Nhớ kiểm tra ID của ImageView bên trong Card là gì nha (ví dụ: ivWishlistHeart)
+
+            // Đổi resource trên ImageView bên trong, chứ không đổi trực tiếp trên CardView cha nữa
+            binding.ivWishlistHeart.setImageResource(
+                    isWishlisted ? R.drawable.ic_heart_solid : R.drawable.ic_heart_outline);
+
+            Toast.makeText(this,
+                    isWishlisted ? "Đã thêm vào yêu thích" : "Đã xóa khỏi yêu thích",
+                    Toast.LENGTH_SHORT).show();
+        });
+
+        // Chat button → ProductConsultationChatActivity
+        if (binding.btnChat != null) {
+            binding.btnChat.setOnClickListener(v -> {
+                Intent chatIntent = new Intent(this, ProductConsultationChatActivity.class);
+                if (currentProduct != null) {
+                    chatIntent.putExtra(ProductConsultationChatActivity.EXTRA_PRODUCT_NAME, currentProduct.getTitle());
+                    chatIntent.putExtra(ProductConsultationChatActivity.EXTRA_PRODUCT_SKU, currentProduct.getSku());
+                }
+                startActivity(chatIntent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            });
+        }
+
+        // Guest order FAB — GONE when logged in, VISIBLE for guests only
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
+        if (isLoggedIn) {
+            binding.fabGuestOrder.setVisibility(View.GONE);
+        } else {
+            binding.fabGuestOrder.setVisibility(View.VISIBLE);
+            binding.fabGuestOrder.setOnClickListener(v -> {
+                startActivity(new Intent(this, GuestOrderActivity.class));
+            });
+        }
     }
 
     private void loadProductData() {
@@ -172,9 +204,32 @@ public class ProductDetailActivity extends AppCompatActivity {
                 binding.tvProductName.setText(product.getTitle());
                 binding.tvProductPrice.setText(product.getPrice());
                 
+
+                if (product.getPrice() != null) {
+                    // Giả sử giá từ DB đang là chuỗi "799000" hoặc "799.000đ", ta làm sạch chỉ lấy số
+                    String cleanPrice = product.getPrice().replaceAll("[^\\d]", "");
+                    if (!cleanPrice.isEmpty()) {
+                        double priceValue = Double.parseDouble(cleanPrice);
+                        // Định dạng thành 160.000
+                        String formattedPrice = String.format(java.util.Locale.GERMANY, "%,.0f", priceValue);
+
+                        // Tạo chuỗi HTML với chữ đ nằm trong thẻ <small>
+                        String priceHtml = formattedPrice + "<small><small>đ</small></small>";
+                        binding.tvProductPrice.setText(android.text.Html.fromHtml(priceHtml, android.text.Html.FROM_HTML_MODE_LEGACY));
+                    }
+                }
                 if (product.getOriginalPrice() != null) {
                     binding.tvOriginalPrice.setVisibility(View.VISIBLE);
-                    binding.tvOriginalPrice.setText(product.getOriginalPrice());
+
+                    String cleanOriginal = product.getOriginalPrice().replaceAll("[^\\d]", "");
+                    if (!cleanOriginal.isEmpty()) {
+                        double originalValue = Double.parseDouble(cleanOriginal);
+                        String formattedOriginal = String.format(java.util.Locale.GERMANY, "%,.0f", originalValue);
+
+                        String originalHtml = formattedOriginal + "<small><small>đ</small></small>";
+                        binding.tvOriginalPrice.setText(android.text.Html.fromHtml(originalHtml, android.text.Html.FROM_HTML_MODE_LEGACY));
+                    }
+                    // Giữ nguyên gạch ngang giá gốc
                     binding.tvOriginalPrice.setPaintFlags(binding.tvOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
                 } else {
                     binding.tvOriginalPrice.setVisibility(View.GONE);
@@ -187,14 +242,17 @@ public class ProductDetailActivity extends AppCompatActivity {
                     binding.tvDiscountBadge.setVisibility(View.GONE);
                 }
 
-                binding.tvProductId.setText("Mã SP: #" + String.format("%05d", product.getId()));
+                binding.tvProductId.setText("#" + String.format("%05d", product.getId()));
                 binding.tvStockStatus.setText(product.getStock() > 0 ? "Còn hàng" : "Hết hàng");
                 binding.tvStockStatus.setBackgroundColor(product.getStock() > 0 ? android.graphics.Color.parseColor("#E8F5E9") : android.graphics.Color.parseColor("#FFEBEE"));
                 binding.tvStockStatus.setTextColor(product.getStock() > 0 ? android.graphics.Color.parseColor("#2E7D32") : android.graphics.Color.parseColor("#C62828"));
                 
                 binding.tvProductMeta.setText(product.getCategoryName() + " • " + product.getBrandName());
-                binding.tvStockCount.setText("Tồn kho: " + product.getStock() + " sản phẩm");
-                binding.tvProductSKU.setText("SKU: " + product.getSku());
+                // FOMO stock count — deterministic per product, always 1–8
+                int fomoCount = (product.getId() * 7 + 3) % 8 + 1;
+                binding.tvProductSKU.setText("Còn " + fomoCount + " sản phẩm");
+                binding.tvProductSKU.setTextColor(android.graphics.Color.parseColor("#E53935"));
+                binding.tvStockCount.setVisibility(View.GONE);
                 binding.tvCategoryName.setText(product.getCategoryName());
                 binding.tvBrandName.setText(product.getBrandName());
 
@@ -248,9 +306,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                     List<ProductVariant> variants = productDAO.getVariantsForProduct(productId);
                     if (variants != null && !variants.isEmpty()) {
                         binding.rvVariants.setVisibility(View.VISIBLE);
-                        VariantAdapter variantAdapter = new VariantAdapter(variants, variant -> {
-                            Toast.makeText(this, "Chọn: " + variant.getName(), Toast.LENGTH_SHORT).show();
-                        });
+                        // Display-only: no click, no selection highlight (fix 55)
+                        VariantAdapter variantAdapter = new VariantAdapter(variants, true);
                         binding.rvVariants.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
                         binding.rvVariants.setAdapter(variantAdapter);
                     } else {
@@ -270,6 +327,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                         binding.rvVouchers.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
                         binding.rvVouchers.setAdapter(voucherAdapter);
                         binding.btnSeeAllVouchers.setText("Xem tất cả (" + vouchers.size() + ")");
+                        binding.btnSeeAllVouchers.setOnClickListener(v ->
+                                VoucherSelectionBottomSheet.show(getSupportFragmentManager(), code -> { }));
                     } else {
                         binding.rvVouchers.setVisibility(View.GONE);
                     }

@@ -15,12 +15,14 @@
         android:orientation="horizontal"
         android:background="@drawable/promotion">
 
+        <!-- Left panel: title + meta info, fills height evenly -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:layout_weight="1"
-            android:padding="12dp">
+            android:padding="12dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/tvVoucherTitle"
@@ -30,15 +32,14 @@
                 android:text="Giảm 10% cho đơn từ 500.000đ"
                 android:textColor="@color/text_primary"
                 android:textSize="13sp"
-                android:layout_marginTop="5dp"
-                android:layout_marginStart="5dp"/>
+                android:maxLines="2"
+                android:ellipsize="end"/>
 
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:columnCount="3"
-                android:layout_marginStart="5dp">
+                android:layout_marginTop="6dp"
+                android:columnCount="3">
 
                 <LinearLayout android:orientation="vertical">
                     <TextView
@@ -95,6 +96,7 @@
 
         </LinearLayout>
 
+        <!-- Right coupon stub: code + value, perfectly centered, no drift -->
         <LinearLayout
             android:layout_width="100dp"
             android:layout_height="match_parent"
@@ -110,7 +112,7 @@
                 android:text="POMPOM10"
                 android:textColor="@color/brand_pink"
                 android:textSize="12sp"
-                android:layout_marginStart="2dp"/>
+                android:gravity="center"/>
 
             <TextView
                 android:id="@+id/tvVoucherValue"
@@ -120,7 +122,7 @@
                 android:text="Giảm 10%"
                 android:textColor="@color/brand_pink"
                 android:textSize="12sp"
-                android:layout_marginStart="3dp"/>
+                android:gravity="center"/>
 
         </LinearLayout>
     </LinearLayout>

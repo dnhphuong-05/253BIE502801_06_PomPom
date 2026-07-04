@@ -1,5 +1,6 @@
 package com.pompom.group6.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.pompom.group6.adapters.CartItemAdapter;
 import com.pompom.group6.databinding.ActivityCartBinding;
+import com.pompom.group6.fragments.VoucherSelectionBottomSheet;
 import com.pompom.group6.models.CartItem;
 import com.pompom.group6.utils.CartManager;
 
@@ -28,10 +30,12 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
         super.onCreate(savedInstanceState);
         binding = ActivityCartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        binding.promoBar.setSelected(true);
 
         cartManager = CartManager.getInstance(this);
         cartManager.addListener(this);
+
+        // ── Marquee: must call setSelected in Java, never in XML ──────────────────
+        binding.tvPromoMarquee.setSelected(true);
 
         setupRecyclerView();
         setupListeners();
@@ -63,11 +67,32 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
     }
 
     private void setupListeners() {
-        // MODULE 1: Back arrow → finish()
+        // Back arrow
         binding.ivBack.setOnClickListener(v -> finish());
 
+        // ── Voucher row → open VoucherSelectionBottomSheet ────────────────────────
+        binding.layoutVoucher.setOnClickListener(v ->
+                VoucherSelectionBottomSheet.show(getSupportFragmentManager(),
+                        voucherCode -> {
+                            // Update the voucher hint label with the selected code
+                            if (voucherCode != null && !voucherCode.isEmpty()) {
+                                binding.tvSelectedVoucher.setText(voucherCode);
+                                binding.tvSelectedVoucher.setTextColor(
+                                        getResources().getColor(com.pompom.group6.R.color.brand_pink, null));
+                            } else {
+                                binding.tvSelectedVoucher.setText("Chọn hoặc nhập mã");
+                                binding.tvSelectedVoucher.setTextColor(
+                                        getResources().getColor(com.pompom.group6.R.color.text_secondary, null));
+                            }
+                        }));
+
+        // ── Checkout → CheckoutActivity ───────────────────────────────────────────
         binding.btnCheckout.setOnClickListener(v -> {
-            // Future: Navigate to Checkout screen
+            Intent intent = new Intent(this, CheckoutActivity.class);
+            startActivity(intent);
+            overridePendingTransition(
+                    com.pompom.group6.R.anim.slide_in_right,
+                    com.pompom.group6.R.anim.slide_out_left);
         });
     }
 
@@ -92,7 +117,6 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
             binding.btnCheckout.setAlpha(1.0f);
             binding.btnCheckout.setText("THANH TOÁN");
 
-            // Total price in Vietnamese format
             long totalLong = (long) cartManager.getTotalPrice();
             binding.tvTotalPrice.setText(formatPriceSpan(totalLong));
         }
