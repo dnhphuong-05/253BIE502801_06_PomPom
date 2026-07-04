@@ -1,197 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/md_theme_light_background">
 
-    <!-- Dim overlay (tapping it closes the drawer) -->
-    <View
-        android:id="@+id/dimOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#66000000"
-        android:clickable="true"
-        android:focusable="true" />
-
-    <!-- Cart panel anchored to the right edge -->
+    <!-- ══ Header bar ══ -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cartPanel"
-        android:layout_width="360dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:background="@color/white"
-        android:elevation="16dp"
-        android:fitsSystemWindows="true">
+        android:id="@+id/headerBar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="@color/md_theme_light_primary"
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Header -->
+        <!-- Back arrow -->
+        <ImageView
+            android:id="@+id/ivBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
+            android:padding="10dp"
+            android:src="@drawable/ic_left_chevron"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white" />
+
+        <!-- "Giỏ hàng" centered -->
         <TextView
             android:id="@+id/tvCartTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="24dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="16dp"
-            android:text="CART"
-            android:fontFamily="@font/cinzel_bold"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:letterSpacing="0.15"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnCloseCart"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/btnCloseCart"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:padding="8dp"
-            android:src="@drawable/ic_cancel"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Close Cart"
-            app:tint="@color/text_secondary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tvCartTitle"
-            app:layout_constraintBottom_toBottomOf="@id/tvCartTitle" />
-
-        <!-- Promo Bar (Muted Pink) -->
-        <FrameLayout
-            android:id="@+id/promoBar"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:background="#F8BBD0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvCartTitle">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="Save 10% &amp; Buy 3 Save 20%  •  Selected Best Sellers"
-                android:textColor="@color/white"
-                android:fontFamily="@font/poppins_medium"
-                android:textSize="12sp"
-                android:paddingHorizontal="16dp" />
-        </FrameLayout>
-
-        <!-- RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCartItems"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:clipToPadding="false"
-            android:paddingTop="8dp"
-            android:paddingBottom="16dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/promoBar"
-            app:layout_constraintBottom_toTopOf="@id/footerContainer" />
-
-        <!-- Footer -->
-        <LinearLayout
-            android:id="@+id/footerContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/white"
-            android:elevation="12dp"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#F0F0F0" />
-
-            <!-- Discount Section -->
-            <LinearLayout
-                android:id="@+id/layoutDiscount"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:background="?attr/selectableItemBackground">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_tag_pink"
-                    app:tint="@color/text_primary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="DISCOUNT"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:textColor="@color/text_primary"
-                    android:textSize="12sp"
-                    android:letterSpacing="0.1" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#F0F0F0" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Taxes and shipping calculated at checkout"
-                    android:fontFamily="@font/poppins_regular"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCheckout"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="16dp"
-                    android:text="CHECK OUT — $425.00 USD"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:textSize="14sp"
-                    android:letterSpacing="0.05"
-                    app:backgroundTint="#EF9A9A"
-                    app:cornerRadius="4dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Empty State (Overlaying RV if items == 0) -->
-        <LinearLayout
-            android:id="@+id/layoutEmpty"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
+            android:fontFamily="@font/poppins_semibold"
             android:gravity="center"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
+            android:text="Giỏ hàng"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/promoBar"
-            app:layout_constraintBottom_toTopOf="@id/footerContainer">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your cart is empty"
-                android:fontFamily="@font/poppins_medium"
-                android:textColor="@color/text_secondary"
-                android:textSize="16sp" />
-        </LinearLayout>
-
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <!-- ══ Promo marquee bar ══ -->
+    <FrameLayout
+        android:id="@+id/promoBar"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:background="@color/brand_pink_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerBar">
+
+        <!-- NOTE: android:selected must NOT be set in XML.
+             Call binding.tvPromoMarquee.setSelected(true) in Java. -->
+        <TextView
+            android:id="@+id/tvPromoMarquee"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="marquee"
+            android:fontFamily="@font/poppins_medium"
+            android:gravity="center"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:paddingHorizontal="16dp"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="Mua 3 giảm 20%  ✦  Miễn phí vận chuyển cho đơn từ 500.000đ"
+            android:textColor="@color/brand_pink"
+            android:textSize="12sp" />
+    </FrameLayout>
+
+    <!-- ══ Footer container (pinned bottom) ══ -->
+    <LinearLayout
+        android:id="@+id/footerContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="12dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#F0F0F0" />
+
+        <!-- Voucher row -->
+        <LinearLayout
+            android:id="@+id/layoutVoucher"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_tag_pink"
+                app:tint="@color/brand_pink" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Mã giảm giá"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvSelectedVoucher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Chọn hoặc nhập mã"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="4dp"
+                android:contentDescription="@null"
+                android:rotation="180"
+                android:src="@drawable/ic_left_chevron"
+                app:tint="@color/text_secondary" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#F0F0F0" />
+
+        <!-- Total row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Tổng tiền:"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvTotalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="0đ"
+                android:textColor="@color/brand_pink"
+                android:textSize="18sp"
+                tools:text="350.000đ" />
+        </LinearLayout>
+
+        <!-- Checkout button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCheckout"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"
+            android:text="THANH TOÁN"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:backgroundTint="@color/brand_pink"
+            app:cornerRadius="8dp" />
+    </LinearLayout>
+
+    <!-- ══ RecyclerView (fills between promoBar and footer) ══ -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCartItems"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/footerContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/promoBar" />
+
+    <!-- ══ Empty state ══ -->
+    <LinearLayout
+        android:id="@+id/layoutEmpty"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/footerContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/promoBar"
+        tools:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="🛍️"
+            android:textSize="48sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Giỏ hàng của bạn đang trống"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
