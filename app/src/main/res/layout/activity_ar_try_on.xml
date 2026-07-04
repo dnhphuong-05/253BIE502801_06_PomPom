@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <!-- Front camera preview -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/preview_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_panel"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Face alignment guide -->
+    <View
+        android:id="@+id/v_face_guide"
+        android:layout_width="220dp"
+        android:layout_height="300dp"
+        android:background="@drawable/bg_face_guide"
+        app:layout_constraintBottom_toBottomOf="@id/preview_view"
+        app:layout_constraintEnd_toEndOf="@id/preview_view"
+        app:layout_constraintStart_toStartOf="@id/preview_view"
+        app:layout_constraintTop_toTopOf="@id/preview_view"
+        app:layout_constraintVertical_bias="0.42" />
+
+    <!-- Simulated lip overlay (tinted to selected shade) -->
+    <View
+        android:id="@+id/v_lip_overlay"
+        android:layout_width="96dp"
+        android:layout_height="34dp"
+        android:alpha="0.55"
+        android:background="@drawable/bg_lip_overlay"
+        app:layout_constraintBottom_toBottomOf="@id/preview_view"
+        app:layout_constraintEnd_toEndOf="@id/preview_view"
+        app:layout_constraintStart_toStartOf="@id/preview_view"
+        app:layout_constraintTop_toTopOf="@id/preview_view"
+        app:layout_constraintVertical_bias="0.60" />
+
+    <!-- Top bar -->
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_left_chevron"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="@string/ar_tryon_title"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Alignment hint -->
+    <TextView
+        android:id="@+id/tv_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_white_pill_button"
+        android:backgroundTint="@color/tryon_scrim"
+        android:fontFamily="@font/poppins_regular"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="6dp"
+        android:text="@string/tryon_hint"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@id/preview_view"
+        app:layout_constraintStart_toStartOf="@id/preview_view"
+        app:layout_constraintTop_toTopOf="@id/preview_view" />
+
+    <!-- Bottom panel: product + shades + add to cart -->
+    <LinearLayout
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_product_content"
+        android:backgroundTint="@color/tryon_panel_bg"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_product_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Son Kem Lì PomPom"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_shade_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="Tông: Nude"
+                    android:textColor="@color/ai_hub_text_desc"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="320.000đ"
+                android:textColor="@color/brand_pink"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="@string/tryon_shade_label"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_shades"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:clipToPadding="false"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_to_cart"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/brand_pink"
+            android:fontFamily="@font/poppins_semibold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/tryon_add_to_cart"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:cornerRadius="26dp"
+            app:icon="@drawable/ic_bag"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="@string/tryon_disclaimer"
+            android:textColor="@color/ai_hub_text_desc"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -61,4 +61,32 @@
     <string name="saved_results">Kết quả đã lưu</string>
     <string name="beauty_report">Beauty Report</string>
     <string name="ai_settings">Cài đặt AI</string>
+
+    <!-- AR Try-on entry (AI Hub) -->
+    <string name="ar_tryon_title">AR Try-On</string>
+    <string name="ar_tryon_subtitle">Thử sản phẩm ảo</string>
+    <string name="ar_tryon_desc">Thử màu son, má hồng ngay trên khuôn mặt bạn trước khi mua</string>
+    <string name="ar_tryon_open">Thử ngay</string>
+
+    <!-- AI Makeup Artist call screen -->
+    <string name="makeup_artist_name">Chuyên gia trang điểm AI</string>
+    <string name="makeup_online">Đang hướng dẫn trực tiếp</string>
+    <string name="makeup_filter_label">Chọn phong cách</string>
+    <string name="makeup_next_step">Bước tiếp theo</string>
+    <string name="makeup_disclaimer">Hiệu ứng mô phỏng, kết quả thực tế có thể khác.</string>
+
+    <!-- AR Try-on screen -->
+    <string name="tryon_hint">Căn khuôn mặt vào giữa khung để thử màu</string>
+    <string name="tryon_shade_label">Chọn màu son</string>
+    <string name="tryon_shade_prefix">Tông: %1$s</string>
+    <string name="tryon_add_to_cart">Thêm vào giỏ hàng</string>
+    <string name="tryon_disclaimer">Màu hiển thị mô phỏng, có thể lệch so với sản phẩm thật.</string>
+
+    <string-array name="makeup_guide_steps">
+        <item>Bước 1/5 — Thoa kem lót đều khắp mặt để lớp nền mịn và lâu trôi hơn.</item>
+        <item>Bước 2/5 — Tán kem nền theo chuyển động từ trong ra ngoài, đều màu tự nhiên.</item>
+        <item>Bước 3/5 — Đánh má hồng nhẹ lên phần gò má, tán đều lên thái dương.</item>
+        <item>Bước 4/5 — Kẻ mắt sát chân mi và chuốt mascara cong tự nhiên.</item>
+        <item>Bước 5/5 — Thoa son theo tông màu bạn đã chọn để hoàn thiện diện mạo.</item>
+    </string-array>
 </resources>

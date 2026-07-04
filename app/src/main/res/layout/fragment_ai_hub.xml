@@ -429,6 +429,104 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- AR Try-On Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="210dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/ai_hub_dermatologist_bg">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardIconTryOn"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="20dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_makeup_brush"
+                            app:tint="@color/brand_pink"
+                            android:contentDescription="@null" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/tvTitleTryOn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:text="@string/ar_tryon_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toEndOf="@id/cardIconTryOn"
+                        app:layout_constraintTop_toTopOf="@id/cardIconTryOn" />
+
+                    <TextView
+                        android:id="@+id/tvSubtitleTryOn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="@string/ar_tryon_subtitle"
+                        android:textColor="@color/ai_hub_text_desc"
+                        android:textSize="13sp"
+                        app:layout_constraintStart_toStartOf="@id/tvTitleTryOn"
+                        app:layout_constraintTop_toBottomOf="@id/tvTitleTryOn" />
+
+                    <TextView
+                        android:id="@+id/tvDescTryOn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins_regular"
+                        android:maxLines="3"
+                        android:text="@string/ar_tryon_desc"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@id/cardIconTryOn"
+                        app:layout_constraintTop_toBottomOf="@id/tvSubtitleTryOn" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_open_tryon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="@color/brand_pink"
+                        android:fontFamily="@font/poppins_medium"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:paddingHorizontal="24dp"
+                        android:text="@string/ar_tryon_open"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        app:cornerRadius="22dp"
+                        app:icon="@drawable/ic_makeup_brush"
+                        app:iconGravity="textEnd"
+                        app:iconPadding="8dp"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/white"
+                        app:layout_constraintStart_toStartOf="@id/cardIconTryOn"
+                        app:layout_constraintTop_toBottomOf="@id/tvDescTryOn" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

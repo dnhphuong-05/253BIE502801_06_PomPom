@@ -74,6 +74,18 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".activities.MakeupArtistActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activities.ArTryOnActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".activities.SearchActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6"

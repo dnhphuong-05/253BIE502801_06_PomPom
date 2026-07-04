@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment;
 
 import com.pompom.group6.activities.AiCallActivity;
 import com.pompom.group6.activities.AiChatActivity;
+import com.pompom.group6.activities.ArTryOnActivity;
+import com.pompom.group6.activities.MakeupArtistActivity;
 import com.pompom.group6.databinding.FragmentAiHubBinding;
 
 public class AiHubFragment extends Fragment {
@@ -34,6 +36,16 @@ public class AiHubFragment extends Fragment {
 
         binding.btnChatAdvisor.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), AiChatActivity.class);
+            startActivity(intent);
+        });
+
+        binding.btnCallMakeup.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), MakeupArtistActivity.class);
+            startActivity(intent);
+        });
+
+        binding.btnOpenTryon.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), ArTryOnActivity.class);
             startActivity(intent);
         });
     }
