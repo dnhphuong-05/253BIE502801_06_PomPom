@@ -49,6 +49,48 @@ public class OrderDAO {
         return orders;
     }
 
+    /**
+     * Look up orders for guest users by the phone number stored in their user record.
+     * Joins orders → users on user_id, filtering by users.phone_number.
+     */
+    @SuppressLint("Range")
+    public List<Order> getOrdersByPhone(String phone) {
+        List<Order> orders = new ArrayList<>();
+        if (phone == null || phone.isEmpty()) return orders;
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        // Try phone_number column first; fall back to phone if schema differs
+        String sql = "SELECT o.order_id, o.order_number, o.final_amount, o.status, o.payment_method, o.created_at, " +
+                "(SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.order_id) AS item_count, " +
+                "(SELECT p.name FROM order_items oi JOIN products p ON oi.product_id = p.product_id " +
+                "   WHERE oi.order_id = o.order_id LIMIT 1) AS first_name, " +
+                "(SELECT COALESCE(p.thumbnail_url, (SELECT image_url FROM product_images pi " +
+                "     WHERE pi.product_id = p.product_id ORDER BY sort_order ASC LIMIT 1)) " +
+                "   FROM order_items oi JOIN products p ON oi.product_id = p.product_id " +
+                "   WHERE oi.order_id = o.order_id LIMIT 1) AS first_img " +
+                "FROM orders o " +
+                "JOIN users u ON o.user_id = u.user_id " +
+                "WHERE (u.phone_number = ? OR u.phone = ?) " +
+                "ORDER BY o.created_at DESC";
+        try (Cursor c = db.rawQuery(sql, new String[]{phone, phone})) {
+            while (c.moveToNext()) {
+                orders.add(new Order(
+                        c.getInt(c.getColumnIndex("order_id")),
+                        c.getString(c.getColumnIndex("order_number")),
+                        c.getDouble(c.getColumnIndex("final_amount")),
+                        c.getString(c.getColumnIndex("status")),
+                        c.getString(c.getColumnIndex("payment_method")),
+                        c.getString(c.getColumnIndex("created_at")),
+                        c.getInt(c.getColumnIndex("item_count")),
+                        c.getString(c.getColumnIndex("first_name")),
+                        c.getString(c.getColumnIndex("first_img"))));
+            }
+        } catch (Exception e) {
+            android.util.Log.e("OrderDAO", "getOrdersByPhone error: " + e.getMessage());
+        }
+        return orders;
+    }
+
     public int getOrderCount(int userId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         try (Cursor c = db.rawQuery("SELECT COUNT(*) FROM orders WHERE user_id = ?",

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/md_theme_light_background">
@@ -10,9 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@color/md_theme_light_primary"
         android:fitsSystemWindows="true"
-        app:elevation="0dp"
-        app:liftOnScroll="false"
-        app:statusBarForeground="@color/md_theme_light_primary">
+        app:elevation="0dp">
 
         <!-- ══ Top header bar ══ -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,14 +20,13 @@
             android:background="@color/md_theme_light_primary"
             android:paddingHorizontal="8dp"
             android:paddingTop="16dp"
-            android:paddingBottom="8dp"
-            android:paddingLeft="12dp">
+            android:paddingBottom="8dp">
 
             <!-- Circular avatar (left) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardAvatarProfile"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
                 app:layout_constraintBottom_toBottomOf="@id/tvLogo"
@@ -36,17 +34,18 @@
                 app:layout_constraintTop_toTopOf="@id/tvLogo"
                 app:strokeWidth="0dp"
                 android:backgroundTint="@color/brand_pink"
-                android:layout_marginLeft="6dp">
+                >
 
                 <ImageView
                     android:id="@+id/ivProfile"
-                    android:layout_width="22dp"
+                    android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_gravity="center"
                     android:contentDescription="@null"
-                    android:paddingLeft="3dp"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/ic_user2"
-                    app:tint="@color/white" />
+                    android:layout_gravity="center"
+                    app:tint="@color/white"
+                    tools:ignore="UseAppTint" />
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Brand logo (center) -->
@@ -172,10 +171,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
-                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:paddingEnd="8dp"
-                android:paddingStart="8dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
             <!-- Filter + Layout-Toggle bar -->
@@ -183,7 +179,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp">
+                android:paddingVertical="16dp">
 
                 <!-- Lọc button (clickable → FilterSheetFragment) -->
                 <LinearLayout
@@ -200,8 +196,8 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_filter"
                         app:tint="@color/brand_pink" />
@@ -240,21 +236,21 @@
                     <!-- Row view toggle (1-col) -->
                     <ImageView
                         android:id="@+id/ivRowView"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:contentDescription="@null"
-                        app:tint="@color/brand_pink"
-                        android:src="@drawable/ic_rowview0" />
+                        android:src="@drawable/ic_rowview0"
+                        app:tint="@color/brand_pink" />
 
                     <!-- Grid view toggle (2-col, default selected) -->
                     <ImageView
                         android:id="@+id/ivGridView"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_marginStart="16dp"
                         android:contentDescription="@null"
-                        app:tint="@color/brand_pink"
-                        android:src="@drawable/ic_gridview1" />
+                        android:src="@drawable/ic_gridview1"
+                        app:tint="@color/brand_pink"/>
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -267,5 +263,23 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- TRA CỨU ĐƠN HÀNG — visible only for guests, GONE when logged in -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabGuestOrder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="16dp"
+        android:fontFamily="@font/poppins_medium"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        android:visibility="gone"
+        app:backgroundTint="@color/brand_pink"
+        app:elevation="6dp"
+        app:icon="@drawable/ic_delivery"
+        app:iconTint="@color/white"/>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

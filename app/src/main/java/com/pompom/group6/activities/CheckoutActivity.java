@@ -79,7 +79,6 @@ public class CheckoutActivity extends AppCompatActivity {
         String lastName = binding.etLastName.getText() != null ? binding.etLastName.getText().toString().trim() : "";
         String address = binding.etAddress.getText() != null ? binding.etAddress.getText().toString().trim() : "";
         String city = binding.etCity.getText() != null ? binding.etCity.getText().toString().trim() : "";
-        String postal = binding.etPostal.getText() != null ? binding.etPostal.getText().toString().trim() : "";
         String phone = binding.etPhone.getText() != null ? binding.etPhone.getText().toString().trim() : "";
         String cardNumber = binding.etCardNumber.getText() != null ? binding.etCardNumber.getText().toString().trim() : "";
         String expiry = binding.etExpiry.getText() != null ? binding.etExpiry.getText().toString().trim() : "";
@@ -120,12 +119,6 @@ public class CheckoutActivity extends AppCompatActivity {
         }
         binding.tilCity.setError(null);
 
-        if (TextUtils.isEmpty(postal)) {
-            binding.tilPostal.setError("Trường này bắt buộc");
-            binding.tilPostal.requestFocus();
-            return;
-        }
-        binding.tilPostal.setError(null);
 
         if (TextUtils.isEmpty(phone)) {
             binding.tilPhone.setError("Nhập số điện thoại");

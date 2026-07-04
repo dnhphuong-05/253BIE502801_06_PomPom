@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
 import com.pompom.group6.activities.CartActivity;
+import com.pompom.group6.activities.GuestOrderActivity;
 import com.pompom.group6.adapters.CategoryAdapter;
 import com.pompom.group6.adapters.ProductAdapter;
 import com.pompom.group6.database.CategoryDAO;
@@ -84,6 +85,7 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
         setupCartIcon();
         setupMarquee();
         setupProfileAvatar();
+        setupGuestOrderFab();
         setupCategories();
         setupProducts();
         setupGridToggle();
@@ -98,6 +100,7 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
         super.onResume();
         // Refresh avatar in case user logged in/out
         setupProfileAvatar();
+        setupGuestOrderFab();
         if (cartManager != null) updateCartBadge(cartManager.getTotalCount());
     }
 
@@ -139,6 +142,24 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
         binding.ivProfile.setImageResource(R.drawable.ic_user2);
         ImageViewCompat.setImageTintList(binding.ivProfile,
                 ContextCompat.getColorStateList(requireContext(), R.color.brand_background));
+    }
+
+    // ── Guest order FAB — only shown to non-logged-in users ──────────────────
+
+    private void setupGuestOrderFab() {
+        if (binding == null) return;
+        SharedPreferences prefs = requireContext()
+                .getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE);
+        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
+        if (isLoggedIn) {
+            binding.fabGuestOrder.setVisibility(View.GONE);
+        } else {
+            binding.fabGuestOrder.setVisibility(View.VISIBLE);
+            binding.fabGuestOrder.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), GuestOrderActivity.class);
+                startActivity(intent);
+            });
+        }
     }
 
     // ── Cart icon + badge ─────────────────────────────────────────────────

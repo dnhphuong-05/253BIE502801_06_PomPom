@@ -1,5 +1,7 @@
 package com.pompom.group6.adapters;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.text.SpannableString;
@@ -16,12 +18,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
 import com.pompom.group6.R;
 import com.pompom.group6.activities.ProductDetailActivity;
+import com.pompom.group6.fragments.ProductOptionsBottomSheetDialog;
 import com.pompom.group6.models.Product;
 
 import java.util.ArrayList;
@@ -125,7 +130,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (h.tvOriginalPrice != null) {
             if (product.getOriginalPrice() != null && !product.getOriginalPrice().isEmpty()) {
                 h.tvOriginalPrice.setVisibility(View.VISIBLE);
-                h.tvOriginalPrice.setText(product.getOriginalPrice());
+                h.tvOriginalPrice.setText(formatPriceSpan(product.getOriginalPrice()));
                 h.tvOriginalPrice.setPaintFlags(
                         h.tvOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             } else {
@@ -154,10 +159,16 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             h.tvRatingText.setText(String.format(Locale.US, "%.1f", product.getRating()));
         }
 
-        // Review count (e.g. "(23)")
+        // Review count (e.g. "(23 đánh giá)")
         if (h.tvReviewCount != null) {
             h.tvReviewCount.setText(
-                    String.format(Locale.US, "(%d)", product.getReviewCount()));
+                    String.format(Locale.US, "(%d đánh giá)", product.getReviewCount()));
+        }
+
+        // Sales volume (mock, deterministic per product id)
+        if (h.tvSalesVolume != null) {
+            int fakeSales = 10 + ((product.getId() * 31) % 190);
+            h.tvSalesVolume.setText(fakeSales + "+ đã bán");
         }
 
         // Product image
@@ -176,12 +187,31 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             v.getContext().startActivity(intent);
         });
 
-        // Add-to-cart button
+        // Add-to-cart button — opens BottomSheet for variant/qty selection (An toàn không crash)
         if (h.btnAddToCart != null) {
-            h.btnAddToCart.setOnClickListener(v ->
-                    Toast.makeText(v.getContext(),
-                            "Đã thêm " + product.getTitle() + " vào túi",
-                            Toast.LENGTH_SHORT).show());
+            h.btnAddToCart.setOnClickListener(v -> {
+                Context context = v.getContext();
+
+                // Vòng lặp giải bọc ContextWrapper để tìm FragmentActivity gốc tránh crash
+                while (context instanceof ContextWrapper) {
+                    if (context instanceof FragmentActivity) {
+                        break;
+                    }
+                    context = ((ContextWrapper) context).getBaseContext();
+                }
+
+                if (context instanceof FragmentActivity) {
+                    FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
+                    ProductOptionsBottomSheetDialog.show(fm,
+                            product.getId(),
+                            product.getTitle(),
+                            product.getPrice(),
+                            product.getImageUrl(),
+                            ProductOptionsBottomSheetDialog.ACTION_ADD_TO_CART);
+                } else {
+                    Toast.makeText(v.getContext(), "Không thể mở tùy chọn sản phẩm", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -197,7 +227,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         boolean isWishlisted = wishlistedIds.contains(product.getId());
         h.ivWishlistHeart.setImageResource(
-                isWishlisted ? R.drawable.ic_heart_solid : R.drawable.ic_heart_pink);
+                isWishlisted ? R.drawable.ic_heart_solid : R.drawable.ic_heart_outline);
 
         h.cardWishlist.setOnClickListener(v -> {
             boolean nowWishlisted = !wishlistedIds.contains(product.getId());
@@ -210,7 +240,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             Animation anim = AnimationUtils.loadAnimation(v.getContext(), R.anim.heart_scale);
             h.ivWishlistHeart.startAnimation(anim);
             h.ivWishlistHeart.setImageResource(
-                    nowWishlisted ? R.drawable.ic_heart_solid : R.drawable.ic_heart_pink);
+                    nowWishlisted ? R.drawable.ic_heart_solid : R.drawable.ic_heart_outline);
             Toast.makeText(v.getContext(),
                     nowWishlisted ? "Đã thêm vào yêu thích" : "Đã xóa khỏi yêu thích",
                     Toast.LENGTH_SHORT).show();
@@ -251,7 +281,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
-        TextView tvTitle, tvPrice, tvOriginalPrice, tvDiscountBadge, tvRatingText, tvReviewCount;
+        TextView tvTitle, tvPrice, tvOriginalPrice, tvDiscountBadge, tvRatingText, tvReviewCount, tvSalesVolume;
         RatingBar ratingBar;
         View btnAddToCart;
         ImageView ivWishlistHeart;
@@ -266,6 +296,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             tvDiscountBadge   = itemView.findViewById(R.id.tvDiscountBadge);
             tvRatingText      = itemView.findViewById(R.id.tvRatingText);
             tvReviewCount     = itemView.findViewById(R.id.tvReviewCount);
+            tvSalesVolume     = itemView.findViewById(R.id.tvSalesVolume);
             ratingBar         = itemView.findViewById(R.id.ratingBar);
             btnAddToCart      = itemView.findViewById(R.id.btnAddToCart);
             ivWishlistHeart   = itemView.findViewById(R.id.ivWishlistHeart);
