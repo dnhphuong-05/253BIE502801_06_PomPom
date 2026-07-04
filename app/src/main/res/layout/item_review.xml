@@ -3,33 +3,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
+    android:layout_marginBottom="14dp"
     app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:strokeColor="#F5F5F5"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="1dp"
+    app:strokeColor="#F0F0F0"
     app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@color/white">
+        android:padding="16dp">
 
+        <!-- ── Header: avatar • name/stars • date ── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivUserAvatar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_avatar"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                app:strokeColor="#FCE4E4"
+                app:strokeWidth="1.5dp" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -38,39 +39,21 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/tvUserName"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tvUserName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:text="Nguyen Thao"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tvVerifiedTag"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_label_pink"
-                        android:paddingLeft="6dp"
-                        android:paddingRight="6dp"
-                        android:paddingTop="2dp"
-                        android:paddingBottom="2dp"
-                        android:text="Đã mua hàng"
-                        android:textColor="@color/brand_pink"
-                        android:textSize="10sp" />
-                </LinearLayout>
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:maxLines="1"
+                    android:text="Nguyen Thao"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -80,18 +63,19 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:numStars="5"
-                        android:progressTint="#FFD700"
-                        android:rating="5" />
+                        android:progressTint="#FFC107"
+                        android:rating="5"
+                        android:stepSize="0.5" />
 
                     <TextView
                         android:id="@+id/tvRatingScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
+                        android:fontFamily="@font/poppins_semibold"
                         android:text="5.0"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/poppins_semibold"/>
+                        android:textColor="@color/brand_pink"
+                        android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -101,28 +85,34 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
                 android:text="20/05/2025"
-                android:textColor="#9E9E9E"
-                android:textSize="12sp"
-                android:layout_gravity="top"/>
+                android:textColor="#B0B0B0"
+                android:textSize="11sp" />
         </LinearLayout>
 
+        <!-- ── Comment (soft quote box) ── -->
         <TextView
             android:id="@+id/tvReviewComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:background="@drawable/bg_review_quote"
             android:fontFamily="@font/poppins_regular"
             android:lineSpacingExtra="4dp"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="12dp"
             android:text="Màu lên rất đẹp, tự nhiên và không bị bột. Rất hài lòng với sản phẩm!"
             android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
+            android:textSize="13sp" />
 
+        <!-- ── Review images ── -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvReviewImages"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:clipToPadding="false"
             android:orientation="horizontal"
+            android:overScrollMode="never"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>

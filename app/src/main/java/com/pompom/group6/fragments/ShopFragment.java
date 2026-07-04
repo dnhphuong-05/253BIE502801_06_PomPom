@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
 import com.pompom.group6.activities.CartActivity;
 import com.pompom.group6.activities.GuestOrderActivity;
+import com.pompom.group6.activities.SearchActivity;
 import com.pompom.group6.adapters.CategoryAdapter;
 import com.pompom.group6.adapters.ProductAdapter;
 import com.pompom.group6.database.CategoryDAO;
@@ -83,6 +84,7 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
         cartManager.addListener(this);
 
         setupCartIcon();
+        setupSearchIcon();
         setupMarquee();
         setupProfileAvatar();
         setupGuestOrderFab();
@@ -171,6 +173,11 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
         updateCartBadge(cartManager.getTotalCount());
+    }
+
+    private void setupSearchIcon() {
+        binding.ivSearch.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), SearchActivity.class)));
     }
 
     private void updateCartBadge(int count) {
@@ -355,6 +362,10 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
                 currentFilter.minPrice,
                 currentFilter.maxPrice,
                 currentFilter.minRating,
+                currentFilter.sortAlpha,
+                currentFilter.sortPrice,
+                currentFilter.sortNewest,
+                currentFilter.sortPopular,
                 pageSize, 0);
 
         productAdapter.setProducts(products);
@@ -373,6 +384,10 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
                     currentFilter.minPrice,
                     currentFilter.maxPrice,
                     currentFilter.minRating,
+                    currentFilter.sortAlpha,
+                    currentFilter.sortPrice,
+                    currentFilter.sortNewest,
+                    currentFilter.sortPopular,
                     pageSize, currentPage * pageSize);
 
             productAdapter.hideLoading();

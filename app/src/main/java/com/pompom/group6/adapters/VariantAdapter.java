@@ -69,15 +69,17 @@ public class VariantAdapter extends RecyclerView.Adapter<VariantAdapter.VariantV
             return;
         }
 
-        // ── Trạng thái tương tác bình thường (Dành cho Bottom Sheet) ──
+        // ── Trạng thái tương tác: màu chọn viền dày + rõ, màu khác làm mờ ──
         if (position == selectedPosition) {
-            holder.binding.cardColor.setStrokeColor(android.graphics.Color.parseColor("#FF69B4"));
-            holder.binding.cardColor.setStrokeWidth(4);
+            holder.binding.cardColor.setStrokeColor(android.graphics.Color.parseColor("#E8989A"));
+            holder.binding.cardColor.setStrokeWidth(6);
+            holder.itemView.setAlpha(1.0f);
             holder.itemView.setScaleX(1.08f);
             holder.itemView.setScaleY(1.08f);
         } else {
             holder.binding.cardColor.setStrokeColor(android.graphics.Color.parseColor("#F0F0F0"));
             holder.binding.cardColor.setStrokeWidth(2);
+            holder.itemView.setAlpha(0.4f);
             holder.itemView.setScaleX(1.0f);
             holder.itemView.setScaleY(1.0f);
         }

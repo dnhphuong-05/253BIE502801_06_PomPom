@@ -3,6 +3,7 @@ package com.pompom.group6.database;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.pompom.group6.models.Product;
@@ -69,6 +70,28 @@ public class ProductDAO {
                                               long minPrice, long maxPrice,
                                               float minRating,
                                               int limit, int offset) {
+        // No sorting → keep default (natural) ordering.
+        return getProductsFiltered(categoryIds, minPrice, maxPrice, minRating,
+                "", "", false, false, limit, offset);
+    }
+
+    /**
+     * Filtered + sorted + paginated query for ShopFragment.
+     *
+     * <p>Sort options are combined by priority: Phổ biến → Mới nhất → Giá → Tên,
+     * with a stable {@code product_id} tiebreak so pagination stays consistent.</p>
+     *
+     * @param sortAlpha  "" | "asc" | "desc" — sort by product name
+     * @param sortPrice  "" | "asc" | "desc" — sort by effective (sale) price
+     * @param sortNewest true → newest first (by created_at)
+     * @param sortPopular true → most-reviewed first
+     */
+    public List<Product> getProductsFiltered(Set<Integer> categoryIds,
+                                              long minPrice, long maxPrice,
+                                              float minRating,
+                                              String sortAlpha, String sortPrice,
+                                              boolean sortNewest, boolean sortPopular,
+                                              int limit, int offset) {
         List<String> argList = new ArrayList<>();
         StringBuilder where = new StringBuilder("p.is_active = 1");
 
@@ -106,18 +129,51 @@ public class ProductDAO {
             argList.add(String.valueOf(minRating));
         }
 
+        // ── ORDER BY (combine active sorts by priority) ──────────────────────
+        List<String> orderParts = new ArrayList<>();
+        if (sortPopular) orderParts.add("review_count DESC");
+        if (sortNewest)  orderParts.add("p.created_at DESC");
+        if ("asc".equals(sortPrice))  orderParts.add("effective_price ASC");
+        else if ("desc".equals(sortPrice)) orderParts.add("effective_price DESC");
+        if ("asc".equals(sortAlpha))  orderParts.add("p.name COLLATE NOCASE ASC");
+        else if ("desc".equals(sortAlpha)) orderParts.add("p.name COLLATE NOCASE DESC");
+        orderParts.add("p.product_id ASC"); // stable tiebreak for pagination
+
         // LIMIT / OFFSET
         argList.add(String.valueOf(limit));
         argList.add(String.valueOf(offset));
 
         String query = "SELECT p.*, " +
+                "(" + effectivePrice + ") as effective_price, " +
                 avgExpr + " as avg_rating, " +
                 "(SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.product_id) as review_count " +
                 "FROM products p " +
                 "WHERE " + where +
+                " ORDER BY " + TextUtils.join(", ", orderParts) +
                 " LIMIT ? OFFSET ?";
 
         return getProductsByQuery(query, argList.toArray(new String[0]));
+    }
+
+    /**
+     * Products in the same category as {@code productId} (excluding itself),
+     * for the "Sản phẩm liên quan" grid on the detail screen.
+     */
+    public List<Product> getRelatedProducts(int productId, int limit) {
+        String avgExpr =
+                "(SELECT COALESCE(AVG(rating), 0) FROM product_reviews pr " +
+                "WHERE pr.product_id = p.product_id)";
+        String query = "SELECT p.*, " +
+                avgExpr + " as avg_rating, " +
+                "(SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.product_id) as review_count " +
+                "FROM products p " +
+                "WHERE p.is_active = 1 " +
+                "AND p.category_id = (SELECT category_id FROM products WHERE product_id = ?) " +
+                "AND p.product_id != ? " +
+                "ORDER BY review_count DESC, p.product_id ASC " +
+                "LIMIT ?";
+        return getProductsByQuery(query,
+                new String[]{String.valueOf(productId), String.valueOf(productId), String.valueOf(limit)});
     }
 
     public Product getProductById(int productId) {

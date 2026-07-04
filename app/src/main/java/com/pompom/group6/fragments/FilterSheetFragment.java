@@ -14,6 +14,9 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
@@ -88,6 +91,21 @@ public class FilterSheetFragment extends Fragment {
         etMinPrice       = view.findViewById(R.id.etMinPrice);
         etMaxPrice       = view.findViewById(R.id.etMaxPrice);
 
+        // Push the pink header below the status bar (its pink fills the status-bar
+        // area → synced colour) and keep the footer buttons above the nav bar.
+        View filterHeader = view.findViewById(R.id.filterHeader);
+        View filterFooter = view.findViewById(R.id.filterFooter);
+        final int footerBasePadBottom = filterFooter.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(filterPanel, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            filterHeader.setPadding(filterHeader.getPaddingLeft(), bars.top,
+                    filterHeader.getPaddingRight(), filterHeader.getPaddingBottom());
+            filterFooter.setPadding(filterFooter.getPaddingLeft(), filterFooter.getPaddingTop(),
+                    filterFooter.getPaddingRight(), footerBasePadBottom + bars.bottom);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(filterPanel);
+
         setupSlideInAnimation();
         setupSpinners();
         setupToggles();
@@ -133,19 +151,21 @@ public class FilterSheetFragment extends Fragment {
     // ── Spinners ──────────────────────────────────────────────────────────
 
     private void setupSpinners() {
-        // Alphabetical sort — A đến Z is the default (position 0)
-        String[] alphaOptions = {"A đến Z", "Z đến A"};
-        ArrayAdapter<String> alphaAdapter = new ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, alphaOptions);
-        alphaAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerSortAlpha.setAdapter(alphaAdapter);
+        // Position 0 = "Mặc định" (no sort) so each spinner is optional.
+        String[] alphaOptions = {"Mặc định", "A đến Z", "Z đến A"};
+        spinnerSortAlpha.setAdapter(buildSpinnerAdapter(alphaOptions));
+        spinnerSortAlpha.setPopupBackgroundResource(R.drawable.bg_spinner_popup);
 
-        // Price sort — Giá tăng dần (low→high) is the default (position 0)
-        String[] priceOptions = {"Giá tăng dần", "Giá giảm dần"};
-        ArrayAdapter<String> priceAdapter = new ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, priceOptions);
-        priceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerSortPrice.setAdapter(priceAdapter);
+        String[] priceOptions = {"Mặc định", "Giá tăng dần", "Giá giảm dần"};
+        spinnerSortPrice.setAdapter(buildSpinnerAdapter(priceOptions));
+        spinnerSortPrice.setPopupBackgroundResource(R.drawable.bg_spinner_popup);
+    }
+
+    private ArrayAdapter<String> buildSpinnerAdapter(String[] options) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(), R.layout.item_spinner_selected, options);
+        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
+        return adapter;
     }
 
     // ── Toggle buttons (Mới nhất / Phổ biến) ─────────────────────────────
@@ -201,11 +221,15 @@ public class FilterSheetFragment extends Fragment {
             etMaxPrice.setText(String.valueOf(initialState.maxPrice));
         }
 
-        // Spinner: alphabetical sort — 0=A đến Z (asc), 1=Z đến A (desc), default A-Z
-        spinnerSortAlpha.setSelection("desc".equals(initialState.sortAlpha) ? 1 : 0);
+        // Spinner: alphabetical sort — 0=Mặc định, 1=A đến Z (asc), 2=Z đến A (desc)
+        spinnerSortAlpha.setSelection(
+                "asc".equals(initialState.sortAlpha) ? 1
+                        : "desc".equals(initialState.sortAlpha) ? 2 : 0);
 
-        // Spinner: price sort — 0=Giá tăng dần (asc), 1=Giá giảm dần (desc), default tăng dần
-        spinnerSortPrice.setSelection("desc".equals(initialState.sortPrice) ? 1 : 0);
+        // Spinner: price sort — 0=Mặc định, 1=Giá tăng dần (asc), 2=Giá giảm dần (desc)
+        spinnerSortPrice.setSelection(
+                "asc".equals(initialState.sortPrice) ? 1
+                        : "desc".equals(initialState.sortPrice) ? 2 : 0);
 
         // Toggles
         isNewestActive  = initialState.sortNewest;
@@ -304,13 +328,13 @@ public class FilterSheetFragment extends Fragment {
             if (!maxStr.isEmpty()) state.maxPrice = Long.parseLong(maxStr);
         } catch (NumberFormatException ignored) {}
 
-        // Alphabetical sort — 0=A đến Z (asc), 1=Z đến A (desc)
+        // Alphabetical sort — 0=Mặc định (""), 1=A đến Z (asc), 2=Z đến A (desc)
         int alphaPos = spinnerSortAlpha.getSelectedItemPosition();
-        state.sortAlpha = alphaPos == 0 ? "asc" : "desc";
+        state.sortAlpha = alphaPos == 1 ? "asc" : alphaPos == 2 ? "desc" : "";
 
-        // Price sort — 0=Giá tăng dần (asc), 1=Giá giảm dần (desc)
+        // Price sort — 0=Mặc định (""), 1=Giá tăng dần (asc), 2=Giá giảm dần (desc)
         int pricePos = spinnerSortPrice.getSelectedItemPosition();
-        state.sortPrice = pricePos == 0 ? "asc" : "desc";
+        state.sortPrice = pricePos == 1 ? "asc" : pricePos == 2 ? "desc" : "";
 
         // Toggles
         state.sortNewest  = isNewestActive;
