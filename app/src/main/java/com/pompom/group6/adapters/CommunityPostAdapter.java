@@ -143,7 +143,7 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         holder.layoutLike.setOnClickListener(v -> toggleLike(holder, post));
     }
 
-    private void openPostDetail(View v, int postId) {
+    private void openPostDetail(View v, String postId) {
         Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
         intent.putExtra("post_id", postId);
         v.getContext().startActivity(intent);

@@ -209,7 +209,7 @@ public class ProductDAO {
                 String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal)
                         ? String.format(Locale.getDefault(), "%.0fđ", priceVal) : null;
 
-                product = new Product(id, name, priceStr, originalPriceStr);
+                product = new Product(String.valueOf(id), name, priceStr, originalPriceStr);
                 product.setDescription(cursor.getString(cursor.getColumnIndexOrThrow("description")));
                 product.setSku(cursor.getString(cursor.getColumnIndexOrThrow("sku")));
                 product.setStock(cursor.getInt(cursor.getColumnIndexOrThrow("stock")));
@@ -357,7 +357,7 @@ public class ProductDAO {
                     String originalPriceStr = (salePriceVal > 0 && salePriceVal < priceVal)
                             ? String.format(Locale.getDefault(), "%.0fđ", priceVal) : null;
 
-                    Product product = new Product(id, name, priceStr, originalPriceStr);
+                    Product product = new Product(String.valueOf(id), name, priceStr, originalPriceStr);
 
                     int ratingIdx = cursor.getColumnIndex("avg_rating");
                     if (ratingIdx != -1) product.setRating(cursor.getFloat(ratingIdx));

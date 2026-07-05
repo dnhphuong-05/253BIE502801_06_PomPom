@@ -62,7 +62,7 @@ public class PromotionDAO {
                     int totalStock = 400;
                     int soldCount = (int) (Math.random() * 200 + 50);
 
-                    products.add(new PromotionProduct(id, name, imageUrl, originalPrice, salePrice, discountPercent, totalStock, soldCount));
+                    products.add(new PromotionProduct(String.valueOf(id), name, imageUrl, originalPrice, salePrice, discountPercent, totalStock, soldCount));
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
@@ -73,10 +73,10 @@ public class PromotionDAO {
 
         // Fallback for demo if database query returns nothing
         if (products.isEmpty()) {
-            products.add(new PromotionProduct(1, "Unicorn Magic Palette", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344448/PomPom_Unicorn_Magic_Palette_p82y28.webp", 249000, 124500, 50, 400, 120));
-            products.add(new PromotionProduct(3, "Cloud Cushion", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344277/PomPom_Cloud_Cushion_kwewua.webp", 399000, 199500, 50, 400, 85));
-            products.add(new PromotionProduct(7, "Butterfly Highlight", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340911/ma_hong_r2373s.webp", 189000, 94500, 50, 400, 210));
-            products.add(new PromotionProduct(18, "Heart Brush Set", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340910/co_trang_diem_zgi4dz.webp", 450000, 225000, 50, 400, 45));
+            products.add(new PromotionProduct("1", "Unicorn Magic Palette", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344448/PomPom_Unicorn_Magic_Palette_p82y28.webp", 249000, 124500, 50, 400, 120));
+            products.add(new PromotionProduct("3", "Cloud Cushion", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344277/PomPom_Cloud_Cushion_kwewua.webp", 399000, 199500, 50, 400, 85));
+            products.add(new PromotionProduct("7", "Butterfly Highlight", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340911/ma_hong_r2373s.webp", 189000, 94500, 50, 400, 210));
+            products.add(new PromotionProduct("18", "Heart Brush Set", "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340910/co_trang_diem_zgi4dz.webp", 450000, 225000, 50, 400, 45));
         }
 
         return products;

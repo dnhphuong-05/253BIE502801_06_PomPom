@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CommunityPost {
-    private int postId;
+    private String postId;
     private int userId;
     private String content;
     private String imageUrl; 
@@ -16,7 +16,7 @@ public class CommunityPost {
     private String userName;
     private String userAvatar;
 
-    public CommunityPost(int postId, int userId, String content, String imageUrl, int likeCount, int commentCount, String postType) {
+    public CommunityPost(String postId, int userId, String content, String imageUrl, int likeCount, int commentCount, String postType) {
         this.postId = postId;
         this.userId = userId;
         this.content = content;
@@ -27,13 +27,13 @@ public class CommunityPost {
     }
     
     // Additional constructor for DAO convenience
-    public CommunityPost(int postId, int userId, String content, String imageUrl, int likeCount, int commentCount, String postType, String userName, String userAvatar) {
+    public CommunityPost(String postId, int userId, String content, String imageUrl, int likeCount, int commentCount, String postType, String userName, String userAvatar) {
         this(postId, userId, content, imageUrl, likeCount, commentCount, postType);
         this.userName = userName;
         this.userAvatar = userAvatar;
     }
 
-    public int getPostId() { return postId; }
+    public String getPostId() { return postId; }
     public int getUserId() { return userId; }
     public String getContent() { return content; }
     public String getImageUrl() { return imageUrl; }

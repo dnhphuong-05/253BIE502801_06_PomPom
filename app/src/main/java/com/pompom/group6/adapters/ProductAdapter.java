@@ -44,7 +44,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int VIEW_TYPE_LOADING    = 2;
 
     private final List<Product> products = new ArrayList<>();
-    private final Set<Integer> wishlistedIds = new HashSet<>();
+    private final Set<String> wishlistedIds = new HashSet<>();
     private boolean isLoading = false;
     private boolean isHorizontal = false;
 
@@ -167,7 +167,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         // Sales volume (mock, deterministic per product id)
         if (h.tvSalesVolume != null) {
-            int fakeSales = 10 + ((product.getId() * 31) % 190);
+            int fakeSales = 10 + ((product.seed() * 31) % 190);
             h.tvSalesVolume.setText(fakeSales + "+ đã bán");
         }
 

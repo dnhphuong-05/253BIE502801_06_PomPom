@@ -22,8 +22,7 @@ import java.util.List;
 public class PostDetailActivity extends SwipeBackActivity {
 
     private ActivityPostDetailBinding binding;
-    private CommunityDAO communityDAO;
-    private int postId;
+    private String postId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +44,7 @@ public class PostDetailActivity extends SwipeBackActivity {
         binding = ActivityPostDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        postId = getIntent().getIntExtra("post_id", -1);
-        communityDAO = new CommunityDAO(this);
+        postId = getIntent().getStringExtra("post_id");
 
         setupListeners();
         loadPostData();
@@ -76,36 +74,68 @@ public class PostDetailActivity extends SwipeBackActivity {
     }
 
     private void loadPostData() {
-        if (postId == -1) return;
+        if (postId == null) return;
 
-        CommunityPost post = communityDAO.getPostById(postId);
-        if (post != null) {
-            binding.tvAuthorName.setText(post.getUserName());
-            binding.tvPostTitle.setText(post.getContent());
-            binding.tvPostContent.setText(post.getContent() + "\n\nCảm ơn mọi người đã xem bài viết của mình!");
-            binding.tvLikeCount.setText(formatCount(post.getLikeCount()));
-            binding.tvCommentCount.setText(String.valueOf(post.getCommentCount()));
-            binding.tvCommentSectionTitle.setText("Bình luận (" + post.getCommentCount() + ")");
+        // 1) Bài viết + tác giả (từ MongoDB).
+        com.pompom.group6.network.ApiClient.get().getCommunityPost(postId)
+                .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiCommunityPost>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiCommunityPost> call,
+                                           retrofit2.Response<com.pompom.group6.network.dto.ApiCommunityPost> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        com.pompom.group6.network.dto.ApiCommunityPost p = resp.body();
+                        binding.tvAuthorName.setText(p.authorName);
+                        binding.tvPostTitle.setText(p.content);
+                        binding.tvPostContent.setText(p.content + "\n\nCảm ơn mọi người đã xem bài viết của mình!");
+                        binding.tvLikeCount.setText(formatCount(p.likeCount));
+                        binding.tvCommentCount.setText(String.valueOf(p.commentCount));
+                        binding.tvCommentSectionTitle.setText("Bình luận (" + p.commentCount + ")");
 
-            Glide.with(this).load(post.getImageUrl()).into(binding.ivPostImage);
-            Glide.with(this).load(post.getUserAvatar()).circleCrop().placeholder(R.drawable.logo_pompom).into(binding.ivAuthorAvatar);
+                        String img = p.images != null && !p.images.isEmpty() ? p.images.get(0) : null;
+                        Glide.with(PostDetailActivity.this).load(img).into(binding.ivPostImage);
+                        Glide.with(PostDetailActivity.this).load(p.authorAvatar).circleCrop()
+                                .placeholder(R.drawable.logo_pompom).into(binding.ivAuthorAvatar);
+                    }
+                    @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiCommunityPost> call, Throwable t) {}
+                });
 
-            // Load Tagged Products
-            List<Product> taggedProducts = communityDAO.getTaggedProducts(postId);
-            if (!taggedProducts.isEmpty()) {
-                binding.layoutTaggedProducts.setVisibility(View.VISIBLE);
-                ProductTagAdapter tagAdapter = new ProductTagAdapter(taggedProducts);
-                binding.rvTaggedProducts.setAdapter(tagAdapter);
-            } else {
-                binding.layoutTaggedProducts.setVisibility(View.GONE);
-            }
+        // 2) Sản phẩm được gắn thẻ.
+        com.pompom.group6.network.ApiClient.get().getPostTaggedProducts(postId)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiProduct>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiProduct>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiProduct>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<Product> tagged = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiProduct a : resp.body()) {
+                            tagged.add(com.pompom.group6.network.ProductMapper.toProduct(a));
+                        }
+                        if (!tagged.isEmpty()) {
+                            binding.layoutTaggedProducts.setVisibility(View.VISIBLE);
+                            binding.rvTaggedProducts.setAdapter(new ProductTagAdapter(tagged));
+                        } else {
+                            binding.layoutTaggedProducts.setVisibility(View.GONE);
+                        }
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiProduct>> call, Throwable t) {}
+                });
 
-            // Load Comments
-            List<Comment> comments = communityDAO.getCommentsForPost(postId);
-            CommentAdapter commentAdapter = new CommentAdapter(comments);
-            binding.rvComments.setLayoutManager(new LinearLayoutManager(this));
-            binding.rvComments.setAdapter(commentAdapter);
-        }
+        // 3) Bình luận.
+        binding.rvComments.setLayoutManager(new LinearLayoutManager(this));
+        com.pompom.group6.network.ApiClient.get().getPostComments(postId)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiComment>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiComment>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiComment>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<Comment> comments = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiComment c : resp.body()) {
+                            comments.add(new Comment(0, 0, c.authorName, c.authorAvatar, c.content, c.createdAt));
+                        }
+                        binding.rvComments.setAdapter(new CommentAdapter(comments));
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiComment>> call, Throwable t) {}
+                });
     }
 
     private String formatCount(int count) {

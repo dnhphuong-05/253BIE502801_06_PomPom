@@ -171,16 +171,31 @@ public class AddCommunityPostActivity extends SwipeBackActivity {
             for (Uri uri : selectedUris) {
                 pathList.add(uri.toString());
             }
-            String imagesPath = TextUtils.join(",", pathList);
 
-            long result = communityDAO.insertPost(1, fullContent, imagesPath, postType);
-
-            if (result != -1) {
-                Toast.makeText(this, "Đăng bài viết thành công!", Toast.LENGTH_SHORT).show();
-                finish();
-            } else {
-                Toast.makeText(this, "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+            String userOid = com.pompom.group6.network.Session.getUserOid(this);
+            if (userOid == null) {
+                Toast.makeText(this, "Bạn cần đăng nhập để đăng bài", Toast.LENGTH_SHORT).show();
+                return;
             }
+            // Đăng bài thẳng lên MongoDB qua backend.
+            com.pompom.group6.network.ApiClient.get()
+                    .createPost(new com.pompom.group6.network.dto.CreatePostRequest(userOid, fullContent, pathList))
+                    .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiCommunityPost>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiCommunityPost> call,
+                                               retrofit2.Response<com.pompom.group6.network.dto.ApiCommunityPost> resp) {
+                            if (resp.isSuccessful()) {
+                                Toast.makeText(AddCommunityPostActivity.this, "Đăng bài viết thành công!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(AddCommunityPostActivity.this, "Có lỗi xảy ra, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        @Override
+                        public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiCommunityPost> call, Throwable t) {
+                            Toast.makeText(AddCommunityPostActivity.this, "Không kết nối được máy chủ", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         };
 
         binding.btnPostTop.setOnClickListener(postListener);

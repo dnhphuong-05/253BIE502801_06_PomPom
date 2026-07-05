@@ -1,7 +1,5 @@
 package com.pompom.group6.activities;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -9,23 +7,28 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.pompom.group6.adapters.AddressAdapter;
-import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.ActivityAddressBookBinding;
 import com.pompom.group6.models.Address;
+import com.pompom.group6.network.ApiClient;
+import com.pompom.group6.network.Session;
+import com.pompom.group6.network.dto.ApiAddress;
+import com.pompom.group6.network.dto.AddressRequest;
 import com.pompom.group6.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class AddressBookActivity extends SwipeBackActivity implements AddressAdapter.Listener {
 
     private ActivityAddressBookBinding binding;
-    private UserDAO userDAO;
-    private int userId;
+    private String userOid;
     private final List<Address> addresses = new ArrayList<>();
     private AddressAdapter adapter;
 
@@ -39,9 +42,7 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
         binding.header.tvHeaderTitle.setText("Sổ địa chỉ");
         binding.header.btnBack.setOnClickListener(v -> finish());
 
-        userDAO = new UserDAO(this);
-        SharedPreferences prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        userId = prefs.getInt("user_id", 1);
+        userOid = Session.getUserOid(this);
 
         adapter = new AddressAdapter(addresses, this);
         binding.rvAddresses.setLayoutManager(new LinearLayoutManager(this));
@@ -56,10 +57,31 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
     }
 
     private void loadAddresses() {
-        addresses.clear();
-        addresses.addAll(userDAO.getAddresses(userId));
-        adapter.notifyDataSetChanged();
-        binding.emptyState.getRoot().setVisibility(addresses.isEmpty() ? View.VISIBLE : View.GONE);
+        if (userOid == null) {
+            binding.emptyState.getRoot().setVisibility(View.VISIBLE);
+            return;
+        }
+        ApiClient.get().getAddresses(userOid).enqueue(new Callback<List<ApiAddress>>() {
+            @Override
+            public void onResponse(Call<List<ApiAddress>> call, Response<List<ApiAddress>> resp) {
+                if (binding == null) return;
+                addresses.clear();
+                if (resp.isSuccessful() && resp.body() != null) {
+                    for (ApiAddress a : resp.body()) {
+                        addresses.add(new Address(a.id, a.label, a.recipientName, a.phone,
+                                a.addressLine, a.ward, a.district, a.city, a.isDefault));
+                    }
+                }
+                adapter.notifyDataSetChanged();
+                binding.emptyState.getRoot().setVisibility(addresses.isEmpty() ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<List<ApiAddress>> call, Throwable t) {
+                if (binding == null) return;
+                binding.emptyState.getRoot().setVisibility(addresses.isEmpty() ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 
     private void showAddDialog() {
@@ -97,20 +119,33 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
                         Toast.makeText(this, "Vui lòng nhập tên, SĐT và địa chỉ", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    if (userOid == null) {
+                        Toast.makeText(this, "Bạn cần đăng nhập", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     boolean makeDefault = addresses.isEmpty(); // first address becomes default
-                    long id = userDAO.addAddress(userId,
+                    AddressRequest body = new AddressRequest(
                             emptyToDefault(etLabel.getText().toString().trim(), "Địa chỉ"),
                             name, phone, line,
                             etWard.getText().toString().trim(),
                             etDistrict.getText().toString().trim(),
                             etCity.getText().toString().trim(),
                             makeDefault);
-                    if (id != -1) {
-                        Toast.makeText(this, "Đã thêm địa chỉ", Toast.LENGTH_SHORT).show();
-                        loadAddresses();
-                    } else {
-                        Toast.makeText(this, "Thêm thất bại", Toast.LENGTH_SHORT).show();
-                    }
+                    ApiClient.get().addAddress(userOid, body).enqueue(new Callback<ApiAddress>() {
+                        @Override
+                        public void onResponse(Call<ApiAddress> call, Response<ApiAddress> resp) {
+                            if (resp.isSuccessful()) {
+                                Toast.makeText(AddressBookActivity.this, "Đã thêm địa chỉ", Toast.LENGTH_SHORT).show();
+                                loadAddresses();
+                            } else {
+                                Toast.makeText(AddressBookActivity.this, "Thêm thất bại", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<ApiAddress> call, Throwable t) {
+                            Toast.makeText(AddressBookActivity.this, "Không kết nối được máy chủ", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
@@ -132,10 +167,17 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
                 .setTitle("Xóa địa chỉ")
                 .setMessage("Bạn có chắc muốn xóa địa chỉ này?")
                 .setPositiveButton("Xóa", (d, w) -> {
-                    if (userDAO.deleteAddress(address.getAddressId())) {
-                        Toast.makeText(this, "Đã xóa", Toast.LENGTH_SHORT).show();
-                        loadAddresses();
-                    }
+                    if (userOid == null) return;
+                    ApiClient.get().deleteAddress(userOid, address.getAddressId()).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> resp) {
+                            if (resp.isSuccessful()) {
+                                Toast.makeText(AddressBookActivity.this, "Đã xóa", Toast.LENGTH_SHORT).show();
+                                loadAddresses();
+                            }
+                        }
+                        @Override public void onFailure(Call<Void> call, Throwable t) {}
+                    });
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
@@ -143,8 +185,13 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
 
     @Override
     public void onSetDefault(Address address) {
-        if (userDAO.setDefaultAddress(userId, address.getAddressId())) {
-            loadAddresses();
-        }
+        if (userOid == null) return;
+        ApiClient.get().setDefaultAddress(userOid, address.getAddressId()).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> resp) {
+                if (resp.isSuccessful()) loadAddresses();
+            }
+            @Override public void onFailure(Call<Void> call, Throwable t) {}
+        });
     }
 }

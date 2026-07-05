@@ -235,6 +235,34 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
 
     /** Nạp thông tin cơ bản + danh sách biến thể màu vào ô xổ ra. */
     private void populateExpand(@NonNull CartViewHolder holder, CartItem item, Context ctx) {
+        // Sản phẩm cloud (có ObjectId) → lấy mô tả/danh mục từ MongoDB.
+        if (item.getProductOid() != null) {
+            com.pompom.group6.network.ApiClient.get().getProduct(item.getProductOid())
+                    .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiProduct>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiProduct> call,
+                                               retrofit2.Response<com.pompom.group6.network.dto.ApiProduct> resp) {
+                            if (!resp.isSuccessful() || resp.body() == null) {
+                                holder.binding.tvExpandDesc.setText("Không tải được thông tin sản phẩm.");
+                                holder.binding.tvExpandMeta.setText("");
+                                return;
+                            }
+                            com.pompom.group6.network.dto.ApiProduct a = resp.body();
+                            holder.binding.tvExpandDesc.setText(a.description != null ? a.description : "Chưa có mô tả cho sản phẩm này.");
+                            String cat = a.categoryName != null ? a.categoryName : "";
+                            String brand = a.brand != null ? a.brand : "";
+                            String meta = cat;
+                            if (!brand.isEmpty()) meta += (meta.isEmpty() ? "" : "  •  ") + brand;
+                            holder.binding.tvExpandMeta.setText(meta);
+                        }
+                        @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiProduct> call, Throwable t) {
+                            holder.binding.tvExpandDesc.setText("Không tải được thông tin sản phẩm.");
+                            holder.binding.tvExpandMeta.setText("");
+                        }
+                    });
+            return;
+        }
+        // Sản phẩm local (id số) → SQLite.
         ProductDAO dao = new ProductDAO(ctx);
         Product p = dao.getProductById(item.getProductId());
         if (p != null) {

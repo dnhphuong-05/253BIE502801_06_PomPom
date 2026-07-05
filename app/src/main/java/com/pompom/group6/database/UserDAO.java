@@ -253,7 +253,7 @@ public class UserDAO {
                 new String[]{String.valueOf(userId)})) {
             while (c.moveToNext()) {
                 list.add(new Address(
-                        c.getInt(c.getColumnIndex("address_id")),
+                        String.valueOf(c.getInt(c.getColumnIndex("address_id"))),
                         c.getString(c.getColumnIndex("label")),
                         c.getString(c.getColumnIndex("recipient_name")),
                         c.getString(c.getColumnIndex("phone")),
@@ -378,7 +378,7 @@ public class UserDAO {
                 String originalStr = hasSale ? String.format(Locale.getDefault(), "%,.0fđ", price) : null;
 
                 Product product = new Product(
-                        c.getInt(c.getColumnIndex("product_id")),
+                        String.valueOf(c.getInt(c.getColumnIndex("product_id"))),
                         c.getString(c.getColumnIndex("name")),
                         priceStr, originalStr);
                 product.setImageUrl(c.getString(c.getColumnIndex("thumbnail_url")));

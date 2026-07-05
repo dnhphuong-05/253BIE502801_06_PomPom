@@ -61,14 +61,14 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
      * @param actionType One of ACTION_ADD_TO_CART / ACTION_ADD_TO_CART_DETAIL / ACTION_BUY_NOW.
      */
     public static void show(FragmentManager fm,
-                            int productId,
+                            String productId,
                             String title,
                             String priceStr,
                             String imageUrl,
                             int actionType) {
         ProductOptionsBottomSheetDialog sheet = new ProductOptionsBottomSheetDialog();
         Bundle args = new Bundle();
-        args.putInt(ARG_PRODUCT_ID,   productId);
+        args.putString(ARG_PRODUCT_ID, productId);
         args.putString(ARG_TITLE,     title);
         args.putString(ARG_PRICE,     priceStr);
         args.putString(ARG_IMAGE_URL, imageUrl);
@@ -95,7 +95,7 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
         Bundle args = getArguments();
         if (args == null) { dismiss(); return; }
 
-        int    productId  = args.getInt(ARG_PRODUCT_ID, -1);
+        String productId  = args.getString(ARG_PRODUCT_ID, null);
         String title      = args.getString(ARG_TITLE, "");
         String price      = args.getString(ARG_PRICE, "");
         String imgUrl     = args.getString(ARG_IMAGE_URL, "");
@@ -147,14 +147,17 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
 
     // ── Variants ─────────────────────────────────────────────────────────────────
 
-    private void loadVariants(int productId) {
-        if (productId == -1) {
+    private void loadVariants(String productId) {
+        // Sản phẩm từ SQLite có id dạng số → nạp biến thể từ local. Sản phẩm từ MongoDB
+        // (id ObjectId) tạm chưa nạp biến thể ở màn giỏ (sẽ làm khi migrate giỏ hàng).
+        if (productId == null || !productId.matches("\\d+")) {
             showNoVariants();
             return;
         }
+        final int sqliteId = Integer.parseInt(productId);
         new Thread(() -> {
             Context appCtx = requireContext().getApplicationContext();
-            List<ProductVariant> variants = new ProductDAO(appCtx).getVariantsForProduct(productId);
+            List<ProductVariant> variants = new ProductDAO(appCtx).getVariantsForProduct(sqliteId);
 
             if (getActivity() == null) return;
             getActivity().runOnUiThread(() -> {
@@ -189,8 +192,12 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
 
     // ── Action button ─────────────────────────────────────────────────────────────
 
-    private void setupActionButton(int productId, String title,
+    private void setupActionButton(String productId, String title,
                                    String price, String imageUrl, int actionType) {
+        // Giỏ hàng (in-memory) vẫn dùng id số; id ObjectId thì băm sang số tạm thời.
+        final int cartProductId = (productId != null && productId.matches("\\d+"))
+                ? Integer.parseInt(productId)
+                : (productId == null ? 0 : Math.abs(productId.hashCode()));
         // Label
         switch (actionType) {
             case ACTION_ADD_TO_CART:
@@ -206,8 +213,22 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
 
         binding.btnAction.setOnClickListener(v -> {
             // Build cart item and add to manager (notifies badge listeners globally)
-            CartItem item = new CartItem(productId, title, price, imageUrl, quantity);
+            CartItem item = new CartItem(cartProductId, title, price, imageUrl, quantity);
+            // Nếu là sản phẩm cloud (id ObjectId) thì lưu lại để đặt đơn thật lên MongoDB.
+            boolean isCloud = productId != null && !productId.matches("\\d+");
+            if (isCloud) item.setProductOid(productId);
             CartManager.getInstance(requireContext()).addItem(item);
+
+            // Đồng bộ lên giỏ hàng server (nếu đã đăng nhập & là sản phẩm cloud) — để giỏ theo được nhiều thiết bị.
+            String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
+            if (isCloud && userOid != null) {
+                com.pompom.group6.network.ApiClient.get()
+                        .addCartItem(new com.pompom.group6.network.dto.CartItemRequest(userOid, productId, quantity))
+                        .enqueue(new retrofit2.Callback<Void>() {
+                            @Override public void onResponse(retrofit2.Call<Void> c, retrofit2.Response<Void> r) {}
+                            @Override public void onFailure(retrofit2.Call<Void> c, Throwable t) {}
+                        });
+            }
 
             if (actionType == ACTION_BUY_NOW) {
                 // "Mua ngay" — đi thẳng tới Checkout

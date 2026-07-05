@@ -53,16 +53,38 @@ public class VoucherPageFragment extends Fragment {
 
         int tabType = getArguments() != null ? getArguments().getInt(ARG_TAB_TYPE, TYPE_ALL) : TYPE_ALL;
 
-        PromotionDAO promotionDAO = new PromotionDAO(requireContext());
-        List<Voucher> vouchers = loadForType(promotionDAO, tabType);
+        // Nạp voucher từ MongoDB rồi lọc theo tab.
+        com.pompom.group6.network.ApiClient.get().getVouchers()
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiVoucher>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiVoucher>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiVoucher>> resp) {
+                        if (binding == null) return;
+                        List<Voucher> all = new ArrayList<>();
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            for (com.pompom.group6.network.dto.ApiVoucher a : resp.body()) {
+                                int remaining = Math.max(a.usageLimit - a.usedCount, 0);
+                                String expiry = a.endDate != null && a.endDate.length() >= 10 ? a.endDate.substring(0, 10) : a.endDate;
+                                all.add(new Voucher(0, a.code, a.discountType, a.discountValue, a.minOrderAmount, expiry, remaining));
+                            }
+                        }
+                        bindVouchers(loadForType(all, tabType), tabType);
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiVoucher>> call, Throwable t) {
+                        if (binding != null) bindVouchers(new ArrayList<>(), tabType);
+                    }
+                });
+    }
 
+    private void bindVouchers(List<Voucher> vouchers, int tabType) {
         if (vouchers.isEmpty()) {
             binding.rvVouchers.setVisibility(View.GONE);
             binding.tvEmptyState.setVisibility(View.VISIBLE);
             binding.tvEmptyState.setText(emptyMessage(tabType));
             return;
         }
-
+        binding.rvVouchers.setVisibility(View.VISIBLE);
+        binding.tvEmptyState.setVisibility(View.GONE);
         VoucherPromoAdapter adapter = new VoucherPromoAdapter();
         adapter.setUsed(tabType == TYPE_USED);
         binding.rvVouchers.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -70,8 +92,7 @@ public class VoucherPageFragment extends Fragment {
         adapter.setVouchers(vouchers);
     }
 
-    private List<Voucher> loadForType(PromotionDAO dao, int tabType) {
-        List<Voucher> all = dao.getAllVouchers();
+    private List<Voucher> loadForType(List<Voucher> all, int tabType) {
         switch (tabType) {
             case TYPE_USED:
                 // No per-user usage history is stored yet.
