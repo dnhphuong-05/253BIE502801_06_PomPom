@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pompom.group6.databinding.ActivityComingSoonBinding;
 import com.pompom.group6.utils.StatusBarUtils;
 
-public class ComingSoonActivity extends AppCompatActivity {
+public class ComingSoonActivity extends SwipeBackActivity {
 
     public static final String EXTRA_FEATURE_NAME = "feature_name";
 

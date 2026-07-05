@@ -43,7 +43,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class AiCallActivity extends AppCompatActivity {
+public class AiCallActivity extends SwipeBackActivity {
 
     private ActivityAiCallBinding binding;
     private TextToSpeech tts;

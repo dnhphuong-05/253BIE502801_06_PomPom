@@ -16,7 +16,7 @@ import com.pompom.group6.databinding.ActivityStoryViewerBinding;
 
 import java.util.ArrayList;
 
-public class StoryViewerActivity extends AppCompatActivity {
+public class StoryViewerActivity extends SwipeBackActivity {
 
     private ActivityStoryViewerBinding binding;
     private int progressStatus = 0;

@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pompom.group6.databinding.ActivityAiChatBinding;
 import com.pompom.group6.utils.StatusBarUtils;
 
-public class AiChatActivity extends AppCompatActivity {
+public class AiChatActivity extends SwipeBackActivity {
 
     private ActivityAiChatBinding binding;
 

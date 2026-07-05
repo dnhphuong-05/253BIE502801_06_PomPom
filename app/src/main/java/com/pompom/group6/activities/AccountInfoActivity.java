@@ -12,7 +12,7 @@ import com.pompom.group6.databinding.ActivityAccountInfoBinding;
 import com.pompom.group6.models.User;
 import com.pompom.group6.utils.UiUtils;
 
-public class AccountInfoActivity extends AppCompatActivity {
+public class AccountInfoActivity extends SwipeBackActivity {
 
     private ActivityAccountInfoBinding binding;
     private UserDAO userDAO;

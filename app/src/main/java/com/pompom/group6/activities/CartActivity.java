@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.pompom.group6.adapters.CartItemAdapter;
 import com.pompom.group6.databinding.ActivityCartBinding;
 import com.pompom.group6.fragments.VoucherSelectionBottomSheet;
@@ -23,11 +24,13 @@ import com.pompom.group6.utils.StatusBarUtils;
 import java.util.List;
 import java.util.Locale;
 
-public class CartActivity extends AppCompatActivity implements CartManager.CartChangeListener {
+public class CartActivity extends SwipeBackActivity implements CartManager.CartChangeListener {
 
     private ActivityCartBinding binding;
     private CartManager cartManager;
     private CartItemAdapter adapter;
+    private boolean suppressSelectAll = false;
+    private boolean suppressSync = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +83,8 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
                 cartManager.removeItem(item.getProductId());
             }
         });
+        adapter.setSelectionEnabled(true);
+        adapter.setSelectionListener(this::onSelectionChanged);
 
         binding.rvCartItems.setLayoutManager(new LinearLayoutManager(this));
         binding.rvCartItems.setAdapter(adapter);
@@ -113,6 +118,54 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
                     com.pompom.group6.R.anim.slide_in_right,
                     com.pompom.group6.R.anim.slide_out_left);
         });
+
+        // ── Multi-delete ──────────────────────────────────────────────────────────
+        binding.ivDeleteSelected.setOnClickListener(v -> multiDelete());
+        binding.cbSelectAll.setOnCheckedChangeListener((b, checked) -> {
+            if (suppressSelectAll) return;
+            if (checked) adapter.selectAll();
+            else adapter.clearSelection();
+        });
+    }
+
+    // ── Selection / multi-delete ──────────────────────────────────────────────────
+
+    private void onSelectionChanged(int count) {
+        binding.ivDeleteSelected.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
+        binding.tvSelectedCount.setText("Đã chọn " + count);
+        suppressSelectAll = true;
+        binding.cbSelectAll.setChecked(adapter.isAllSelected());
+        suppressSelectAll = false;
+    }
+
+    private void multiDelete() {
+        List<CartItemAdapter.RemovedEntry> removed = adapter.removeSelected();
+        if (removed.isEmpty()) return;
+        updateTotalsAndEmpty();
+
+        Snackbar sb = Snackbar.make(binding.getRoot(),
+                "Đã xóa " + removed.size() + " sản phẩm", Snackbar.LENGTH_LONG);
+        sb.setAnchorView(binding.footerContainer);
+        sb.setActionTextColor(getResources().getColor(com.pompom.group6.R.color.brand_pink, null));
+        sb.setAction("HOÀN TÁC", v -> {
+            adapter.restore(removed);
+            updateTotalsAndEmpty();
+        });
+        sb.addCallback(new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar transientBottomBar, int event) {
+                if (event != DISMISS_EVENT_ACTION) {
+                    // Không hoàn tác → xoá vĩnh viễn khỏi CartManager
+                    suppressSync = true;
+                    for (CartItemAdapter.RemovedEntry e : removed) {
+                        cartManager.removeItem(e.item.getProductId());
+                    }
+                    suppressSync = false;
+                    refreshUI();
+                }
+            }
+        });
+        sb.show();
     }
 
     @Override
@@ -121,7 +174,14 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
     }
 
     private void refreshUI() {
-        List<CartItem> items = cartManager.getItems();
+        // Đồng bộ dữ liệu hiển thị từ CartManager (fix: line không biến mất sau khi xoá)
+        adapter.setItems(cartManager.getItems());
+        updateTotalsAndEmpty();
+    }
+
+    /** Tính tổng tiền + trạng thái rỗng dựa trên DANH SÁCH ĐANG HIỂN THỊ (adapter). */
+    private void updateTotalsAndEmpty() {
+        List<CartItem> items = adapter.getItems();
         if (items.isEmpty()) {
             binding.rvCartItems.setVisibility(View.GONE);
             binding.layoutEmpty.setVisibility(View.VISIBLE);
@@ -136,10 +196,10 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
             binding.btnCheckout.setAlpha(1.0f);
             binding.btnCheckout.setText("THANH TOÁN");
 
-            long totalLong = (long) cartManager.getTotalPrice();
-            binding.tvTotalPrice.setText(formatPriceSpan(totalLong));
+            long total = 0;
+            for (CartItem it : items) total += (long) it.getSubtotal();
+            binding.tvTotalPrice.setText(formatPriceSpan(total));
         }
-        adapter.notifyDataSetChanged();
     }
 
     /**
@@ -157,6 +217,7 @@ public class CartActivity extends AppCompatActivity implements CartManager.CartC
 
     @Override
     public void onCartChanged(int count) {
+        if (suppressSync) return;
         refreshUI();
     }
 }

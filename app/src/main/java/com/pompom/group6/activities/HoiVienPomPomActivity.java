@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class HoiVienPomPomActivity extends AppCompatActivity {
+public class HoiVienPomPomActivity extends SwipeBackActivity {
 
     private static final Locale VN = new Locale("vi", "VN");
 

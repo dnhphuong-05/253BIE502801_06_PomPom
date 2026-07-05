@@ -19,7 +19,7 @@ import com.pompom.group6.models.Order;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class GuestOrderActivity extends AppCompatActivity {
+public class GuestOrderActivity extends SwipeBackActivity {
 
     /** 10 digits starting with "0", e.g. 0912345678 */
     private static final Pattern PHONE_REGEX = Pattern.compile("^0[0-9]{9}$");

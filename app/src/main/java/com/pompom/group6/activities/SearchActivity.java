@@ -17,7 +17,7 @@ import com.pompom.group6.utils.StatusBarUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends SwipeBackActivity {
 
     private ActivitySearchBinding binding;
     private ProductDAO productDAO;

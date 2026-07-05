@@ -11,7 +11,7 @@ import com.pompom.group6.adapters.VoucherPagerAdapter;
 import com.pompom.group6.databinding.ActivityVoucherListBinding;
 import com.pompom.group6.utils.StatusBarUtils;
 
-public class VoucherListActivity extends AppCompatActivity {
+public class VoucherListActivity extends SwipeBackActivity {
 
     private static final String[] TAB_TITLES = {"Tất cả", "Sắp hết hạn", "Đã dùng"};
 

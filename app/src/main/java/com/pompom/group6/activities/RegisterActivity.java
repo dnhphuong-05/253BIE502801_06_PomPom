@@ -14,7 +14,7 @@ import com.pompom.group6.R;
 import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.ActivityRegisterBinding;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends SwipeBackActivity {
 
     private ActivityRegisterBinding binding;
     private UserDAO userDAO;

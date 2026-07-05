@@ -15,7 +15,7 @@ import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.ActivityLoginBinding;
 import com.pompom.group6.models.User;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends SwipeBackActivity {
 
     private ActivityLoginBinding binding;
     private UserDAO userDAO;

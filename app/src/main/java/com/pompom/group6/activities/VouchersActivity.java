@@ -17,7 +17,7 @@ import com.pompom.group6.utils.UiUtils;
 
 import java.util.List;
 
-public class VouchersActivity extends AppCompatActivity {
+public class VouchersActivity extends SwipeBackActivity {
 
     private ActivityVouchersBinding binding;
 
