@@ -75,6 +75,16 @@ public interface ApiService {
     @GET("api/users/{id}/wishlist")
     Call<List<ApiProduct>> getWishlist(@Path("id") String userId);
 
+    /** Thêm vào yêu thích. Body: { product_id } */
+    @POST("api/users/{id}/wishlist")
+    Call<Void> addToWishlist(@Path("id") String userId,
+                             @Body java.util.Map<String, String> body);
+
+    /** Xóa khỏi yêu thích. */
+    @DELETE("api/users/{id}/wishlist/{productId}")
+    Call<Void> removeFromWishlist(@Path("id") String userId,
+                                  @Path("productId") String productId);
+
     /** Đếm đơn theo trạng thái: {status: count}. */
     @GET("api/orders/counts")
     Call<Map<String, Integer>> getOrderCounts(@Query("user_id") String userId);
@@ -86,6 +96,9 @@ public interface ApiService {
     // ---- Orders ----
     @GET("api/orders")
     Call<List<ApiOrder>> getOrders(@Query("user_id") String userId);
+
+    @GET("api/orders/{id}")
+    Call<ApiOrder> getOrder(@Path("id") String orderId);
 
     @POST("api/orders")
     Call<ApiOrder> createOrder(@Body com.pompom.group6.network.dto.OrderRequest body);
@@ -133,6 +146,10 @@ public interface ApiService {
     @GET("api/products/{id}/reviews")
     Call<List<com.pompom.group6.network.dto.ApiReview>> getProductReviews(@Path("id") String productId);
 
+    @POST("api/products/{id}/reviews")
+    Call<com.pompom.group6.network.dto.ApiReview> submitReview(@Path("id") String productId,
+                                                               @Body java.util.Map<String, Object> body);
+
     @GET("api/products/{id}/related")
     Call<List<ApiProduct>> getRelatedProducts(@Path("id") String productId);
 
@@ -144,6 +161,12 @@ public interface ApiService {
 
     @GET("api/flash-sale")
     Call<List<com.pompom.group6.network.dto.ApiFlashSaleProduct>> getFlashSale(@Query("limit") Integer limit);
+
+    @GET("api/promotions")
+    Call<List<com.pompom.group6.network.dto.ApiProduct>> getPromotions();
+
+    @GET("api/notifications")
+    Call<List<JsonElement>> getNotifications(@Query("user_id") String userId);
 
     // ---- Community ----
     @GET("api/community/posts")
@@ -158,6 +181,14 @@ public interface ApiService {
 
     @GET("api/community/posts/{id}/comments")
     Call<List<com.pompom.group6.network.dto.ApiComment>> getPostComments(@Path("id") String postId);
+
+    @POST("api/community/posts/{id}/comments")
+    Call<com.pompom.group6.network.dto.ApiComment> addComment(@Path("id") String postId,
+                                                              @Body java.util.Map<String, String> body);
+
+    @POST("api/community/posts/{id}/like")
+    Call<java.util.Map<String, Boolean>> toggleLike(@Path("id") String postId,
+                                                    @Body java.util.Map<String, String> body);
 
     @GET("api/community/posts/{id}/tagged")
     Call<List<ApiProduct>> getPostTaggedProducts(@Path("id") String postId);

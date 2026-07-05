@@ -14,6 +14,6 @@ package com.pompom.group6.network;
 public final class ApiConfig {
     private ApiConfig() {}
 
-    // Đang cấu hình cho MÁY THẬT qua cáp USB (dùng kèm `adb reverse tcp:3000 tcp:3000`).
-    public static final String BASE_URL = "http://127.0.0.1:3000/";
+    // Render deployment
+    public static final String BASE_URL = "https://pompom-backend-pha3.onrender.com/";
 }

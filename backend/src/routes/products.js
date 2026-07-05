@@ -109,6 +109,35 @@ router.get("/:id/reviews", async (req, res) => {
   }
 });
 
+// POST /api/products/:id/reviews  { user_id, rating, comment, images? }
+router.post("/:id/reviews", async (req, res) => {
+  try {
+    const b = req.body || {};
+    const productId = oid(req.params.id);
+    const userId = oid(b.user_id);
+    if (!productId) return res.status(400).json({ error: "id sản phẩm không hợp lệ" });
+    if (!userId) return res.status(400).json({ error: "user_id không hợp lệ" });
+    const rating = Math.max(1, Math.min(5, parseInt(b.rating, 10) || 5));
+
+    const review = await ProductReview.create({
+      product_id: productId,
+      user_id: userId,
+      rating,
+      comment: b.comment || "",
+      images: Array.isArray(b.images) ? b.images : [],
+      created_at: new Date(),
+    });
+
+    const u = await User.findById(userId).lean();
+    const out = serialize(review.toObject());
+    out.user_name = u?.full_name || "Người dùng";
+    out.user_avatar = u?.avatar_url || null;
+    res.status(201).json(out);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // GET /api/products/:id/related  -> products in the same category (excluding self)
 router.get("/:id/related", async (req, res) => {
   try {

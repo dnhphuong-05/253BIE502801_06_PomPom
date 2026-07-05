@@ -107,4 +107,53 @@ router.get("/posts/:id/comments", async (req, res) => {
   }
 });
 
+// POST /api/community/posts/:id/comments  { user_id, content }
+router.post("/posts/:id/comments", async (req, res) => {
+  try {
+    const b = req.body || {};
+    const uid = oid(b.user_id);
+    const postId = oid(req.params.id);
+    if (!uid || !postId || !b.content) return res.status(400).json({ error: "Thiếu user_id hoặc nội dung" });
+
+    const comment = await Comment.create({
+      post_id: postId,
+      user_id: uid,
+      content: b.content,
+      created_at: new Date(),
+    });
+    await CommunityPost.updateOne({ _id: postId }, { $inc: { comment_count: 1 } });
+
+    const u = await User.findById(uid).lean();
+    const out = serialize(comment.toObject());
+    out.author_name = u?.full_name || "Người dùng";
+    out.author_avatar = u?.avatar_url || null;
+    res.status(201).json(out);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/community/posts/:id/like  { user_id }  -> toggle like (idempotent)
+router.post("/posts/:id/like", async (req, res) => {
+  try {
+    const { Like } = require("../models");
+    const uid = oid(req.body?.user_id);
+    const postId = oid(req.params.id);
+    if (!uid || !postId) return res.status(400).json({ error: "Thiếu user_id" });
+
+    const existing = await Like.findOne({ user_id: uid, post_id: postId }).lean();
+    if (existing) {
+      await Like.deleteOne({ _id: existing._id });
+      await CommunityPost.updateOne({ _id: postId }, { $inc: { like_count: -1 } });
+      res.json({ liked: false });
+    } else {
+      await Like.create({ user_id: uid, post_id: postId, created_at: new Date() });
+      await CommunityPost.updateOne({ _id: postId }, { $inc: { like_count: 1 } });
+      res.json({ liked: true });
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
