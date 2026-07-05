@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pompom.group6.databinding.ActivityNotificationBinding;
 import com.pompom.group6.utils.StatusBarUtils;
 
-public class NotificationActivity extends AppCompatActivity {
+public class NotificationActivity extends SwipeBackActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

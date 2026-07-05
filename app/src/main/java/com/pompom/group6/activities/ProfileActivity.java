@@ -15,7 +15,7 @@ import com.pompom.group6.databinding.ItemProfileMenuBinding;
 import com.pompom.group6.models.User;
 import com.pompom.group6.utils.StatusBarUtils;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends SwipeBackActivity {
 
     private ActivityProfileBinding binding;
     private UserDAO userDAO;

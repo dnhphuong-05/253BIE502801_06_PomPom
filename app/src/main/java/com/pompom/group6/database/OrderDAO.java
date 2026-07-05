@@ -17,6 +17,34 @@ public class OrderDAO {
         this.dbHelper = new DatabaseHelper(context);
     }
 
+    /** Các hãng vận chuyển có trong DB (distinct shipping_carrier). */
+    public List<String> getShippingCarriers() {
+        return distinctColumn("SELECT DISTINCT shipping_carrier FROM orders " +
+                "WHERE shipping_carrier IS NOT NULL AND shipping_carrier != '' ORDER BY shipping_carrier");
+    }
+
+    /** Các phương thức thanh toán có trong DB (distinct payment_method). */
+    public List<String> getPaymentMethods() {
+        return distinctColumn("SELECT DISTINCT payment_method FROM orders " +
+                "WHERE payment_method IS NOT NULL AND payment_method != '' ORDER BY payment_method");
+    }
+
+    private List<String> distinctColumn(String query) {
+        List<String> list = new ArrayList<>();
+        try {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            try (Cursor c = db.rawQuery(query, null)) {
+                while (c != null && c.moveToNext()) {
+                    String v = c.getString(0);
+                    if (v != null && !v.trim().isEmpty()) list.add(v.trim());
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("OrderDAO", "distinctColumn error: " + e.getMessage());
+        }
+        return list;
+    }
+
     @SuppressLint("Range")
     public List<Order> getOrders(int userId) {
         List<Order> orders = new ArrayList<>();

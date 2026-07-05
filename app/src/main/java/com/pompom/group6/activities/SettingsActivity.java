@@ -19,7 +19,7 @@ import com.pompom.group6.databinding.ActivitySettingsBinding;
 import java.io.File;
 import java.util.Locale;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends SwipeBackActivity {
 
     private static final String PREFS = "user_prefs";
 

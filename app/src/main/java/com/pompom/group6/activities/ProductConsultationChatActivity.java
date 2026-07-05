@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ProductConsultationChatActivity extends AppCompatActivity {
+public class ProductConsultationChatActivity extends SwipeBackActivity {
 
     public static final String EXTRA_PRODUCT_NAME = "extra_product_name";
     public static final String EXTRA_PRODUCT_SKU  = "extra_product_sku";

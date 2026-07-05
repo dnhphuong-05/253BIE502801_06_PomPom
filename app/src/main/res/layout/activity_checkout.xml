@@ -4,755 +4,621 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF8F8"
-    android:fitsSystemWindows="true">
+    android:background="#FFF8F8">
 
-    <!-- Toolbar -->
+    <!-- ══ Header (cố định trắng, không đổi màu khi cuộn) ══ -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        app:elevation="2dp">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="56dp">
-
-            <ImageView
-                android:id="@+id/btnBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
-                android:src="@drawable/ic_left_chevron"
-                android:contentDescription="Quay lại"
-                app:tint="@color/text_primary"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginStart="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pom Pom"
-                android:fontFamily="@font/cinzel_bold"
-                android:textColor="@color/brand_pink"
-                android:textSize="20sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- Scrollable content -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:padding="16dp"
-        android:clipToPadding="false">
+        android:fitsSystemWindows="true"
+        app:elevation="0dp"
+        app:liftOnScroll="false"
+        app:statusBarForeground="@color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/white"
             android:orientation="vertical">
 
-            <!-- Disclaimer -->
-            <TextView
+            <!-- Toolbar row -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Áp dụng mã giảm giá làm tổng đơn thấp hơn ngưỡng sẽ xóa quà tặng miễn phí sau thanh toán."
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp"
-                android:paddingBottom="16dp" />
+                android:layout_height="56dp">
 
-            <!-- ─── Express checkout ─────────────────────────── -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Thanh toán nhanh"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/brand_pink"
-                android:textSize="12sp"
-                android:paddingBottom="8dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="3"
-                android:layout_marginBottom="8dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnShopPay"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    android:text="shop"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="13sp"
-                    app:backgroundTint="#5A31F4"
-                    app:cornerRadius="6dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnPayPal"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:layout_marginHorizontal="4dp"
-                    android:text="PayPal"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="13sp"
-                    app:backgroundTint="#FFB300"
-                    app:cornerRadius="6dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGooglePay"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:text="G Pay"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="13sp"
-                    app:backgroundTint="#000000"
-                    app:cornerRadius="6dp" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="HOẶC"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:paddingVertical="8dp" />
-
-            <!-- ─── Contact ─────────────────────────────────── -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingBottom="8dp">
+                <ImageView
+                    android:id="@+id/btnBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Quay lại"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_left_chevron"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/text_primary" />
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Thông tin liên hệ"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tvSignIn"
+                    android:id="@+id/tvStepTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Đăng nhập"
-                    android:fontFamily="@font/poppins_regular"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="13sp" />
-            </LinearLayout>
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Thanh toán"
+                    android:textColor="@color/text_primary"
+                    android:textSize="17sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:boxStrokeColor="@color/md_theme_light_outline"
-                app:hintTextColor="@color/text_secondary"
-                android:layout_marginBottom="4dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
-                    android:fontFamily="@font/poppins_regular"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <CheckBox
-                android:id="@+id/cbEmailOffers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Gửi email tin tức và ưu đãi cho tôi"
-                android:checked="true"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:buttonTint="@color/brand_pink"
-                android:layout_marginBottom="16dp" />
-
-            <!-- ─── Delivery ────────────────────────────────── -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Giao hàng"
-                android:fontFamily="@font/poppins_medium"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:paddingBottom="8dp" />
-
-            <!-- Country spinner -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Quốc gia / Vùng"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                app:boxStrokeColor="@color/md_theme_light_outline"
-                android:layout_marginBottom="8dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/actvCountry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Việt Nam"
-                    android:fontFamily="@font/poppins_regular"
-                    android:textSize="14sp"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- First/Last name row -->
+            <!-- ══ Stepper tiến trình ══ -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="12dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilFirstName"
-                    android:layout_width="0dp"
+                <!-- circles + connectors -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    android:hint="Tên"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:boxStrokeColor="@color/md_theme_light_outline">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etFirstName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPersonName"
-                        android:fontFamily="@font/poppins_regular"
-                        android:textSize="14sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilLastName"
-                    android:layout_width="0dp"
+                    <TextView android:id="@+id/circle1" android:layout_width="28dp" android:layout_height="28dp"
+                        android:gravity="center" android:fontFamily="@font/poppins_semibold"
+                        android:text="1" android:textColor="@color/white" android:textSize="13sp" />
+
+                    <View android:id="@+id/line1" android:layout_width="0dp" android:layout_height="2dp"
+                        android:layout_weight="1" android:background="#E0E0E0" />
+
+                    <TextView android:id="@+id/circle2" android:layout_width="28dp" android:layout_height="28dp"
+                        android:gravity="center" android:fontFamily="@font/poppins_semibold"
+                        android:text="2" android:textColor="#9E9E9E" android:textSize="13sp" />
+
+                    <View android:id="@+id/line2" android:layout_width="0dp" android:layout_height="2dp"
+                        android:layout_weight="1" android:background="#E0E0E0" />
+
+                    <TextView android:id="@+id/circle3" android:layout_width="28dp" android:layout_height="28dp"
+                        android:gravity="center" android:fontFamily="@font/poppins_semibold"
+                        android:text="3" android:textColor="#9E9E9E" android:textSize="13sp" />
+
+                    <View android:id="@+id/line3" android:layout_width="0dp" android:layout_height="2dp"
+                        android:layout_weight="1" android:background="#E0E0E0" />
+
+                    <TextView android:id="@+id/circle4" android:layout_width="28dp" android:layout_height="28dp"
+                        android:gravity="center" android:fontFamily="@font/poppins_semibold"
+                        android:text="4" android:textColor="#9E9E9E" android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- labels -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:hint="Họ"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:boxStrokeColor="@color/md_theme_light_outline">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etLastName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPersonName"
-                        android:fontFamily="@font/poppins_regular"
-                        android:textSize="14sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <TextView android:id="@+id/label1" android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:gravity="start" android:text="Liên hệ"
+                        android:fontFamily="@font/poppins_medium" android:textColor="@color/brand_pink" android:textSize="11sp" />
+                    <TextView android:id="@+id/label2" android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:gravity="center" android:text="Giao hàng"
+                        android:fontFamily="@font/poppins_medium" android:textColor="#9E9E9E" android:textSize="11sp" />
+                    <TextView android:id="@+id/label3" android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:gravity="center" android:text="Thanh toán"
+                        android:fontFamily="@font/poppins_medium" android:textColor="#9E9E9E" android:textSize="11sp" />
+                    <TextView android:id="@+id/label4" android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:gravity="end" android:text="Xác nhận"
+                        android:fontFamily="@font/poppins_medium" android:textColor="#9E9E9E" android:textSize="11sp" />
+                </LinearLayout>
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Công ty (tuỳ chọn)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:boxStrokeColor="@color/md_theme_light_outline"
-                android:layout_marginBottom="8dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCompany"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textNoSuggestions"
-                    android:fontFamily="@font/poppins_regular"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0E4E4" />
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Địa chỉ"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:boxStrokeColor="@color/md_theme_light_outline"
-                android:layout_marginBottom="8dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etAddress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPostalAddress"
-                    android:fontFamily="@font/poppins_regular"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+    <!-- ══ Nội dung các bước ══ -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="152dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Căn hộ, toà nhà, v.v. (tuỳ chọn)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:boxStrokeColor="@color/md_theme_light_outline"
-                android:layout_marginBottom="8dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etAddress2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPostalAddress"
-                    android:fontFamily="@font/poppins_regular"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <!-- City / Postal code row -->
+            <!-- ─────────── BƯỚC 1: LIÊN HỆ ─────────── -->
             <LinearLayout
+                android:id="@+id/step1Layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingBottom="8dp">
+
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Thông tin liên hệ"
+                        android:fontFamily="@font/poppins_semibold" android:textColor="@color/text_primary" android:textSize="16sp" />
+
+                    <!-- Khách chưa đăng nhập -->
+                    <TextView android:id="@+id/tvSignIn" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Đăng nhập" android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/brand_pink" android:textSize="13sp" />
+
+                    <!-- Khách đã đăng nhập -->
+                    <LinearLayout android:id="@+id/userChip" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone">
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivUserAvatar" android:layout_width="26dp" android:layout_height="26dp"
+                            android:scaleType="centerCrop" android:src="@drawable/ic_avatar"
+                            app:shapeAppearanceOverlay="@style/CircleShape" />
+                        <TextView android:id="@+id/tvUserName" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp" android:fontFamily="@font/poppins_medium"
+                            android:text="" android:textColor="@color/text_primary" android:textSize="13sp"
+                            android:maxWidth="150dp" android:maxLines="1" android:ellipsize="end" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilEmail"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp" android:hint="Email"
+                    app:boxStrokeColor="@color/md_theme_light_outline" app:hintTextColor="@color/text_secondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_regular"
+                        android:inputType="textEmailAddress"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <CheckBox android:id="@+id/cbEmailOffers" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:checked="true" android:text="Gửi email tin tức và ưu đãi cho tôi"
+                    android:buttonTint="@color/brand_pink" android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_secondary" android:textSize="12sp" android:layout_marginBottom="12dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPhone"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp" android:hint="Số điện thoại"
+                    app:boxStrokeColor="@color/md_theme_light_outline">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPhone" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_regular" android:inputType="phone" android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <CheckBox android:id="@+id/cbSmsOffers" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Nhận tin nhắn về tin tức và ưu đãi"
+                    android:buttonTint="@color/brand_pink" android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/text_secondary" android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- ─────────── BƯỚC 2: GIAO HÀNG ─────────── -->
+            <LinearLayout
+                android:id="@+id/step2Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Địa chỉ giao hàng" android:fontFamily="@font/poppins_semibold"
+                    android:textColor="@color/text_primary" android:textSize="16sp" android:paddingBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" android:hint="Quốc gia / Vùng"
+                    app:boxStrokeColor="@color/md_theme_light_outline">
+                    <AutoCompleteTextView android:id="@+id/actvCountry" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:inputType="none" android:text="Việt Nam"
+                        android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="8dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilFirstName"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:layout_marginEnd="4dp" android:hint="Tên" app:boxStrokeColor="@color/md_theme_light_outline">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etFirstName"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:inputType="textPersonName" android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilLastName"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:layout_marginStart="4dp" android:hint="Họ" app:boxStrokeColor="@color/md_theme_light_outline">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etLastName"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:inputType="textPersonName" android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" android:hint="Công ty (tuỳ chọn)"
+                    app:boxStrokeColor="@color/md_theme_light_outline">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCompany"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:inputType="textNoSuggestions" android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilAddress"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" android:hint="Địa chỉ" app:boxStrokeColor="@color/md_theme_light_outline">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etAddress"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:inputType="textPostalAddress" android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" android:hint="Căn hộ, toà nhà, v.v. (tuỳ chọn)"
+                    app:boxStrokeColor="@color/md_theme_light_outline">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etAddress2"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:inputType="textPostalAddress" android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilCity"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    android:hint="Thành phố"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:boxStrokeColor="@color/md_theme_light_outline">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etCity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPostalAddress"
-                        android:fontFamily="@font/poppins_regular"
-                        android:textSize="14sp" />
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp" android:hint="Thành phố" app:boxStrokeColor="@color/md_theme_light_outline">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCity"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:inputType="textPostalAddress" android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Phương thức vận chuyển" android:fontFamily="@font/poppins_semibold"
+                    android:textColor="@color/text_primary" android:textSize="16sp" android:paddingBottom="8dp" />
 
+                <!-- Nạp từ DB (shipping_carrier) -->
+                <LinearLayout
+                    android:id="@+id/shippingContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilPhone"
+            <!-- ─────────── BƯỚC 3: THANH TOÁN ─────────── -->
+            <LinearLayout
+                android:id="@+id/step3Layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Số điện thoại"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:boxStrokeColor="@color/md_theme_light_outline"
-                android:layout_marginBottom="4dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="phone"
-                    android:fontFamily="@font/poppins_regular"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
 
-            <CheckBox
-                android:id="@+id/cbSmsOffers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nhận tin nhắn về tin tức và ưu đãi"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:buttonTint="@color/brand_pink"
-                android:layout_marginBottom="16dp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Phương thức thanh toán" android:fontFamily="@font/poppins_semibold"
+                    android:textColor="@color/text_primary" android:textSize="16sp" />
 
-            <!-- ─── Shipping method ──────────────────────────── -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Phương thức vận chuyển"
-                android:fontFamily="@font/poppins_medium"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:paddingBottom="8dp" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/md_theme_light_outline"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="14dp">
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:buttonTint="@color/brand_pink" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:text="Miễn phí vận chuyển"
-                        android:fontFamily="@font/poppins_regular"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="MIỄN PHÍ"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="@color/brand_pink"
-                        android:textSize="13sp" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:gravity="center_vertical" android:orientation="horizontal" android:paddingTop="2dp" android:paddingBottom="12dp">
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                        android:src="@drawable/ic_left_chevron" android:rotation="0" android:visibility="gone" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="🔒 Mọi giao dịch đều được bảo mật và mã hoá."
+                        android:fontFamily="@font/poppins_regular" android:textColor="@color/text_secondary" android:textSize="11sp" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <!-- ─── Payment ──────────────────────────────────── -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Thanh toán"
-                android:fontFamily="@font/poppins_medium"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:paddingBottom="4dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tất cả giao dịch đều an toàn và được mã hoá."
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp"
-                android:paddingBottom="8dp" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/md_theme_light_outline"
-                android:layout_marginBottom="8dp">
-
+                <!-- Nạp từ DB (payment_method) -->
                 <LinearLayout
+                    android:id="@+id/paymentContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical" />
 
-                    <!-- Credit card option -->
-                    <LinearLayout
-                        android:id="@+id/rowCreditCard"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="14dp"
-                        android:background="@color/white">
-
-                        <RadioButton
-                            android:id="@+id/rbCreditCard"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:buttonTint="@color/brand_pink" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:text="Thẻ tín dụng"
-                            android:fontFamily="@font/poppins_regular"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="VISA" android:textSize="10sp" android:fontFamily="@font/poppins_medium"
-                                android:textColor="@color/white" android:background="#1A1F71"
-                                android:paddingHorizontal="5dp" android:paddingVertical="2dp" android:layout_marginEnd="3dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="MC" android:textSize="10sp" android:fontFamily="@font/poppins_medium"
-                                android:textColor="@color/white" android:background="#EB001B"
-                                android:paddingHorizontal="5dp" android:paddingVertical="2dp"/>
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Credit card fields (expanded) -->
-                    <LinearLayout
-                        android:id="@+id/layoutCardFields"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="14dp"
-                        android:paddingBottom="14dp"
-                        android:background="#FAFAFA">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tilCardNumber"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Số thẻ"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            app:boxStrokeColor="@color/md_theme_light_outline"
-                            android:layout_marginBottom="8dp">
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etCardNumber"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="number"
-                                android:maxLength="19"
-                                android:fontFamily="@font/poppins_regular"
-                                android:textSize="14sp" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="8dp">
-
-                            <com.google.android.material.textfield.TextInputLayout
-                                android:id="@+id/tilExpiry"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="4dp"
-                                android:hint="Ngày hết hạn (MM / YY)"
-                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                                app:boxStrokeColor="@color/md_theme_light_outline">
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etExpiry"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:inputType="number"
-                                    android:maxLength="5"
-                                    android:fontFamily="@font/poppins_regular"
-                                    android:textSize="14sp" />
-                            </com.google.android.material.textfield.TextInputLayout>
-
-                            <com.google.android.material.textfield.TextInputLayout
-                                android:id="@+id/tilCvv"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="4dp"
-                                android:hint="Mã bảo mật"
-                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                                app:boxStrokeColor="@color/md_theme_light_outline">
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etCvv"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:inputType="numberPassword"
-                                    android:maxLength="4"
-                                    android:fontFamily="@font/poppins_regular"
-                                    android:textSize="14sp" />
-                            </com.google.android.material.textfield.TextInputLayout>
-                        </LinearLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Tên trên thẻ"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            app:boxStrokeColor="@color/md_theme_light_outline"
-                            android:layout_marginBottom="8dp">
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etCardName"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="textPersonName"
-                                android:fontFamily="@font/poppins_regular"
-                                android:textSize="14sp" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <CheckBox
-                            android:id="@+id/cbSameAddress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Dùng địa chỉ vận chuyển làm địa chỉ thanh toán"
-                            android:checked="true"
-                            android:fontFamily="@font/poppins_regular"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
-                            android:buttonTint="@color/brand_pink" />
-                    </LinearLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#EEE0E0" />
-
-                    <!-- PayPal -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="14dp">
-                        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:buttonTint="@color/brand_pink" />
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:layout_marginStart="8dp"
-                            android:text="PayPal" android:fontFamily="@font/poppins_regular"
-                            android:textColor="@color/text_primary" android:textSize="14sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="PP" android:textSize="11sp" android:fontFamily="@font/poppins_medium"
-                            android:textColor="@color/white" android:background="#009CDE"
-                            android:paddingHorizontal="6dp" android:paddingVertical="2dp" />
-                    </LinearLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#EEE0E0" />
-
-                    <!-- Klarna -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="14dp">
-                        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:buttonTint="@color/brand_pink" />
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:layout_marginStart="8dp"
-                            android:text="Klarna" android:fontFamily="@font/poppins_regular"
-                            android:textColor="@color/text_primary" android:textSize="14sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="K" android:textSize="11sp" android:fontFamily="@font/poppins_medium"
-                            android:textColor="@color/white" android:background="#FFB3C7"
-                            android:paddingHorizontal="6dp" android:paddingVertical="2dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- ─── Order summary ─────────────────────────── -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/md_theme_light_outline"
-                android:layout_marginBottom="12dp">
-
+                <!-- Trường thẻ (hiện khi chọn VISA/thẻ) -->
                 <LinearLayout
+                    android:id="@+id/layoutCardFields"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_review_quote"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="14dp"
+                    android:visibility="gone">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tóm tắt đơn hàng"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:paddingBottom="10dp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Thông tin thẻ" android:fontFamily="@font/poppins_medium"
+                        android:textColor="@color/text_primary" android:textSize="13sp" android:paddingBottom="8dp" />
 
-                    <!-- Item list placeholder -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvOrderItems"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false" />
+                    <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilCardNumber"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp" android:hint="Số thẻ" app:boxStrokeColor="@color/brand_pink">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCardNumber"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:inputType="number" android:maxLength="19"
+                            android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                        android:background="#EEE0E0" android:layout_marginVertical="10dp" />
-
-                    <!-- Subtotal -->
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:orientation="horizontal" android:layout_marginBottom="4dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:text="Tạm tính"
-                            android:fontFamily="@font/poppins_regular" android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
-                        <TextView android:id="@+id/tvSubtotal" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:text="0₫"
-                            android:fontFamily="@font/poppins_regular" android:textColor="@color/text_primary"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <!-- Shipping -->
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:orientation="horizontal" android:layout_marginBottom="4dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:text="Vận chuyển"
-                            android:fontFamily="@font/poppins_regular" android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="MIỄN PHÍ" android:fontFamily="@font/poppins_medium"
-                            android:textColor="@color/brand_pink" android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <!-- Tax -->
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:layout_marginBottom="8dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:text="Thuế"
-                            android:fontFamily="@font/poppins_regular" android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
-                        <TextView android:id="@+id/tvTax" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:text="0₫"
-                            android:fontFamily="@font/poppins_regular" android:textColor="@color/text_primary"
-                            android:textSize="13sp" />
+                        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilExpiry"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:layout_marginEnd="4dp" android:hint="MM / YY" app:boxStrokeColor="@color/brand_pink">
+                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExpiry"
+                                android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:inputType="number" android:maxLength="5"
+                                android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilCvv"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:layout_marginStart="4dp" android:hint="Mã bảo mật" app:boxStrokeColor="@color/brand_pink">
+                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCvv"
+                                android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:inputType="numberPassword" android:maxLength="4"
+                                android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp"
-                        android:background="#E8989A" android:layout_marginBottom="10dp" />
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:hint="Tên trên thẻ" app:boxStrokeColor="@color/brand_pink">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCardName"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:inputType="textPersonName" android:fontFamily="@font/poppins_regular" android:textColor="#000000" android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Total -->
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:text="Tổng cộng"
-                            android:fontFamily="@font/poppins_medium" android:textColor="@color/text_primary"
-                            android:textSize="15sp" />
-                        <TextView android:id="@+id/tvTotal" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:text="0₫"
-                            android:fontFamily="@font/poppins_medium" android:textColor="@color/brand_pink"
-                            android:textSize="15sp" />
-                    </LinearLayout>
-
+                    <CheckBox android:id="@+id/cbSameAddress" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:checked="true"
+                        android:text="Dùng địa chỉ vận chuyển làm địa chỉ thanh toán"
+                        android:buttonTint="@color/brand_pink" android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/text_secondary" android:textSize="12sp" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
-            <!-- ─── Pay Now button ────────────────────────── -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPayNow"
+            <!-- ─────────── BƯỚC 4: XÁC NHẬN ─────────── -->
+            <LinearLayout
+                android:id="@+id/step4Layout"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:text="THANH TOÁN NGAY"
-                android:textColor="@color/white"
-                android:fontFamily="@font/poppins_medium"
-                android:textSize="15sp"
-                android:letterSpacing="0.06"
-                app:backgroundTint="@color/brand_pink"
-                app:cornerRadius="8dp"
-                android:layout_marginBottom="24dp" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
 
-        </LinearLayout>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Xác nhận đơn hàng" android:fontFamily="@font/poppins_semibold"
+                    android:textColor="@color/text_primary" android:textSize="16sp" android:paddingBottom="8dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="8dp" app:cardElevation="0dp" app:strokeWidth="1dp"
+                    app:strokeColor="@color/md_theme_light_outline" android:layout_marginBottom="12dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="16dp">
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Tóm tắt đơn hàng" android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/text_primary" android:textSize="14sp" android:paddingBottom="10dp" />
+
+                        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvOrderItems"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false" />
+
+                        <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                            android:background="#EEE0E0" android:layout_marginVertical="10dp" />
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="horizontal" android:layout_marginBottom="4dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                                android:text="Tạm tính" android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary" android:textSize="13sp" />
+                            <TextView android:id="@+id/tvSubtotal" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="0₫" android:fontFamily="@font/poppins_regular" android:textColor="@color/text_primary" android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="horizontal" android:layout_marginBottom="4dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                                android:text="Vận chuyển" android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary" android:textSize="13sp" />
+                            <TextView android:id="@+id/tvShippingLine" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="MIỄN PHÍ" android:fontFamily="@font/poppins_medium" android:textColor="@color/brand_pink" android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="horizontal" android:layout_marginBottom="8dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                                android:text="Thuế" android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary" android:textSize="13sp" />
+                            <TextView android:id="@+id/tvTax" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="0₫" android:fontFamily="@font/poppins_regular" android:textColor="@color/text_primary" android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp"
+                            android:background="#E8989A" android:layout_marginBottom="10dp" />
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                                android:text="Tổng cộng" android:fontFamily="@font/poppins_semibold"
+                                android:textColor="@color/text_primary" android:textSize="15sp" />
+                            <TextView android:id="@+id/tvTotal" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="0₫" android:fontFamily="@font/poppins_semibold" android:textColor="@color/brand_pink" android:textSize="15sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="top" android:orientation="horizontal">
+                    <CheckBox android:id="@+id/cbTerms" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:checked="true" android:buttonTint="@color/brand_pink" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:layout_marginStart="4dp" android:paddingTop="10dp"
+                        android:text="Tôi đồng ý với Điều khoản &amp; Chính sách của Pom Pom."
+                        android:fontFamily="@font/poppins_regular" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView android:id="@+id/tvTermsWarning" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp" android:layout_marginTop="2dp"
+                    android:text="⚠ Bạn chưa đồng ý điều khoản của shop."
+                    android:fontFamily="@font/poppins_medium" android:textColor="#D32F2F" android:textSize="12sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+        </FrameLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- ══ Khung đơn hàng + điều hướng bước (cố định dưới) ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        android:elevation="12dp"
+        android:orientation="vertical">
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0E4E4" />
+
+        <!-- Khung xem trước đơn hàng -->
+        <LinearLayout
+            android:id="@+id/orderPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFCFC"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="4dp">
+
+            <!-- Hàng tiêu đề: tóm tắt + nút mở rộng -->
+            <LinearLayout
+                android:id="@+id/orderPreviewHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/ivPreviewThumb"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_review_quote"
+                    android:contentDescription="@null"
+                    android:scaleType="centerCrop" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView android:id="@+id/tvPreviewCount" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="0 sản phẩm" android:fontFamily="@font/poppins_medium"
+                        android:textColor="@color/text_primary" android:textSize="13sp" />
+
+                    <TextView android:id="@+id/tvPreviewTotal" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Tổng: 0₫" android:fontFamily="@font/poppins_semibold"
+                        android:textColor="@color/brand_pink" android:textSize="14sp" />
+                </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnToggleOrder"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    app:cardBackgroundColor="@color/brand_pink"
+                    app:cardCornerRadius="17dp"
+                    app:cardElevation="0dp"
+                    android:visibility="gone">
+                    <ImageView
+                        android:id="@+id/ivToggleArrow"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:rotation="90"
+                        android:src="@drawable/ic_left_chevron"
+                        app:tint="@color/white" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Danh sách sản phẩm (mở rộng) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPreviewItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:maxHeight="240dp"
+                android:overScrollMode="never"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        </LinearLayout>
+
+        <!-- Nút điều hướng -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPrev"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/poppins_medium"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="Quay lại"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_pink"
+                android:visibility="gone"
+                app:cornerRadius="10dp"
+                app:strokeColor="@color/brand_pink" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNext"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_semibold"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="Tiếp tục"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/brand_pink"
+                app:cornerRadius="10dp" />
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- Processing overlay -->
     <FrameLayout
@@ -760,18 +626,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#99000000"
-        android:visibility="gone"
         android:clickable="true"
-        android:focusable="true">
+        android:elevation="24dp"
+        android:focusable="true"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:orientation="vertical"
+            android:background="@drawable/bg_dialog_pompom"
             android:gravity="center"
-            android:padding="24dp"
-            android:background="@drawable/bg_product_panel">
+            android:orientation="vertical"
+            android:padding="28dp">
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -784,8 +651,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Đang xử lý thanh toán..."
                 android:fontFamily="@font/poppins_medium"
+                android:text="Đang xử lý thanh toán..."
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
         </LinearLayout>

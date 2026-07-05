@@ -35,7 +35,7 @@ import java.util.Locale;
  * Lets the user preview a lipstick color on their face before adding it to the cart.
  * The overlay position is fixed for the demo (no face tracking).
  */
-public class ArTryOnActivity extends AppCompatActivity {
+public class ArTryOnActivity extends SwipeBackActivity {
 
     private static final int CAMERA_PERMISSION_CODE = 202;
     private static final DecimalFormat PRICE_FORMAT =

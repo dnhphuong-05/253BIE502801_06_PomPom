@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pompom.group6.databinding.ActivityPaymentBinding;
 import com.pompom.group6.utils.UiUtils;
 
-public class PaymentActivity extends AppCompatActivity {
+public class PaymentActivity extends SwipeBackActivity {
 
     private ActivityPaymentBinding binding;
     private SharedPreferences prefs;

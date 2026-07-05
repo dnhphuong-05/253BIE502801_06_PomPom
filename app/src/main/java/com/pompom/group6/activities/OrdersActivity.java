@@ -17,7 +17,7 @@ import com.pompom.group6.utils.UiUtils;
 
 import java.util.List;
 
-public class OrdersActivity extends AppCompatActivity {
+public class OrdersActivity extends SwipeBackActivity {
 
     private ActivityOrdersBinding binding;
 

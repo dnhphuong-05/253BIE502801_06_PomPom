@@ -19,7 +19,7 @@ import com.pompom.group6.utils.UiUtils;
 import java.util.List;
 import java.util.Locale;
 
-public class PointsActivity extends AppCompatActivity {
+public class PointsActivity extends SwipeBackActivity {
 
     private ActivityPointsBinding binding;
 

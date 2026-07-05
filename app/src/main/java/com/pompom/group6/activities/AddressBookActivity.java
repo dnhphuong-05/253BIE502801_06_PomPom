@@ -21,7 +21,7 @@ import com.pompom.group6.utils.UiUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddressBookActivity extends AppCompatActivity implements AddressAdapter.Listener {
+public class AddressBookActivity extends SwipeBackActivity implements AddressAdapter.Listener {
 
     private ActivityAddressBookBinding binding;
     private UserDAO userDAO;

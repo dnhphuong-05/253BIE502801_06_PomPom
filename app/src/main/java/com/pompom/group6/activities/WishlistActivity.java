@@ -17,7 +17,7 @@ import com.pompom.group6.utils.UiUtils;
 
 import java.util.List;
 
-public class WishlistActivity extends AppCompatActivity {
+public class WishlistActivity extends SwipeBackActivity {
 
     private ActivityWishlistBinding binding;
     private UserDAO userDAO;

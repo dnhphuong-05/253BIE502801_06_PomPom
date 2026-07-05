@@ -1,12 +1,9 @@
 package com.pompom.group6.activities;
 
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -22,12 +19,11 @@ import com.pompom.group6.models.Product;
 
 import java.util.List;
 
-public class PostDetailActivity extends AppCompatActivity {
+public class PostDetailActivity extends SwipeBackActivity {
 
     private ActivityPostDetailBinding binding;
     private CommunityDAO communityDAO;
     private int postId;
-    private GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,36 +48,8 @@ public class PostDetailActivity extends AppCompatActivity {
         postId = getIntent().getIntExtra("post_id", -1);
         communityDAO = new CommunityDAO(this);
 
-        setupSwipeBack();
         setupListeners();
         loadPostData();
-    }
-
-    private void setupSwipeBack() {
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 != null && e2 != null) {
-                    float diffX = e2.getX() - e1.getX();
-                    float diffY = e2.getY() - e1.getY();
-                    // Detect swipe from left to right to go back
-                    if (Math.abs(diffX) > Math.abs(diffY) && diffX > 150 && Math.abs(velocityX) > 100) {
-                        finish();
-                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (gestureDetector != null) {
-            gestureDetector.onTouchEvent(ev);
-        }
-        return super.dispatchTouchEvent(ev);
     }
 
     private void setupListeners() {

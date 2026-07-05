@@ -29,7 +29,7 @@ import java.util.List;
  * Front camera preview + a "beauty filter" tint that changes with the selected look,
  * plus a scripted step-by-step makeup guide. The guidance/filter are simulated for the demo.
  */
-public class MakeupArtistActivity extends AppCompatActivity {
+public class MakeupArtistActivity extends SwipeBackActivity {
 
     private static final int CAMERA_PERMISSION_CODE = 201;
     /** Alpha applied over the preview so a look reads as a soft beauty filter. */
