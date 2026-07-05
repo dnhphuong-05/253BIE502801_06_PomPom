@@ -6,19 +6,20 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
-import android.content.SharedPreferences;
 import com.pompom.group6.R;
-import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.ActivityLoginBinding;
-import com.pompom.group6.models.User;
+import com.pompom.group6.network.ApiClient;
+import com.pompom.group6.network.Session;
+import com.pompom.group6.network.dto.ApiUser;
+import com.pompom.group6.network.dto.AuthDtos;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends SwipeBackActivity {
 
     private ActivityLoginBinding binding;
-    private UserDAO userDAO;
     private boolean isPasswordVisible = false;
 
     @Override
@@ -33,8 +34,6 @@ public class LoginActivity extends SwipeBackActivity {
 
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        userDAO = new UserDAO(this);
 
         setupListeners();
     }
@@ -63,21 +62,29 @@ public class LoginActivity extends SwipeBackActivity {
                 return;
             }
 
-            User user = userDAO.authenticate(email, password);
-            if (user == null) {
-                Toast.makeText(this, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            // Xác thực qua backend (MongoDB) thay vì SQLite cục bộ.
+            binding.btnLoginSubmit.setEnabled(false);
+            ApiClient.get().login(new AuthDtos.LoginRequest(email, password))
+                    .enqueue(new Callback<ApiUser>() {
+                        @Override
+                        public void onResponse(Call<ApiUser> call, Response<ApiUser> resp) {
+                            binding.btnLoginSubmit.setEnabled(true);
+                            if (resp.isSuccessful() && resp.body() != null) {
+                                Session.save(LoginActivity.this, resp.body());
+                                Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
+                            }
+                        }
 
-            // Persist the logged-in session
-            SharedPreferences prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("is_logged_in", true);
-            editor.putInt("user_id", user.getUserId());
-            editor.apply();
-
-            Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-            finish();
+                        @Override
+                        public void onFailure(Call<ApiUser> call, Throwable t) {
+                            binding.btnLoginSubmit.setEnabled(true);
+                            Toast.makeText(LoginActivity.this,
+                                    "Không kết nối được máy chủ. Kiểm tra backend đang chạy?", Toast.LENGTH_LONG).show();
+                        }
+                    });
         });
 
         binding.tvForgotPassword.setOnClickListener(v -> 

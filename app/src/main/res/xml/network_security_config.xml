@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cho phép HTTP (cleartext) tới backend chạy local trong lúc phát triển:
+   - 10.0.2.2  : localhost của máy host, nhìn từ Android emulator
+   - localhost : chạy trên chính thiết bị
+  Khi deploy backend lên HTTPS (Render/Railway...) thì dùng https và có thể bỏ phần này.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

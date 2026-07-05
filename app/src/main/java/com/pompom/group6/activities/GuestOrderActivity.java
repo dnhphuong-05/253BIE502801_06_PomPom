@@ -115,30 +115,42 @@ public class GuestOrderActivity extends SwipeBackActivity {
         binding.layoutEmpty.setVisibility(View.GONE);
         binding.layoutResults.setVisibility(View.GONE);
 
-        List<Order> orders = null;
-        try {
-            orders = orderDAO.getOrdersByPhone(phone);
-        } catch (Exception e) {
-            android.util.Log.e("GuestOrderActivity", "Error searching orders", e);
-            Toast.makeText(this, "Lỗi tìm kiếm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Tra cứu đơn theo số điện thoại từ MongoDB.
+        com.pompom.group6.network.ApiClient.get().getOrdersByPhone(phone)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiOrder>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiOrder>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiOrder>> resp) {
+                        if (binding == null) return;
+                        List<Order> orders = new java.util.ArrayList<>();
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            for (com.pompom.group6.network.dto.ApiOrder o : resp.body()) {
+                                orders.add(new Order(0, o.orderNumber, o.finalAmount, o.status, o.paymentMethod,
+                                        o.createdAt, o.itemCount, o.firstItemName, o.firstItemImage));
+                            }
+                        }
+                        if (orders.isEmpty()) {
+                            binding.layoutEmpty.setVisibility(View.VISIBLE);
+                        } else {
+                            binding.tvResultCount.setText("Tìm thấy " + orders.size() + " đơn hàng");
+                            binding.layoutResults.setVisibility(View.VISIBLE);
+                            if (adapter == null) {
+                                adapter = new GuestOrderAdapter(orders, order ->
+                                        Toast.makeText(GuestOrderActivity.this, "Chi tiết đơn #" + order.getOrderNumber(), Toast.LENGTH_SHORT).show());
+                                binding.rvOrders.setLayoutManager(new LinearLayoutManager(GuestOrderActivity.this));
+                                binding.rvOrders.setAdapter(adapter);
+                            } else {
+                                adapter.updateOrders(orders);
+                            }
+                        }
+                    }
 
-        if (orders == null || orders.isEmpty()) {
-            binding.layoutEmpty.setVisibility(View.VISIBLE);
-        } else {
-            binding.tvResultCount.setText("Tìm thấy " + orders.size() + " đơn hàng");
-            binding.layoutResults.setVisibility(View.VISIBLE);
-
-            if (adapter == null) {
-                adapter = new GuestOrderAdapter(orders, order ->
-                        Toast.makeText(this, "Chi tiết đơn #" + order.getOrderNumber(), Toast.LENGTH_SHORT).show());
-                binding.rvOrders.setLayoutManager(new LinearLayoutManager(this));
-                binding.rvOrders.setAdapter(adapter);
-            } else {
-                adapter.updateOrders(orders);
-            }
-        }
+                    @Override
+                    public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiOrder>> call, Throwable t) {
+                        if (binding == null) return;
+                        Toast.makeText(GuestOrderActivity.this, "Không kết nối được máy chủ", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

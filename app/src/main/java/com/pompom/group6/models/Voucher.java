@@ -2,6 +2,7 @@ package com.pompom.group6.models;
 
 public class Voucher {
     private int id;
+    private String oid; // id chuỗi (ObjectId) khi lấy từ MongoDB; null nếu từ SQLite
     private String code;
     private String discountType;
     private double discountValue;
@@ -20,6 +21,8 @@ public class Voucher {
     }
 
     public int getId() { return id; }
+    public String getOid() { return oid; }
+    public void setOid(String oid) { this.oid = oid; }
     public String getCode() { return code; }
     public String getDiscountType() { return discountType; }
     public double getDiscountValue() { return discountValue; }

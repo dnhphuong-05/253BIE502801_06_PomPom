@@ -122,8 +122,8 @@ public class SettingsActivity extends SwipeBackActivity {
     // ---------------------------------------------------------------------
 
     private void showChangePasswordDialog() {
-        int userId = prefs.getInt("user_id", -1);
-        if (userId == -1) {
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
+        if (userOid == null) {
             toast("Vui lòng đăng nhập lại");
             return;
         }
@@ -160,11 +160,20 @@ public class SettingsActivity extends SwipeBackActivity {
                         toast("Mật khẩu mới không khớp");
                         return;
                     }
-                    if (userDAO.changePassword(userId, oldPw, newPw)) {
-                        toast("Đổi mật khẩu thành công");
-                    } else {
-                        toast("Mật khẩu hiện tại không đúng");
-                    }
+                    com.pompom.group6.network.ApiClient.get()
+                            .changePassword(userOid, new com.pompom.group6.network.dto.ChangePasswordRequest(oldPw, newPw))
+                            .enqueue(new retrofit2.Callback<Void>() {
+                                @Override
+                                public void onResponse(retrofit2.Call<Void> call, retrofit2.Response<Void> resp) {
+                                    if (resp.isSuccessful()) toast("Đổi mật khẩu thành công");
+                                    else if (resp.code() == 400) toast("Mật khẩu hiện tại không đúng");
+                                    else toast("Đổi mật khẩu thất bại");
+                                }
+                                @Override
+                                public void onFailure(retrofit2.Call<Void> call, Throwable t) {
+                                    toast("Không kết nối được máy chủ");
+                                }
+                            });
                 })
                 .setNegativeButton("Hủy", null)
                 .show();

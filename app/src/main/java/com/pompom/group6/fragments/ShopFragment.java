@@ -49,6 +49,8 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
 
     private ProductAdapter productAdapter;
     private CategoryAdapter categoryAdapter;
+    // Ánh xạ index chip danh mục -> ObjectId thật (để lọc sản phẩm theo danh mục qua API).
+    private final java.util.Map<Integer, String> categoryOidByIndex = new java.util.HashMap<>();
 
     // Pagination
     private int currentPage = 0;
@@ -117,26 +119,30 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
 
     private void setupProfileAvatar() {
         if (binding == null) return;
-        SharedPreferences prefs = requireContext()
-                .getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE);
-        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
-        int userId = prefs.getInt("user_id", -1);
-
-        if (isLoggedIn && userId != -1) {
-            UserDAO userDAO = new UserDAO(requireContext());
-            User user = userDAO.getUserById(userId);
-            if (user != null && user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
-                Glide.with(this)
-                        .load(user.getAvatarUrl())
-                        .circleCrop()
-                        .placeholder(R.drawable.ic_user2)
-                        .into(binding.ivProfile);
-                // Remove tint when showing real avatar
-                ImageViewCompat.setImageTintList(binding.ivProfile, null);
-                return;
-            }
+        String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
+        if (userOid == null) {
+            resetToDefaultProfileIcon();
+            return;
         }
-        resetToDefaultProfileIcon();
+        com.pompom.group6.network.ApiClient.get().getUser(userOid)
+                .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiUser>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call,
+                                           retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
+                        if (binding == null) return;
+                        com.pompom.group6.network.dto.ApiUser user = resp.isSuccessful() ? resp.body() : null;
+                        if (user != null && user.avatarUrl != null && !user.avatarUrl.isEmpty()) {
+                            Glide.with(ShopFragment.this).load(user.avatarUrl).circleCrop()
+                                    .placeholder(R.drawable.ic_user2).into(binding.ivProfile);
+                            ImageViewCompat.setImageTintList(binding.ivProfile, null);
+                        } else {
+                            resetToDefaultProfileIcon();
+                        }
+                    }
+                    @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call, Throwable t) {
+                        resetToDefaultProfileIcon();
+                    }
+                });
     }
 
     private void resetToDefaultProfileIcon() {
@@ -200,30 +206,41 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
     // ── Promo marquee ─────────────────────────────────────────────────────
 
     private void setupMarquee() {
-        List<String> messages = promotionDAO.getActivePromotionMessages();
-        if (!messages.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (String msg : messages) sb.append(msg).append("   ✦   ");
-            binding.tvPromoMarquee.setText(sb.toString());
-            binding.tvPromoMarquee.setSelected(true);
-        }
+        String[] messages = {
+                "Miễn phí vận chuyển cho đơn từ 299K",
+                "Giảm đến 50% cho bộ sưu tập Unicorn Magic",
+                "Nhập mã WELCOME20 giảm 20% đơn đầu tiên",
+        };
+        StringBuilder sb = new StringBuilder();
+        for (String msg : messages) sb.append(msg).append("   ✦   ");
+        binding.tvPromoMarquee.setText(sb.toString());
+        binding.tvPromoMarquee.setSelected(true);
     }
 
     // ── Categories (MODULE 3 multi-select) ───────────────────────────────
 
     private void setupCategories() {
-        List<Category> categories = categoryDAO.getAllCategories();
-        if (categories.isEmpty()) {
-            categories.add(new Category(1, "Trang điểm Mắt",
-                    "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340910/co_trang_diem_zgi4dz.webp"));
-            categories.add(new Category(2, "Trang điểm Mặt",
-                    "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344277/PomPom_Cloud_Cushion_kwewua.webp"));
-            categories.add(new Category(3, "Trang điểm Môi",
-                    "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781344448/PomPom_Unicorn_Magic_Palette_p82y28.webp"));
-            categories.add(new Category(4, "Bộ sản phẩm",
-                    "https://res.cloudinary.com/dwu6e0ian/image/upload/v1781340911/ma_hong_r2373s.webp"));
-        }
+        // Danh mục lấy từ MongoDB. (Lọc sản phẩm theo danh mục sẽ nối API sau.)
+        com.pompom.group6.network.ApiClient.get().getCategories()
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiCategory>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCategory>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiCategory>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<Category> categories = new java.util.ArrayList<>();
+                        categoryOidByIndex.clear();
+                        int idx = 1;
+                        for (com.pompom.group6.network.dto.ApiCategory a : resp.body()) {
+                            categoryOidByIndex.put(idx, a.id);
+                            categories.add(new Category(idx++, a.categoryName, a.imageUrl));
+                        }
+                        bindCategories(categories);
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCategory>> call, Throwable t) {}
+                });
+    }
 
+    private void bindCategories(List<Category> categories) {
         categoryAdapter = new CategoryAdapter(categories, (categoryId, isSelected) -> {
             // TASK 5: Multi-select → reload products
             if (isSelected) {
@@ -355,21 +372,50 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
 
     private void reloadProductsFiltered() {
         currentPage = 0;
-        isLastPage = false;
+        // Nạp sản phẩm từ MongoDB, có áp bộ lọc giá/đánh giá/sắp xếp (danh mục sẽ nối sau).
+        isLastPage = true;
+        Long minPrice = currentFilter.minPrice > 0 ? currentFilter.minPrice : null;
+        Long maxPrice = currentFilter.maxPrice > 0 ? currentFilter.maxPrice : null;
+        Float minRating = currentFilter.minRating > 0 ? currentFilter.minRating : null;
+        String sort = null;
+        if ("asc".equals(currentFilter.sortPrice)) sort = "price_asc";
+        else if ("desc".equals(currentFilter.sortPrice)) sort = "price_desc";
+        else if (!currentFilter.sortAlpha.isEmpty()) sort = "alpha";
+        else if (currentFilter.sortNewest) sort = "newest";
+        else if (currentFilter.sortPopular) sort = "popular";
 
-        List<Product> products = productDAO.getProductsFiltered(
-                currentFilter.categoryIds.isEmpty() ? null : currentFilter.categoryIds,
-                currentFilter.minPrice,
-                currentFilter.maxPrice,
-                currentFilter.minRating,
-                currentFilter.sortAlpha,
-                currentFilter.sortPrice,
-                currentFilter.sortNewest,
-                currentFilter.sortPopular,
-                pageSize, 0);
+        // Danh mục đã chọn (index) -> ObjectId thật, nối bằng dấu phẩy.
+        String categoryIds = null;
+        if (!currentFilter.categoryIds.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (Integer index : currentFilter.categoryIds) {
+                String oid = categoryOidByIndex.get(index);
+                if (oid != null) {
+                    if (sb.length() > 0) sb.append(",");
+                    sb.append(oid);
+                }
+            }
+            if (sb.length() > 0) categoryIds = sb.toString();
+        }
 
-        productAdapter.setProducts(products);
-        if (products.size() < pageSize) isLastPage = true;
+        com.pompom.group6.network.ApiClient.get().getProductsFiltered(categoryIds, minPrice, maxPrice, minRating, sort)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiProduct>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiProduct>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiProduct>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<Product> products = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiProduct a : resp.body()) {
+                            products.add(com.pompom.group6.network.ProductMapper.toProduct(a));
+                        }
+                        productAdapter.setProducts(products);
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiProduct>> call, Throwable t) {
+                        // Không tải được → giữ danh sách hiện tại.
+                    }
+                });
     }
 
     private void loadMoreProducts() {

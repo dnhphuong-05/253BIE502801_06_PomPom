@@ -1,7 +1,7 @@
 package com.pompom.group6.models;
 
 public class PromotionProduct {
-    private int productId;
+    private String productId;
     private String name;
     private String imageUrl;
     private double originalPrice;
@@ -10,7 +10,7 @@ public class PromotionProduct {
     private int totalStock;
     private int soldCount;
 
-    public PromotionProduct(int productId, String name, String imageUrl, double originalPrice, double salePrice, int discountPercent, int totalStock, int soldCount) {
+    public PromotionProduct(String productId, String name, String imageUrl, double originalPrice, double salePrice, int discountPercent, int totalStock, int soldCount) {
         this.productId = productId;
         this.name = name;
         this.imageUrl = imageUrl;
@@ -21,7 +21,7 @@ public class PromotionProduct {
         this.soldCount = soldCount;
     }
 
-    public int getProductId() { return productId; }
+    public String getProductId() { return productId; }
     public String getName() { return name; }
     public String getImageUrl() { return imageUrl; }
     public double getOriginalPrice() { return originalPrice; }

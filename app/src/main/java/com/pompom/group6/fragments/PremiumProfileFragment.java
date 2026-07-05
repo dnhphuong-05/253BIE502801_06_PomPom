@@ -10,24 +10,30 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.JsonElement;
 import com.pompom.group6.R;
-import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.FragmentPremiumProfileBinding;
 import com.pompom.group6.databinding.ItemProfileMenuBinding;
-import com.pompom.group6.models.User;
+import com.pompom.group6.network.ApiClient;
+import com.pompom.group6.network.Session;
+import com.pompom.group6.network.dto.ApiUser;
+
+import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PremiumProfileFragment extends Fragment {
 
     private FragmentPremiumProfileBinding binding;
-    private UserDAO userDAO;
-    private int currentUserId = 1;
-    private User currentUser;
+    private String currentUserOid;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPremiumProfileBinding.inflate(inflater, container, false);
-        userDAO = new UserDAO(requireContext());
         return binding.getRoot();
     }
 
@@ -78,34 +84,60 @@ public class PremiumProfileFragment extends Fragment {
     }
 
     private void loadUserData() {
-        // Fetch current user from prefs or default 1
-        android.content.SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE);
-        currentUserId = prefs.getInt("user_id", 1);
-
-        currentUser = userDAO.getUserById(currentUserId);
-        if (currentUser != null) {
-            binding.tvUserName.setText(lastTwoWords(currentUser.getFullName()));
-            binding.tvMemberLevel.setText(currentUser.getMembershipLevel());
-            binding.tvBio.setText(currentUser.getBio() != null && !currentUser.getBio().isEmpty() ?
-                    currentUser.getBio() : "Beauty lover 💖");
-
-            if (currentUser.getAvatarUrl() != null && !currentUser.getAvatarUrl().isEmpty()) {
-                Glide.with(this).load(currentUser.getAvatarUrl()).placeholder(R.drawable.ic_avatar).into(binding.ivUserAvatar);
-            } else {
-                binding.ivUserAvatar.setImageResource(R.drawable.ic_avatar);
-            }
-
-            // Update Menu Values
-            updateMenuValue(binding.menuMyPoints.getRoot(), String.format(java.util.Locale.getDefault(), "%,d điểm", currentUser.getPoints()));
-            updateMenuValue(binding.menuVouchers.getRoot(), currentUser.getVoucherCount() + " voucher");
+        // Lấy id chuỗi (ObjectId) của user đã đăng nhập qua backend.
+        currentUserOid = Session.getUserOid(requireContext());
+        if (currentUserOid == null) {
+            // Chưa đăng nhập qua backend — không có gì để tải.
+            return;
         }
 
-        int addressCount = userDAO.getAddressCount(currentUserId);
-        updateMenuValue(binding.menuAddressBook.getRoot(),
-                addressCount > 0 ? addressCount + " địa chỉ" : "Chưa có");
-        int wishlistCount = userDAO.getWishlistCount(currentUserId);
-        updateMenuValue(binding.menuWishlist.getRoot(),
-                wishlistCount > 0 ? wishlistCount + " sản phẩm" : "Trống");
+        // 1) Hồ sơ: tên, hạng thành viên, điểm, voucher, bio, avatar — LẤY TỪ MONGODB.
+        ApiClient.get().getUser(currentUserOid).enqueue(new Callback<ApiUser>() {
+            @Override
+            public void onResponse(Call<ApiUser> call, Response<ApiUser> resp) {
+                if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                ApiUser u = resp.body();
+                binding.tvUserName.setText(lastTwoWords(u.fullName));
+                binding.tvMemberLevel.setText(u.membershipLevel);
+                binding.tvBio.setText(u.bio != null && !u.bio.isEmpty() ? u.bio : "Beauty lover 💖");
+
+                if (u.avatarUrl != null && !u.avatarUrl.isEmpty()) {
+                    Glide.with(PremiumProfileFragment.this).load(u.avatarUrl)
+                            .placeholder(R.drawable.ic_avatar).into(binding.ivUserAvatar);
+                } else {
+                    binding.ivUserAvatar.setImageResource(R.drawable.ic_avatar);
+                }
+
+                updateMenuValue(binding.menuMyPoints.getRoot(),
+                        String.format(java.util.Locale.getDefault(), "%,d điểm", u.points));
+                updateMenuValue(binding.menuVouchers.getRoot(), u.voucherCount + " voucher");
+            }
+
+            @Override
+            public void onFailure(Call<ApiUser> call, Throwable t) { /* giữ giá trị mặc định trên UI */ }
+        });
+
+        // 2) Số địa chỉ.
+        ApiClient.get().getAddresses(currentUserOid).enqueue(new Callback<List<com.pompom.group6.network.dto.ApiAddress>>() {
+            @Override
+            public void onResponse(Call<List<com.pompom.group6.network.dto.ApiAddress>> call, Response<List<com.pompom.group6.network.dto.ApiAddress>> resp) {
+                if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                int n = resp.body().size();
+                updateMenuValue(binding.menuAddressBook.getRoot(), n > 0 ? n + " địa chỉ" : "Chưa có");
+            }
+            @Override public void onFailure(Call<List<com.pompom.group6.network.dto.ApiAddress>> call, Throwable t) {}
+        });
+
+        // 3) Số sản phẩm yêu thích.
+        ApiClient.get().getWishlist(currentUserOid).enqueue(new Callback<List<com.pompom.group6.network.dto.ApiProduct>>() {
+            @Override
+            public void onResponse(Call<List<com.pompom.group6.network.dto.ApiProduct>> call, Response<List<com.pompom.group6.network.dto.ApiProduct>> resp) {
+                if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                int n = resp.body().size();
+                updateMenuValue(binding.menuWishlist.getRoot(), n > 0 ? n + " sản phẩm" : "Trống");
+            }
+            @Override public void onFailure(Call<List<com.pompom.group6.network.dto.ApiProduct>> call, Throwable t) {}
+        });
 
         refreshOrderBadges();
     }
@@ -146,14 +178,22 @@ public class PremiumProfileFragment extends Fragment {
                 v -> open(com.pompom.group6.activities.OrdersActivity.class));
     }
 
-    /** Show order-count badges on the status shortcuts. */
+    /** Show order-count badges on the status shortcuts (lấy từ MongoDB). */
     private void refreshOrderBadges() {
-        java.util.Map<String, Integer> counts = userDAO.getOrderCounts(currentUserId);
-        setBadge(binding.statusPending.tvBadge, count(counts, "pending"));
-        setBadge(binding.statusPacking.tvBadge, count(counts, "confirmed") + count(counts, "processing"));
-        setBadge(binding.statusShipping.tvBadge, count(counts, "shipping"));
-        setBadge(binding.statusDelivered.tvBadge, count(counts, "delivered"));
-        setBadge(binding.statusCompleted.tvBadge, count(counts, "completed"));
+        if (currentUserOid == null) return;
+        ApiClient.get().getOrderCounts(currentUserOid).enqueue(new Callback<Map<String, Integer>>() {
+            @Override
+            public void onResponse(Call<Map<String, Integer>> call, Response<Map<String, Integer>> resp) {
+                if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                Map<String, Integer> counts = resp.body();
+                setBadge(binding.statusPending.tvBadge, count(counts, "pending"));
+                setBadge(binding.statusPacking.tvBadge, count(counts, "confirmed") + count(counts, "processing"));
+                setBadge(binding.statusShipping.tvBadge, count(counts, "shipping"));
+                setBadge(binding.statusDelivered.tvBadge, count(counts, "delivered"));
+                setBadge(binding.statusCompleted.tvBadge, count(counts, "completed"));
+            }
+            @Override public void onFailure(Call<Map<String, Integer>> call, Throwable t) {}
+        });
     }
 
     private int count(java.util.Map<String, Integer> counts, String key) {

@@ -1,0 +1,167 @@
+package com.pompom.group6.network;
+
+import com.google.gson.JsonElement;
+import com.pompom.group6.network.dto.ApiAddress;
+import com.pompom.group6.network.dto.ApiOrder;
+import com.pompom.group6.network.dto.ApiPointsTransaction;
+import com.pompom.group6.network.dto.ApiProduct;
+import com.pompom.group6.network.dto.ApiUser;
+import com.pompom.group6.network.dto.AddressRequest;
+import com.pompom.group6.network.dto.AuthDtos;
+
+import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
+
+/**
+ * Khai báo các endpoint của backend. Bắt đầu với Auth; sẽ mở rộng dần khi migrate
+ * từng màn (users, products, orders, cart, community...).
+ */
+public interface ApiService {
+
+    // ---- Auth ----
+    @POST("api/auth/login")
+    Call<ApiUser> login(@Body AuthDtos.LoginRequest body);
+
+    @POST("api/auth/register")
+    Call<ApiUser> register(@Body AuthDtos.RegisterRequest body);
+
+    // ---- Users / Profile ----
+    @GET("api/users/{id}")
+    Call<ApiUser> getUser(@Path("id") String userId);
+
+    @PUT("api/users/{id}")
+    Call<ApiUser> updateUser(@Path("id") String userId,
+                             @Body com.pompom.group6.network.dto.UserUpdateRequest body);
+
+    @POST("api/users/{id}/change-password")
+    Call<Void> changePassword(@Path("id") String userId,
+                              @Body com.pompom.group6.network.dto.ChangePasswordRequest body);
+
+    /** Danh sách địa chỉ giao hàng. */
+    @GET("api/users/{id}/addresses")
+    Call<List<ApiAddress>> getAddresses(@Path("id") String userId);
+
+    @POST("api/users/{id}/addresses")
+    Call<ApiAddress> addAddress(@Path("id") String userId, @Body AddressRequest body);
+
+    @PUT("api/users/{id}/addresses/{addrId}/default")
+    Call<Void> setDefaultAddress(@Path("id") String userId, @Path("addrId") String addrId);
+
+    @DELETE("api/users/{id}/addresses/{addrId}")
+    Call<Void> deleteAddress(@Path("id") String userId, @Path("addrId") String addrId);
+
+    /** Voucher của user. */
+    @GET("api/users/{id}/vouchers")
+    Call<List<com.pompom.group6.network.dto.ApiVoucher>> getUserVouchers(@Path("id") String userId);
+
+    /** Tất cả voucher đang hoạt động. */
+    @GET("api/vouchers")
+    Call<List<com.pompom.group6.network.dto.ApiVoucher>> getVouchers();
+
+    /** Lưu voucher cho user. */
+    @POST("api/users/{id}/vouchers/{voucherId}")
+    Call<Void> saveVoucher(@Path("id") String userId, @Path("voucherId") String voucherId);
+
+    /** Danh sách sản phẩm yêu thích. */
+    @GET("api/users/{id}/wishlist")
+    Call<List<ApiProduct>> getWishlist(@Path("id") String userId);
+
+    /** Đếm đơn theo trạng thái: {status: count}. */
+    @GET("api/orders/counts")
+    Call<Map<String, Integer>> getOrderCounts(@Query("user_id") String userId);
+
+    /** Lịch sử điểm của user. */
+    @GET("api/users/{id}/points")
+    Call<List<ApiPointsTransaction>> getUserPoints(@Path("id") String userId);
+
+    // ---- Orders ----
+    @GET("api/orders")
+    Call<List<ApiOrder>> getOrders(@Query("user_id") String userId);
+
+    @POST("api/orders")
+    Call<ApiOrder> createOrder(@Body com.pompom.group6.network.dto.OrderRequest body);
+
+    @GET("api/orders")
+    Call<List<ApiOrder>> getOrdersByPhone(@Query("phone") String phone);
+
+    @GET("api/orders/meta")
+    Call<com.pompom.group6.network.dto.ApiOrderMeta> getOrderMeta();
+
+    // ---- Cart (đồng bộ đa thiết bị) ----
+    @GET("api/carts")
+    Call<com.pompom.group6.network.dto.ApiCart> getCart(@Query("user_id") String userId);
+
+    @POST("api/carts/items")
+    Call<Void> addCartItem(@Body com.pompom.group6.network.dto.CartItemRequest body);
+
+    @PUT("api/carts/set")
+    Call<Void> setCartQuantity(@Body com.pompom.group6.network.dto.CartItemRequest body);
+
+    @DELETE("api/carts/by-product")
+    Call<Void> removeCartByProduct(@Query("user_id") String userId, @Query("product_id") String productId);
+
+    @DELETE("api/carts")
+    Call<Void> clearCart(@Query("user_id") String userId);
+
+    // ---- Products ----
+    @GET("api/products")
+    Call<List<ApiProduct>> getProducts();
+
+    /** Danh sách sản phẩm có lọc/sắp xếp (tham số null sẽ bị bỏ qua). category_id có thể là nhiều id nối bằng dấu phẩy. */
+    @GET("api/products")
+    Call<List<ApiProduct>> getProductsFiltered(@Query("category_id") String categoryIds,
+                                               @Query("min_price") Long minPrice,
+                                               @Query("max_price") Long maxPrice,
+                                               @Query("min_rating") Float minRating,
+                                               @Query("sort") String sort);
+
+    @GET("api/products")
+    Call<List<ApiProduct>> searchProducts(@Query("q") String query);
+
+    @GET("api/products/{id}")
+    Call<ApiProduct> getProduct(@Path("id") String productId);
+
+    @GET("api/products/{id}/reviews")
+    Call<List<com.pompom.group6.network.dto.ApiReview>> getProductReviews(@Path("id") String productId);
+
+    @GET("api/products/{id}/related")
+    Call<List<ApiProduct>> getRelatedProducts(@Path("id") String productId);
+
+    @GET("api/banners")
+    Call<List<com.pompom.group6.network.dto.ApiBanner>> getBanners();
+
+    @GET("api/categories")
+    Call<List<com.pompom.group6.network.dto.ApiCategory>> getCategories();
+
+    @GET("api/flash-sale")
+    Call<List<com.pompom.group6.network.dto.ApiFlashSaleProduct>> getFlashSale(@Query("limit") Integer limit);
+
+    // ---- Community ----
+    @GET("api/community/posts")
+    Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityPosts(@Query("limit") Integer limit,
+                                                                                 @Query("q") String query);
+
+    @GET("api/community/highlights")
+    Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityHighlights(@Query("limit") Integer limit);
+
+    @GET("api/community/posts/{id}")
+    Call<com.pompom.group6.network.dto.ApiCommunityPost> getCommunityPost(@Path("id") String postId);
+
+    @GET("api/community/posts/{id}/comments")
+    Call<List<com.pompom.group6.network.dto.ApiComment>> getPostComments(@Path("id") String postId);
+
+    @GET("api/community/posts/{id}/tagged")
+    Call<List<ApiProduct>> getPostTaggedProducts(@Path("id") String postId);
+
+    @POST("api/community/posts")
+    Call<com.pompom.group6.network.dto.ApiCommunityPost> createPost(@Body com.pompom.group6.network.dto.CreatePostRequest body);
+}

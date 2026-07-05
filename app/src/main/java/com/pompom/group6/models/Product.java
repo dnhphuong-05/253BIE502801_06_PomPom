@@ -1,7 +1,7 @@
 package com.pompom.group6.models;
 
 public class Product {
-    private int id;
+    private String id;
     private String title;
     private String price;
     private String originalPrice;
@@ -16,14 +16,19 @@ public class Product {
     private String brandName;
     private int discountPercent;
 
-    public Product(int id, String title, String price, String originalPrice) {
+    public Product(String id, String title, String price, String originalPrice) {
         this.id = id;
         this.title = title;
         this.price = price;
         this.originalPrice = originalPrice;
     }
 
-    public int getId() { return id; }
+    public String getId() { return id; }
+
+    /** Số nguyên ổn định suy ra từ id — dùng cho các con số "trang trí" (FOMO, lượt bán ảo...). */
+    public int seed() {
+        return id == null ? 0 : Math.abs(id.hashCode());
+    }
     public String getTitle() { return title; }
     public String getPrice() { return price; }
     public String getOriginalPrice() { return originalPrice; }

@@ -59,7 +59,7 @@ public class CheckoutActivity extends SwipeBackActivity {
     private int currentStep = 0;
     private String totalStr = "0₫";
     private boolean orderExpanded = false;
-    private int loadedUserId = -1;
+    private String loadedUserOid = null;
     private float density;
 
     // Vận chuyển
@@ -115,36 +115,41 @@ public class CheckoutActivity extends SwipeBackActivity {
     // ── Luồng đăng nhập / khách (Task 1) + auto-fill (Task 2) ────────────────
 
     private void setupUserFlow() {
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        boolean loggedIn = prefs.getBoolean("is_logged_in", false);
-        int userId = prefs.getInt("user_id", -1);
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
 
-        if (loggedIn && userId != -1) {
-            User user = new UserDAO(this).getUserById(userId);
-            if (user != null) {
-                binding.tvSignIn.setVisibility(View.GONE);
-                binding.userChip.setVisibility(View.VISIBLE);
-                binding.tvUserName.setText(user.getFullName());
-                Glide.with(this).load(user.getAvatarUrl())
-                        .placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar)
-                        .circleCrop().into(binding.ivUserAvatar);
-                if (loadedUserId != userId) {
-                    prefillFromUser(user);
-                    loadedUserId = userId;
-                }
-                return;
-            }
+        if (userOid != null) {
+            com.pompom.group6.network.ApiClient.get().getUser(userOid)
+                    .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiUser>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call,
+                                               retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
+                            if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                            com.pompom.group6.network.dto.ApiUser user = resp.body();
+                            binding.tvSignIn.setVisibility(View.GONE);
+                            binding.userChip.setVisibility(View.VISIBLE);
+                            binding.tvUserName.setText(user.fullName);
+                            Glide.with(CheckoutActivity.this).load(user.avatarUrl)
+                                    .placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar)
+                                    .circleCrop().into(binding.ivUserAvatar);
+                            if (!userOid.equals(loadedUserOid)) {
+                                prefillFromUser(user, userOid);
+                                loadedUserOid = userOid;
+                            }
+                        }
+                        @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call, Throwable t) {}
+                    });
+            return;
         }
         binding.userChip.setVisibility(View.GONE);
         binding.tvSignIn.setVisibility(View.VISIBLE);
-        loadedUserId = -1;
+        loadedUserOid = null;
     }
 
-    private void prefillFromUser(User user) {
-        if (user.getEmail() != null) binding.etEmail.setText(user.getEmail());
-        if (user.getPhoneNumber() != null) binding.etPhone.setText(user.getPhoneNumber());
+    private void prefillFromUser(com.pompom.group6.network.dto.ApiUser user, String userOid) {
+        if (user.email != null) binding.etEmail.setText(user.email);
+        if (user.phoneNumber != null) binding.etPhone.setText(user.phoneNumber);
 
-        String fullName = user.getFullName();
+        String fullName = user.fullName;
         if (fullName != null && !fullName.trim().isEmpty()) {
             String[] parts = fullName.trim().split("\\s+");
             if (parts.length >= 2) {
@@ -160,25 +165,30 @@ public class CheckoutActivity extends SwipeBackActivity {
             }
         }
 
-        // Địa chỉ mặc định từ DB (Task 2)
-        List<Address> addresses = new UserDAO(this).getAddresses(user.getUserId());
-        if (addresses != null && !addresses.isEmpty()) {
-            Address a = addresses.get(0); // đã sắp is_default DESC
-            if (a.getAddressLine() != null) binding.etAddress.setText(a.getAddressLine());
-            if (a.getCity() != null) binding.etCity.setText(a.getCity());
-            String detail = "";
-            if (a.getWard() != null && !a.getWard().isEmpty()) detail += a.getWard();
-            if (a.getDistrict() != null && !a.getDistrict().isEmpty())
-                detail += (detail.isEmpty() ? "" : ", ") + a.getDistrict();
-            if (!detail.isEmpty()) binding.etAddress2.setText(detail);
-        }
+        // Địa chỉ mặc định từ MongoDB.
+        com.pompom.group6.network.ApiClient.get().getAddresses(userOid)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiAddress>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiAddress>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiAddress>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null || resp.body().isEmpty()) return;
+                        com.pompom.group6.network.dto.ApiAddress a = resp.body().get(0); // đã sắp is_default DESC
+                        if (a.addressLine != null) binding.etAddress.setText(a.addressLine);
+                        if (a.city != null) binding.etCity.setText(a.city);
+                        String detail = "";
+                        if (a.ward != null && !a.ward.isEmpty()) detail += a.ward;
+                        if (a.district != null && !a.district.isEmpty())
+                            detail += (detail.isEmpty() ? "" : ", ") + a.district;
+                        if (!detail.isEmpty()) binding.etAddress2.setText(detail);
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiAddress>> call, Throwable t) {}
+                });
     }
 
     // ── Vận chuyển từ DB (Task 1) ────────────────────────────────────────────
 
     private void setupShipping() {
-        List<String> carriers = new OrderDAO(this).getShippingCarriers();
-        if (carriers.isEmpty()) carriers = Arrays.asList("GHTK", "GHN", "Viettel");
+        List<String> carriers = Arrays.asList("GHTK", "GHN", "Viettel");
 
         binding.shippingContainer.removeAllViews();
         shipCards.clear(); shipRadios.clear(); shipFees.clear();
@@ -224,8 +234,7 @@ public class CheckoutActivity extends SwipeBackActivity {
     // ── Thanh toán từ DB (Task 4) ────────────────────────────────────────────
 
     private void setupPayment() {
-        List<String> methods = new OrderDAO(this).getPaymentMethods();
-        if (methods.isEmpty()) methods = Arrays.asList("COD", "VISA", "VNPAY", "MOMO");
+        List<String> methods = Arrays.asList("COD", "VISA", "VNPAY", "MOMO");
 
         binding.paymentContainer.removeAllViews();
         payCards.clear(); payRadios.clear(); payCodes.clear();
@@ -499,10 +508,57 @@ public class CheckoutActivity extends SwipeBackActivity {
     private void processPayment(final String method) {
         binding.loadingOverlay.setVisibility(View.VISIBLE);
         binding.tvProcessing.setText("Đang xử lý " + method + "...");
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            binding.loadingOverlay.setVisibility(View.GONE);
-            showSuccessDialog();
-        }, 2500);
+
+        // Gom các sản phẩm cloud (có ObjectId) trong giỏ để tạo đơn thật trên MongoDB.
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
+        java.util.List<com.pompom.group6.network.dto.OrderRequest.Item> items = new java.util.ArrayList<>();
+        for (CartItem ci : cartManager.getItems()) {
+            if (ci.getProductOid() != null) {
+                items.add(new com.pompom.group6.network.dto.OrderRequest.Item(ci.getProductOid(), ci.getQuantity()));
+            }
+        }
+
+        // Khách chưa đăng nhập hoặc giỏ không có sản phẩm cloud → giữ hành vi cũ (đơn demo).
+        if (userOid == null || items.isEmpty()) {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (binding == null) return;
+                binding.loadingOverlay.setVisibility(View.GONE);
+                showSuccessDialog();
+            }, 1500);
+            return;
+        }
+
+        com.pompom.group6.network.dto.OrderRequest body =
+                new com.pompom.group6.network.dto.OrderRequest(userOid, method, selectedShippingFee, "", items);
+        com.pompom.group6.network.ApiClient.get().createOrder(body)
+                .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiOrder>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiOrder> call,
+                                           retrofit2.Response<com.pompom.group6.network.dto.ApiOrder> resp) {
+                        if (binding == null) return;
+                        binding.loadingOverlay.setVisibility(View.GONE);
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            // Đơn đã tạo → xoá giỏ hàng server để không còn tồn ở thiết bị khác.
+                            com.pompom.group6.network.ApiClient.get().clearCart(userOid)
+                                    .enqueue(new retrofit2.Callback<Void>() {
+                                        @Override public void onResponse(retrofit2.Call<Void> c, retrofit2.Response<Void> r) {}
+                                        @Override public void onFailure(retrofit2.Call<Void> c, Throwable t) {}
+                                    });
+                            showSuccessDialog();
+                        } else {
+                            android.widget.Toast.makeText(CheckoutActivity.this,
+                                    "Đặt đơn thất bại, vui lòng thử lại", android.widget.Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiOrder> call, Throwable t) {
+                        if (binding == null) return;
+                        binding.loadingOverlay.setVisibility(View.GONE);
+                        android.widget.Toast.makeText(CheckoutActivity.this,
+                                "Không kết nối được máy chủ", android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void showSuccessDialog() {

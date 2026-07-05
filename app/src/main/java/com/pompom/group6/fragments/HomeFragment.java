@@ -104,20 +104,25 @@ public class HomeFragment extends Fragment {
                 .getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
 
-        if (isLoggedIn) {
-            int userId = prefs.getInt("user_id", 1);
-            User user = new UserDAO(requireContext()).getUserById(userId);
-            String avatarUrl = user != null ? user.getAvatarUrl() : null;
-
+        String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
+        if (isLoggedIn && userOid != null) {
             binding.ivProfile.setVisibility(View.GONE);
             binding.ivProfileFrame.setVisibility(View.VISIBLE);
             binding.ivProfileAvatar.setVisibility(View.VISIBLE);
 
-            Glide.with(this)
-                    .load(avatarUrl)
-                    .placeholder(R.drawable.ic_avatar)
-                    .error(R.drawable.ic_avatar)
-                    .into(binding.ivProfileAvatar);
+            com.pompom.group6.network.ApiClient.get().getUser(userOid)
+                    .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiUser>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call,
+                                               retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
+                            if (binding == null) return;
+                            String avatarUrl = resp.isSuccessful() && resp.body() != null ? resp.body().avatarUrl : null;
+                            Glide.with(HomeFragment.this).load(avatarUrl)
+                                    .placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar)
+                                    .into(binding.ivProfileAvatar);
+                        }
+                        @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call, Throwable t) {}
+                    });
         } else {
             binding.ivProfile.setVisibility(View.VISIBLE);
             binding.ivProfileFrame.setVisibility(View.GONE);
@@ -202,14 +207,38 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupBanners() {
-        List<Banner> banners = bannerDAO.getAllBanners();
+        // Banner lấy từ MongoDB; nếu lỗi/không có thì dùng ảnh mặc định trong app.
+        com.pompom.group6.network.ApiClient.get().getBanners()
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiBanner>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiBanner>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiBanner>> resp) {
+                        if (binding == null) return;
+                        List<Banner> banners = new java.util.ArrayList<>();
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            for (com.pompom.group6.network.dto.ApiBanner b : resp.body()) {
+                                banners.add(new Banner(0, b.imageUrl, b.title));
+                            }
+                        }
+                        if (banners.isEmpty()) banners = fallbackBanners();
+                        bindBanners(banners);
+                    }
+                    @Override
+                    public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiBanner>> call, Throwable t) {
+                        if (binding != null) bindBanners(fallbackBanners());
+                    }
+                });
+    }
 
-        if (banners.isEmpty()) {
-            banners.add(new Banner(1, R.drawable.promotion1, getString(R.string.promo_title)));
-            banners.add(new Banner(2, R.drawable.promotion2, "NEW COLLECTION"));
-            banners.add(new Banner(3, R.drawable.promotion3, "SUMMER SALE"));
-        }
+    private List<Banner> fallbackBanners() {
+        List<Banner> banners = new java.util.ArrayList<>();
+        banners.add(new Banner(1, R.drawable.promotion1, getString(R.string.promo_title)));
+        banners.add(new Banner(2, R.drawable.promotion2, "NEW COLLECTION"));
+        banners.add(new Banner(3, R.drawable.promotion3, "SUMMER SALE"));
+        return banners;
+    }
 
+    private void bindBanners(List<Banner> banners) {
         BannerAdapter adapter = new BannerAdapter(banners);
         binding.vpBanners.setAdapter(adapter);
         binding.vpBanners.setOffscreenPageLimit(1);
@@ -291,22 +320,70 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupBestSellers() {
-        List<Product> products = productDAO.getBestSellers(6);
-        ProductAdapter adapter = new ProductAdapter(products);
+        // Lấy sản phẩm từ MongoDB (qua backend). Lấy 6 sản phẩm đầu làm "bán chạy".
+        ProductAdapter adapter = new ProductAdapter(new java.util.ArrayList<>());
         adapter.setHorizontal(true);
         binding.rvBestSellers.setAdapter(adapter);
+
+        com.pompom.group6.network.ApiClient.get().getProducts()
+                .enqueue(new retrofit2.Callback<java.util.List<com.pompom.group6.network.dto.ApiProduct>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiProduct>> call,
+                                           retrofit2.Response<java.util.List<com.pompom.group6.network.dto.ApiProduct>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<Product> products = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiProduct a : resp.body()) {
+                            products.add(com.pompom.group6.network.ProductMapper.toProduct(a));
+                            if (products.size() >= 6) break;
+                        }
+                        adapter.setProducts(products);
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiProduct>> call, Throwable t) {
+                        // Không tải được → giữ danh sách rỗng (không crash).
+                    }
+                });
     }
 
     private void setupCommunityHighlights() {
-        List<CommunityPost> posts = communityDAO.getTopHighlights(6);
-        PostAdapter adapter = new PostAdapter(posts);
-        binding.rvCommunityHighlights.setAdapter(adapter);
+        com.pompom.group6.network.ApiClient.get().getCommunityHighlights(6)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiCommunityPost>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiCommunityPost>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<CommunityPost> posts = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiCommunityPost a : resp.body()) {
+                            String img = a.images != null && !a.images.isEmpty() ? a.images.get(0) : null;
+                            CommunityPost cp = new CommunityPost(a.id, 0, a.content, img,
+                                    a.likeCount, a.commentCount, "review", a.authorName, a.authorAvatar);
+                            if (a.images != null) cp.setImages(a.images);
+                            posts.add(cp);
+                        }
+                        binding.rvCommunityHighlights.setAdapter(new PostAdapter(posts));
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call, Throwable t) {}
+                });
     }
 
     private void setupFlashSale() {
-        List<PromotionProduct> products = promotionDAO.getFlashSaleProducts(6);
-        FlashSaleAdapter adapter = new FlashSaleAdapter(products);
-        binding.rvFlashSale.setAdapter(adapter);
+        // Flash Sale lấy từ MongoDB (sản phẩm đang giảm giá).
+        com.pompom.group6.network.ApiClient.get().getFlashSale(6)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiFlashSaleProduct>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiFlashSaleProduct>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiFlashSaleProduct>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<PromotionProduct> products = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiFlashSaleProduct f : resp.body()) {
+                            products.add(new PromotionProduct(f.productId, f.name, f.imageUrl,
+                                    f.originalPrice, f.salePrice, f.discountPercent, f.totalStock, f.soldCount));
+                        }
+                        binding.rvFlashSale.setAdapter(new FlashSaleAdapter(products));
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiFlashSaleProduct>> call, Throwable t) {}
+                });
 
         // Countdown Timer Logic (e.g., 2 hours from now)
         long duration = 2 * 60 * 60 * 1000 + 34 * 60 * 1000 + 15 * 1000;

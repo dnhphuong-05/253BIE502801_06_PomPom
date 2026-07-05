@@ -1,0 +1,15 @@
+# Render.com Blueprint — deploy backend PomPom.
+# Vào https://dashboard.render.com → New → Blueprint → chọn repo này.
+# Nhớ đặt biến môi trường MONGODB_URI (Render sẽ hỏi vì sync:false).
+services:
+  - type: web
+    name: pompom-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false

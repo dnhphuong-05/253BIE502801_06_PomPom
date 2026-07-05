@@ -63,16 +63,37 @@ public class SearchActivity extends SwipeBackActivity {
             return;
         }
 
-        List<Product> results = productDAO.searchProducts(keyword);
-        adapter.setProducts(results);
+        // Tìm kiếm trên MongoDB (qua backend).
+        com.pompom.group6.network.ApiClient.get().searchProducts(keyword)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiProduct>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiProduct>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiProduct>> resp) {
+                        if (binding == null) return;
+                        List<Product> results = new ArrayList<>();
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            for (com.pompom.group6.network.dto.ApiProduct a : resp.body()) {
+                                results.add(com.pompom.group6.network.ProductMapper.toProduct(a));
+                            }
+                        }
+                        adapter.setProducts(results);
+                        if (results.isEmpty()) {
+                            binding.rvSearchResults.setVisibility(View.GONE);
+                            binding.tvEmptyState.setText("Không tìm thấy sản phẩm phù hợp");
+                            binding.tvEmptyState.setVisibility(View.VISIBLE);
+                        } else {
+                            binding.rvSearchResults.setVisibility(View.VISIBLE);
+                            binding.tvEmptyState.setVisibility(View.GONE);
+                        }
+                    }
 
-        if (results.isEmpty()) {
-            binding.rvSearchResults.setVisibility(View.GONE);
-            binding.tvEmptyState.setText("Không tìm thấy sản phẩm phù hợp");
-            binding.tvEmptyState.setVisibility(View.VISIBLE);
-        } else {
-            binding.rvSearchResults.setVisibility(View.VISIBLE);
-            binding.tvEmptyState.setVisibility(View.GONE);
-        }
+                    @Override
+                    public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiProduct>> call, Throwable t) {
+                        if (binding == null) return;
+                        binding.rvSearchResults.setVisibility(View.GONE);
+                        binding.tvEmptyState.setText("Không kết nối được máy chủ");
+                        binding.tvEmptyState.setVisibility(View.VISIBLE);
+                    }
+                });
     }
 }

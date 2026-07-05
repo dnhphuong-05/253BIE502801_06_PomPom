@@ -87,8 +87,29 @@ public class CommunityFragment extends Fragment {
     }
 
     private void performSearch(String keyword) {
-        List<CommunityPost> searchResults = communityDAO.searchPosts(keyword, 30);
-        postAdapter.setPosts(searchResults);
+        fetchPosts(30, keyword);
+    }
+
+    /** Map bài viết từ API sang model + đổ vào adapter. */
+    private void fetchPosts(Integer limit, String query) {
+        com.pompom.group6.network.ApiClient.get().getCommunityPosts(limit, query)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiCommunityPost>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiCommunityPost>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<CommunityPost> posts = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiCommunityPost a : resp.body()) {
+                            String img = a.images != null && !a.images.isEmpty() ? a.images.get(0) : null;
+                            CommunityPost cp = new CommunityPost(a.id, 0, a.content, img,
+                                    a.likeCount, a.commentCount, "review", a.authorName, a.authorAvatar);
+                            if (a.images != null) cp.setImages(a.images);
+                            posts.add(cp);
+                        }
+                        postAdapter.setPosts(posts);
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call, Throwable t) {}
+                });
     }
 
     private void setupRefreshLayout() {
@@ -180,9 +201,8 @@ public class CommunityFragment extends Fragment {
     }
 
     private void loadPosts(String type) {
-        String dbType = type.equals("Bài viết") ? "review" : "review";
-        List<CommunityPost> posts = communityDAO.getPostsByType(dbType, 20);
-        postAdapter.setPosts(posts);
+        // MongoDB chưa có post_type → hiện tất cả bài viết (mọi tab).
+        fetchPosts(20, null);
     }
 
     @Override

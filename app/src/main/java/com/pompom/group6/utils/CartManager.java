@@ -90,6 +90,17 @@ public class CartManager {
         notifyListeners();
     }
 
+    /** Thay toàn bộ giỏ bằng danh sách mới (dùng khi khôi phục giỏ từ server). */
+    public void replaceAll(List<CartItem> items) {
+        cartItems = new ArrayList<>(items);
+        saveToPrefs();
+        notifyListeners();
+    }
+
+    public boolean isEmpty() {
+        return cartItems.isEmpty();
+    }
+
     // ─── Persistence ────────────────────────────────────────────────────────────
 
     private void saveToPrefs() {
@@ -98,6 +109,7 @@ public class CartManager {
             for (CartItem item : cartItems) {
                 JSONObject obj = new JSONObject();
                 obj.put("productId", item.getProductId());
+                obj.put("productOid", item.getProductOid() != null ? item.getProductOid() : "");
                 obj.put("title", item.getTitle());
                 obj.put("price", item.getPrice());
                 obj.put("imageUrl", item.getImageUrl() != null ? item.getImageUrl() : "");
@@ -118,13 +130,16 @@ public class CartManager {
             JSONArray array = new JSONArray(json);
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
-                list.add(new CartItem(
+                CartItem ci = new CartItem(
                         obj.getInt("productId"),
                         obj.getString("title"),
                         obj.getString("price"),
                         obj.optString("imageUrl", ""),
                         obj.getInt("quantity")
-                ));
+                );
+                String oid = obj.optString("productOid", "");
+                if (!oid.isEmpty()) ci.setProductOid(oid);
+                list.add(ci);
             }
         } catch (JSONException e) {
             e.printStackTrace();

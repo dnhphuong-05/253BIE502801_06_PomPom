@@ -2,6 +2,7 @@ package com.pompom.group6.models;
 
 public class CartItem {
     private int productId;
+    private String productOid; // id ObjectId của sản phẩm cloud (null nếu là sản phẩm SQLite/local)
     private String title;
     private String price;
     private String originalPrice; // Added for UI
@@ -17,6 +18,9 @@ public class CartItem {
     }
 
     public int getProductId() { return productId; }
+
+    public String getProductOid() { return productOid; }
+    public void setProductOid(String productOid) { this.productOid = productOid; }
     public String getTitle() { return title; }
     public String getPrice() { return price; }
     

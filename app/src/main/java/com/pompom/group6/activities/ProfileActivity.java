@@ -46,27 +46,31 @@ public class ProfileActivity extends SwipeBackActivity {
     }
 
     private void loadUserData() {
-        // Fetch user with ID 1 for demo
-        User user = userDAO.getUserById(1);
-        if (user != null) {
-            binding.tvUserName.setText(user.getFullName());
-            binding.tvMemberLevel.setText(user.getMembershipLevel());
-            binding.tvBio.setText(user.getBio() != null && !user.getBio().isEmpty() ? 
-                    user.getBio() : "Beauty lover 💖\nSkincare • Makeup • AI Beauty");
-            
-            if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
-                Glide.with(this).load(user.getAvatarUrl()).placeholder(R.drawable.ic_avatar).into(binding.ivUserAvatar);
-            }
-
-            // Points & Vouchers for Menu
-            ItemMenuMeBinding(binding.menuMyPoints.getRoot())
-                    .tvMenuValue.setText(String.format(java.util.Locale.getDefault(), "%,d điểm", user.getPoints()));
-            ItemMenuMeBinding(binding.menuMyPoints.getRoot()).tvMenuValue.setVisibility(View.VISIBLE);
-
-            ItemMenuMeBinding(binding.menuVouchers.getRoot())
-                    .tvMenuValue.setText(String.format(java.util.Locale.getDefault(), "%d voucher", user.getVoucherCount()));
-            ItemMenuMeBinding(binding.menuVouchers.getRoot()).tvMenuValue.setVisibility(View.VISIBLE);
-        }
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
+        if (userOid == null) return;
+        com.pompom.group6.network.ApiClient.get().getUser(userOid)
+                .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiUser>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call,
+                                           retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        com.pompom.group6.network.dto.ApiUser user = resp.body();
+                        binding.tvUserName.setText(user.fullName);
+                        binding.tvMemberLevel.setText(user.membershipLevel);
+                        binding.tvBio.setText(user.bio != null && !user.bio.isEmpty() ?
+                                user.bio : "Beauty lover 💖\nSkincare • Makeup • AI Beauty");
+                        if (user.avatarUrl != null && !user.avatarUrl.isEmpty()) {
+                            Glide.with(ProfileActivity.this).load(user.avatarUrl).placeholder(R.drawable.ic_avatar).into(binding.ivUserAvatar);
+                        }
+                        ItemMenuMeBinding(binding.menuMyPoints.getRoot())
+                                .tvMenuValue.setText(String.format(java.util.Locale.getDefault(), "%,d điểm", user.points));
+                        ItemMenuMeBinding(binding.menuMyPoints.getRoot()).tvMenuValue.setVisibility(View.VISIBLE);
+                        ItemMenuMeBinding(binding.menuVouchers.getRoot())
+                                .tvMenuValue.setText(String.format(java.util.Locale.getDefault(), "%d voucher", user.voucherCount));
+                        ItemMenuMeBinding(binding.menuVouchers.getRoot()).tvMenuValue.setVisibility(View.VISIBLE);
+                    }
+                    @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call, Throwable t) {}
+                });
     }
 
     private void setupMenuItems() {

@@ -70,7 +70,7 @@ public class CommunityDAO {
                     String uName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
                     String uAvatar = cursor.getString(cursor.getColumnIndexOrThrow("avatar_url"));
 
-                    posts.add(new CommunityPost(postId, userId, content, imageUrl, likes, comments, pType, uName, uAvatar));
+                    posts.add(new CommunityPost(String.valueOf(postId), userId, content, imageUrl, likes, comments, pType, uName, uAvatar));
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
@@ -105,7 +105,7 @@ public class CommunityDAO {
                     String uName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
                     String uAvatar = cursor.getString(cursor.getColumnIndexOrThrow("avatar_url"));
 
-                    posts.add(new CommunityPost(postId, userId, content, imageUrl, likes, comments, pType, uName, uAvatar));
+                    posts.add(new CommunityPost(String.valueOf(postId), userId, content, imageUrl, likes, comments, pType, uName, uAvatar));
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
@@ -133,7 +133,7 @@ public class CommunityDAO {
                 String uName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
                 String uAvatar = cursor.getString(cursor.getColumnIndexOrThrow("avatar_url"));
 
-                return new CommunityPost(id, userId, content, imageUrl, likes, comments, type, uName, uAvatar);
+                return new CommunityPost(String.valueOf(id), userId, content, imageUrl, likes, comments, type, uName, uAvatar);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error fetching post by id: " + e.getMessage());
@@ -188,7 +188,7 @@ public class CommunityDAO {
                     String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
                     String price = cursor.getString(cursor.getColumnIndexOrThrow("price"));
                     
-                    Product product = new Product(id, name, price + "$", null);
+                    Product product = new Product(String.valueOf(id), name, price + "$", null);
                     
                     // Get first image
                     try (Cursor imgCursor = db.query("product_images", new String[]{"image_url"}, 

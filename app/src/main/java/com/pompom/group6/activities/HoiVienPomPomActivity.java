@@ -57,15 +57,20 @@ public class HoiVienPomPomActivity extends SwipeBackActivity {
     }
 
     private void loadMembershipCard(int userId) {
-        User user = new UserDAO(this).getUserById(userId);
-        if (user == null) {
-            return;
-        }
-        if (user.getMembershipLevel() != null) {
-            binding.tvMemberLevel.setText(user.getMembershipLevel().toUpperCase(VN));
-        }
-        binding.tvPoints.setText(String.format(VN, "%,d điểm", user.getPoints()));
-        // "Xem hạng & quyền lợi" is UI-only for now (no navigation yet).
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
+        if (userOid == null) return;
+        com.pompom.group6.network.ApiClient.get().getUser(userOid)
+                .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiUser>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call,
+                                           retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        com.pompom.group6.network.dto.ApiUser u = resp.body();
+                        if (u.membershipLevel != null) binding.tvMemberLevel.setText(u.membershipLevel.toUpperCase(VN));
+                        binding.tvPoints.setText(String.format(VN, "%,d điểm", u.points));
+                    }
+                    @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call, Throwable t) {}
+                });
     }
 
     private void setupBenefitButtons() {
@@ -112,23 +117,45 @@ public class HoiVienPomPomActivity extends SwipeBackActivity {
     }
 
     private void loadExclusiveOffers(int userId) {
-        PromotionDAO promotionDAO = new PromotionDAO(this);
-        List<Voucher> vouchers = promotionDAO.getAllVouchers();
-
-        if (vouchers.isEmpty()) {
-            binding.rvOffers.setVisibility(View.GONE);
-            binding.tvOffersEmpty.setVisibility(View.VISIBLE);
-            return;
-        }
-
-        Set<Integer> savedIds = promotionDAO.getSavedVoucherIds(userId);
-
-        VoucherPromoAdapter adapter = new VoucherPromoAdapter(vouchers);
-        adapter.setSavedVoucherIds(savedIds);
-        // "Lưu" persists the voucher into the existing user_vouchers table.
-        adapter.setOnSaveListener(voucher -> promotionDAO.saveVoucherForUser(userId, voucher.getId()));
-
-        binding.rvOffers.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvOffers.setAdapter(adapter);
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
+        com.pompom.group6.network.ApiClient.get().getVouchers()
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiVoucher>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiVoucher>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiVoucher>> resp) {
+                        if (binding == null) return;
+                        List<Voucher> vouchers = new java.util.ArrayList<>();
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            for (com.pompom.group6.network.dto.ApiVoucher a : resp.body()) {
+                                int remaining = Math.max(a.usageLimit - a.usedCount, 0);
+                                String expiry = a.endDate != null && a.endDate.length() >= 10 ? a.endDate.substring(0, 10) : a.endDate;
+                                Voucher v = new Voucher(0, a.code, a.discountType, a.discountValue, a.minOrderAmount, expiry, remaining);
+                                v.setOid(a.id);
+                                vouchers.add(v);
+                            }
+                        }
+                        if (vouchers.isEmpty()) {
+                            binding.rvOffers.setVisibility(View.GONE);
+                            binding.tvOffersEmpty.setVisibility(View.VISIBLE);
+                            return;
+                        }
+                        binding.rvOffers.setVisibility(View.VISIBLE);
+                        binding.tvOffersEmpty.setVisibility(View.GONE);
+                        VoucherPromoAdapter adapter = new VoucherPromoAdapter(vouchers);
+                        // "Lưu" → gọi API lưu voucher cho user trên MongoDB.
+                        adapter.setOnSaveListener(voucher -> {
+                            if (userOid == null || voucher.getOid() == null) return false;
+                            com.pompom.group6.network.ApiClient.get().saveVoucher(userOid, voucher.getOid())
+                                    .enqueue(new retrofit2.Callback<Void>() {
+                                        @Override public void onResponse(retrofit2.Call<Void> c, retrofit2.Response<Void> r) {}
+                                        @Override public void onFailure(retrofit2.Call<Void> c, Throwable t) {}
+                                    });
+                            return true;
+                        });
+                        binding.rvOffers.setLayoutManager(new LinearLayoutManager(HoiVienPomPomActivity.this));
+                        binding.rvOffers.setAdapter(adapter);
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiVoucher>> call, Throwable t) {}
+                });
     }
 }

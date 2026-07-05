@@ -1,7 +1,7 @@
 package com.pompom.group6.models;
 
 public class Address {
-    private int addressId;
+    private String addressId;
     private String label;
     private String recipientName;
     private String phone;
@@ -11,7 +11,7 @@ public class Address {
     private String city;
     private boolean isDefault;
 
-    public Address(int addressId, String label, String recipientName, String phone,
+    public Address(String addressId, String label, String recipientName, String phone,
                    String addressLine, String ward, String district, String city, boolean isDefault) {
         this.addressId = addressId;
         this.label = label;
@@ -24,7 +24,7 @@ public class Address {
         this.isDefault = isDefault;
     }
 
-    public int getAddressId() { return addressId; }
+    public String getAddressId() { return addressId; }
     public String getLabel() { return label; }
     public String getRecipientName() { return recipientName; }
     public String getPhone() { return phone; }

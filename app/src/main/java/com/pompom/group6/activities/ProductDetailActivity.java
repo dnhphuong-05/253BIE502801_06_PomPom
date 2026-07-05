@@ -47,7 +47,8 @@ public class ProductDetailActivity extends AppCompatActivity
     private ProductDAO productDAO;
     private PromotionDAO promotionDAO;
     private CartManager cartManager;
-    private int productId;
+    private String productId;
+    private int sqliteId = -1; // id số cho sản phẩm SQLite; -1 nếu là sản phẩm cloud (ObjectId)
     private Product currentProduct;
     private boolean isWishlisted = false; // fix 2A
 
@@ -89,8 +90,9 @@ public class ProductDetailActivity extends AppCompatActivity
             binding = ActivityProductDetailBinding.inflate(inflater);
             setContentView(binding.getRoot());
 
-            productId = getIntent().getIntExtra("product_id", -1);
-            android.util.Log.d("ProductDetailActivity", "productId=" + productId);
+            productId = getIntent().getStringExtra("product_id");
+            sqliteId = (productId != null && productId.matches("\\d+")) ? Integer.parseInt(productId) : -1;
+            android.util.Log.d("ProductDetailActivity", "productId=" + productId + " sqliteId=" + sqliteId);
             productDAO = new ProductDAO(this);
             promotionDAO = new PromotionDAO(this);
             cartManager = CartManager.getInstance(this);
@@ -99,7 +101,12 @@ public class ProductDetailActivity extends AppCompatActivity
 
             setupSwipeBack();
             setupListeners();
-            loadProductData();
+            // Sản phẩm cloud (id ObjectId) → nạp từ MongoDB; sản phẩm SQLite (id số) → nạp local.
+            if (sqliteId == -1 && productId != null) {
+                loadFromApi();
+            } else {
+                loadProductData();
+            }
         } catch (Exception e) {
             android.util.Log.e("ProductDetailActivity", "FATAL ERROR in onCreate", e);
             Toast.makeText(this, "Lỗi khởi tạo: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -322,11 +329,149 @@ public class ProductDetailActivity extends AppCompatActivity
         }
     }
 
+    /** Nạp chi tiết sản phẩm CLOUD (id ObjectId) từ MongoDB qua backend. */
+    private void loadFromApi() {
+        com.pompom.group6.network.ApiClient.get().getProduct(productId)
+                .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiProduct>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiProduct> call,
+                                           retrofit2.Response<com.pompom.group6.network.dto.ApiProduct> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        com.pompom.group6.network.dto.ApiProduct a = resp.body();
+                        Product product = com.pompom.group6.network.ProductMapper.toProduct(a);
+                        currentProduct = product;
+
+                        binding.tvProductName.setText(product.getTitle());
+                        setPriceHtml(binding.tvProductPrice, product.getPrice());
+                        if (product.getOriginalPrice() != null) {
+                            binding.tvOriginalPrice.setVisibility(View.VISIBLE);
+                            setPriceHtml(binding.tvOriginalPrice, product.getOriginalPrice());
+                            binding.tvOriginalPrice.setPaintFlags(
+                                    binding.tvOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                        } else {
+                            binding.tvOriginalPrice.setVisibility(View.GONE);
+                        }
+                        if (product.getDiscountPercent() > 0) {
+                            binding.tvDiscountBadge.setVisibility(View.VISIBLE);
+                            binding.tvDiscountBadge.setText("-" + product.getDiscountPercent() + "%");
+                        } else {
+                            binding.tvDiscountBadge.setVisibility(View.GONE);
+                        }
+
+                        binding.tvProductId.setText("#" + String.format("%05d", product.seed() % 100000));
+                        binding.tvStockStatus.setText(product.getStock() > 0 ? "Còn hàng" : "Hết hàng");
+                        binding.tvStockStatus.setBackgroundColor(product.getStock() > 0
+                                ? android.graphics.Color.parseColor("#E8F5E9") : android.graphics.Color.parseColor("#FFEBEE"));
+                        binding.tvStockStatus.setTextColor(product.getStock() > 0
+                                ? android.graphics.Color.parseColor("#2E7D32") : android.graphics.Color.parseColor("#C62828"));
+                        binding.tvProductMeta.setText(product.getCategoryName() + " • " + product.getBrandName());
+                        int fomoCount = (product.seed() * 7 + 3) % 8 + 1;
+                        binding.tvProductSKU.setText("Còn " + fomoCount + " sản phẩm");
+                        binding.tvProductSKU.setTextColor(android.graphics.Color.parseColor("#E53935"));
+                        binding.tvStockCount.setVisibility(View.GONE);
+                        binding.tvCategoryName.setText(product.getCategoryName());
+                        binding.tvBrandName.setText(product.getBrandName());
+                        if (product.getDescription() != null) binding.tvProductDesc.setText(product.getDescription());
+
+                        binding.ratingBar.setRating(product.getRating());
+                        binding.tvRating.setText(String.format("%.1f (%d đánh giá)", product.getRating(), product.getReviewCount()));
+                        binding.tvRatingBig.setText(String.format("%.1f", product.getRating()));
+                        binding.tvReviewSectionTitle.setText("Đánh giá sản phẩm (" + product.getReviewCount() + ")");
+                        binding.tvReviewCountSmall.setText("(" + product.getReviewCount() + " đánh giá)");
+
+                        java.util.List<String> images = a.images != null ? a.images : new java.util.ArrayList<>();
+                        if (images.isEmpty() && product.getImageUrl() != null) images.add(product.getImageUrl());
+                        if (!images.isEmpty()) setupImageSlider(images);
+
+                        loadCloudReviews();
+                        loadCloudRelated();
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiProduct> call, Throwable t) {
+                        if (binding != null) {
+                            Toast.makeText(ProductDetailActivity.this,
+                                    "Không tải được sản phẩm từ máy chủ", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    /** Đánh giá của sản phẩm cloud (từ MongoDB). */
+    private void loadCloudReviews() {
+        com.pompom.group6.network.ApiClient.get().getProductReviews(productId)
+                .enqueue(new retrofit2.Callback<java.util.List<com.pompom.group6.network.dto.ApiReview>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiReview>> call,
+                                           retrofit2.Response<java.util.List<com.pompom.group6.network.dto.ApiReview>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<Review> reviews = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiReview r : resp.body()) {
+                            reviews.add(new Review(0, 0, r.userName, r.userAvatar, 0,
+                                    r.rating, r.comment, r.images, r.createdAt));
+                        }
+                        bindReviewSummary(reviews);
+                        if (!reviews.isEmpty()) {
+                            binding.rvReviews.setVisibility(View.VISIBLE);
+                            binding.rvReviews.setLayoutManager(
+                                    new androidx.recyclerview.widget.LinearLayoutManager(ProductDetailActivity.this));
+                            binding.rvReviews.setNestedScrollingEnabled(false);
+                            binding.rvReviews.setAdapter(new ReviewAdapter(reviews));
+                        } else {
+                            binding.rvReviews.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiReview>> call, Throwable t) {}
+                });
+    }
+
+    /** Sản phẩm liên quan của sản phẩm cloud (từ MongoDB). */
+    private void loadCloudRelated() {
+        com.pompom.group6.network.ApiClient.get().getRelatedProducts(productId)
+                .enqueue(new retrofit2.Callback<java.util.List<com.pompom.group6.network.dto.ApiProduct>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiProduct>> call,
+                                           retrofit2.Response<java.util.List<com.pompom.group6.network.dto.ApiProduct>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        List<Product> related = new java.util.ArrayList<>();
+                        for (com.pompom.group6.network.dto.ApiProduct a : resp.body()) {
+                            related.add(com.pompom.group6.network.ProductMapper.toProduct(a));
+                        }
+                        if (!related.isEmpty()) {
+                            binding.tvRelatedTitle.setVisibility(View.VISIBLE);
+                            binding.rvRelated.setVisibility(View.VISIBLE);
+                            binding.rvRelated.setLayoutManager(
+                                    new androidx.recyclerview.widget.GridLayoutManager(ProductDetailActivity.this, 2));
+                            binding.rvRelated.setNestedScrollingEnabled(false);
+                            binding.rvRelated.setAdapter(new ProductAdapter(related));
+                        } else {
+                            binding.tvRelatedTitle.setVisibility(View.GONE);
+                            binding.rvRelated.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiProduct>> call, Throwable t) {}
+                });
+    }
+
+    /** Đặt giá dạng HTML "125.000<small>đ</small>" từ chuỗi giá đã format. */
+    private void setPriceHtml(android.widget.TextView tv, String priceStr) {
+        if (priceStr == null) return;
+        String clean = priceStr.replaceAll("[^\\d]", "");
+        if (clean.isEmpty()) { tv.setText(priceStr); return; }
+        String formatted = String.format(java.util.Locale.GERMANY, "%,.0f", Double.parseDouble(clean));
+        tv.setText(android.text.Html.fromHtml(formatted + "<small><small>đ</small></small>",
+                android.text.Html.FROM_HTML_MODE_LEGACY));
+    }
+
     private void loadProductData() {
         android.util.Log.d("ProductDetailActivity", "loadProductData() called with productId=" + productId);
         try {
-        if (productId != -1) {
-            Product product = productDAO.getProductById(productId);
+        if (sqliteId != -1) {
+            Product product = productDAO.getProductById(sqliteId);
             android.util.Log.d("ProductDetailActivity", "getProductById returned: " + (product == null ? "null" : product.getTitle()));
             if (product != null) {
                 currentProduct = product;
@@ -371,14 +516,14 @@ public class ProductDetailActivity extends AppCompatActivity
                     binding.tvDiscountBadge.setVisibility(View.GONE);
                 }
 
-                binding.tvProductId.setText("#" + String.format("%05d", product.getId()));
+                binding.tvProductId.setText("#" + String.format("%05d", product.seed() % 100000));
                 binding.tvStockStatus.setText(product.getStock() > 0 ? "Còn hàng" : "Hết hàng");
                 binding.tvStockStatus.setBackgroundColor(product.getStock() > 0 ? android.graphics.Color.parseColor("#E8F5E9") : android.graphics.Color.parseColor("#FFEBEE"));
                 binding.tvStockStatus.setTextColor(product.getStock() > 0 ? android.graphics.Color.parseColor("#2E7D32") : android.graphics.Color.parseColor("#C62828"));
                 
                 binding.tvProductMeta.setText(product.getCategoryName() + " • " + product.getBrandName());
                 // FOMO stock count — deterministic per product, always 1–8
-                int fomoCount = (product.getId() * 7 + 3) % 8 + 1;
+                int fomoCount = (product.seed() * 7 + 3) % 8 + 1;
                 binding.tvProductSKU.setText("Còn " + fomoCount + " sản phẩm");
                 binding.tvProductSKU.setTextColor(android.graphics.Color.parseColor("#E53935"));
                 binding.tvStockCount.setVisibility(View.GONE);
@@ -398,7 +543,7 @@ public class ProductDetailActivity extends AppCompatActivity
 
                 // Load images (slider + thumbnail rail)
                 try {
-                    List<String> images = productDAO.getProductImages(productId);
+                    List<String> images = productDAO.getProductImages(sqliteId);
                     if (images == null || images.isEmpty()) {
                         images = new java.util.ArrayList<>();
                         if (product.getImageUrl() != null) images.add(product.getImageUrl());
@@ -412,7 +557,7 @@ public class ProductDetailActivity extends AppCompatActivity
 
                 // Load reviews list
                 try {
-                    List<Review> reviews = productDAO.getReviewsForProduct(productId);
+                    List<Review> reviews = productDAO.getReviewsForProduct(sqliteId);
                     bindReviewSummary(reviews);
                     if (reviews != null && !reviews.isEmpty()) {
                         binding.rvReviews.setVisibility(View.VISIBLE);
@@ -431,7 +576,7 @@ public class ProductDetailActivity extends AppCompatActivity
 
                 // Load variants
                 try {
-                    List<ProductVariant> variants = productDAO.getVariantsForProduct(productId);
+                    List<ProductVariant> variants = productDAO.getVariantsForProduct(sqliteId);
                     if (variants != null && !variants.isEmpty()) {
                         binding.rvVariants.setVisibility(View.VISIBLE);
                         // Interactive: chọn màu → viền dày, các màu khác làm mờ (Task 2)
@@ -467,7 +612,7 @@ public class ProductDetailActivity extends AppCompatActivity
 
                 // Load related products (Task 6 — lưới 2 cột)
                 try {
-                    List<Product> related = productDAO.getRelatedProducts(productId, 6);
+                    List<Product> related = productDAO.getRelatedProducts(sqliteId, 6);
                     if (related != null && !related.isEmpty()) {
                         binding.tvRelatedTitle.setVisibility(View.VISIBLE);
                         binding.rvRelated.setVisibility(View.VISIBLE);

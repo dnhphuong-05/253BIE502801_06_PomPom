@@ -6,18 +6,20 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
-import android.content.SharedPreferences;
 import com.pompom.group6.R;
-import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.ActivityRegisterBinding;
+import com.pompom.group6.network.ApiClient;
+import com.pompom.group6.network.Session;
+import com.pompom.group6.network.dto.ApiUser;
+import com.pompom.group6.network.dto.AuthDtos;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends SwipeBackActivity {
 
     private ActivityRegisterBinding binding;
-    private UserDAO userDAO;
     private boolean isPasswordVisible = false;
     private boolean isConfirmPasswordVisible = false;
 
@@ -33,8 +35,6 @@ public class RegisterActivity extends SwipeBackActivity {
 
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        userDAO = new UserDAO(this);
 
         setupListeners();
     }
@@ -97,27 +97,32 @@ public class RegisterActivity extends SwipeBackActivity {
                 return;
             }
 
-            if (userDAO.emailExists(email)) {
-                Toast.makeText(this, "Email đã được sử dụng", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             String fullName = deriveNameFromEmail(email);
-            long newUserId = userDAO.registerUser(fullName, email, password, phone);
-            if (newUserId == -1) {
-                Toast.makeText(this, "Đăng ký thất bại, vui lòng thử lại", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            binding.btnRegisterSubmit.setEnabled(false);
+            ApiClient.get().register(new AuthDtos.RegisterRequest(fullName, email, password, phone))
+                    .enqueue(new Callback<ApiUser>() {
+                        @Override
+                        public void onResponse(Call<ApiUser> call, Response<ApiUser> resp) {
+                            binding.btnRegisterSubmit.setEnabled(true);
+                            if (resp.isSuccessful() && resp.body() != null) {
+                                // Tự đăng nhập tài khoản vừa tạo
+                                Session.save(RegisterActivity.this, resp.body());
+                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else if (resp.code() == 409) {
+                                Toast.makeText(RegisterActivity.this, "Email đã được sử dụng", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(RegisterActivity.this, "Đăng ký thất bại, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+                            }
+                        }
 
-            // Auto-login the newly created account
-            SharedPreferences prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-            prefs.edit()
-                    .putBoolean("is_logged_in", true)
-                    .putInt("user_id", (int) newUserId)
-                    .apply();
-
-            Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
-            finish();
+                        @Override
+                        public void onFailure(Call<ApiUser> call, Throwable t) {
+                            binding.btnRegisterSubmit.setEnabled(true);
+                            Toast.makeText(RegisterActivity.this,
+                                    "Không kết nối được máy chủ. Kiểm tra backend đang chạy?", Toast.LENGTH_LONG).show();
+                        }
+                    });
         });
 
         binding.tvLoginLink.setOnClickListener(v -> finish());
