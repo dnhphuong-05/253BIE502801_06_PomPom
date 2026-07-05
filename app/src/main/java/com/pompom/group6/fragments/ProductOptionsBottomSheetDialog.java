@@ -148,41 +148,70 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
     // ── Variants ─────────────────────────────────────────────────────────────────
 
     private void loadVariants(String productId) {
-        // Sản phẩm từ SQLite có id dạng số → nạp biến thể từ local. Sản phẩm từ MongoDB
-        // (id ObjectId) tạm chưa nạp biến thể ở màn giỏ (sẽ làm khi migrate giỏ hàng).
-        if (productId == null || !productId.matches("\\d+")) {
+        if (productId == null) { showNoVariants(); return; }
+
+        if (productId.matches("\\d+")) {
+            // SQLite product: load locally
+            final int sqliteId = Integer.parseInt(productId);
+            new Thread(() -> {
+                Context appCtx = requireContext().getApplicationContext();
+                List<ProductVariant> variants = new ProductDAO(appCtx).getVariantsForProduct(sqliteId);
+                if (getActivity() == null) return;
+                getActivity().runOnUiThread(() -> bindVariants(variants));
+            }).start();
+        } else {
+            // MongoDB product: fetch variants from API
+            com.pompom.group6.network.ApiClient.get()
+                    .getProduct(productId)
+                    .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiProduct>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiProduct> call,
+                                               retrofit2.Response<com.pompom.group6.network.dto.ApiProduct> resp) {
+                            if (getActivity() == null || binding == null) return;
+                            List<com.pompom.group6.network.dto.ApiProductVariant> apiVariants =
+                                    (resp.isSuccessful() && resp.body() != null) ? resp.body().variants : null;
+                            List<ProductVariant> variants = new java.util.ArrayList<>();
+                            if (apiVariants != null) {
+                                for (com.pompom.group6.network.dto.ApiProductVariant av : apiVariants) {
+                                    variants.add(new ProductVariant(
+                                            0, 0,
+                                            av.variantName != null ? av.variantName : "",
+                                            "",
+                                            av.additionalPrice,
+                                            av.stock,
+                                            av.imageUrl));
+                                }
+                            }
+                            getActivity().runOnUiThread(() -> bindVariants(variants));
+                        }
+
+                        @Override
+                        public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiProduct> call, Throwable t) {
+                            if (getActivity() != null) getActivity().runOnUiThread(() -> showNoVariants());
+                        }
+                    });
+        }
+    }
+
+    private void bindVariants(List<ProductVariant> variants) {
+        if (binding == null) return;
+        if (variants == null || variants.isEmpty()) {
             showNoVariants();
             return;
         }
-        final int sqliteId = Integer.parseInt(productId);
-        new Thread(() -> {
-            Context appCtx = requireContext().getApplicationContext();
-            List<ProductVariant> variants = new ProductDAO(appCtx).getVariantsForProduct(sqliteId);
+        binding.rvColorOptions.setVisibility(View.VISIBLE);
+        binding.tvNoVariants.setVisibility(View.GONE);
 
-            if (getActivity() == null) return;
-            getActivity().runOnUiThread(() -> {
-                if (binding == null) return;
-                if (variants == null || variants.isEmpty()) {
-                    showNoVariants();
-                } else {
-                    binding.rvColorOptions.setVisibility(View.VISIBLE);
-                    binding.tvNoVariants.setVisibility(View.GONE);
+        selectedVariant = variants.get(0);
+        binding.tvSelectedVariant.setText(selectedVariant.getName());
 
-                    // Pre-select first variant
-                    selectedVariant = variants.get(0);
-                    binding.tvSelectedVariant.setText(selectedVariant.getName());
-
-                    VariantAdapter adapter = new VariantAdapter(variants, variant -> {
-                        selectedVariant = variant;
-                        binding.tvSelectedVariant.setText(variant.getName());
-                    });
-                    binding.rvColorOptions.setLayoutManager(
-                            new LinearLayoutManager(getContext(),
-                                    LinearLayoutManager.HORIZONTAL, false));
-                    binding.rvColorOptions.setAdapter(adapter);
-                }
-            });
-        }).start();
+        VariantAdapter adapter = new VariantAdapter(variants, variant -> {
+            selectedVariant = variant;
+            binding.tvSelectedVariant.setText(variant.getName());
+        });
+        binding.rvColorOptions.setLayoutManager(
+                new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.rvColorOptions.setAdapter(adapter);
     }
 
     private void showNoVariants() {
