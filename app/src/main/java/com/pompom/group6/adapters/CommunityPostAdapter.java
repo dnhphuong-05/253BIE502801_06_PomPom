@@ -58,9 +58,9 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         holder.tvPostTitle.setText(post.getContent());
         holder.tvLikeCount.setText(formatCount(post.getLikeCount()));
         holder.tvCommentCount.setText(String.valueOf(post.getCommentCount()));
-        holder.tvShareCount.setText("132"); 
-        
-        holder.tvPostTime.setText("2 giờ trước • " + post.getPostType());
+        holder.tvShareCount.setText(formatCount(post.getShareCount()));
+
+        holder.tvPostTime.setText(com.pompom.group6.utils.TimeUtils.relativeTime(post.getCreatedAt()));
 
         Glide.with(holder.itemView.getContext())
                 .load(post.getUserAvatar())
@@ -117,8 +117,21 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         // Comment Button Click
         holder.layoutComment.setOnClickListener(v -> openPostDetail(v, post.getPostId()));
 
-        // Share Button Click
+        // Share Button Click — tăng lượt chia sẻ thật trên server rồi mở hộp thoại chia sẻ hệ thống
         holder.layoutShare.setOnClickListener(v -> {
+            com.pompom.group6.network.ApiClient.get().sharePost(post.getPostId())
+                    .enqueue(new retrofit2.Callback<java.util.Map<String, Integer>>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<java.util.Map<String, Integer>> call,
+                                               retrofit2.Response<java.util.Map<String, Integer>> resp) {
+                            if (resp.isSuccessful() && resp.body() != null && resp.body().get("share_count") != null) {
+                                post.setShareCount(resp.body().get("share_count"));
+                                holder.tvShareCount.setText(formatCount(post.getShareCount()));
+                            }
+                        }
+                        @Override public void onFailure(retrofit2.Call<java.util.Map<String, Integer>> call, Throwable t) {}
+                    });
+
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_TEXT, "Xem bài viết hay này trên PomPom: " + post.getContent());
@@ -158,23 +171,29 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         });
     }
 
+    /**
+     * Nhấn vào BẤT KỲ đâu trên card (kể cả vùng ảnh) đều mở bài viết chi tiết — dùng click
+     * listener bình thường thay vì gesture detector trên toàn card (trước đây hay bị chặn bởi
+     * ViewPager2 của ảnh khiến chỉ icon bình luận là mở được chi tiết đáng tin cậy).
+     * Double-tap trên ảnh vẫn giữ để thích nhanh kiểu Instagram, tách riêng khỏi vùng còn lại.
+     */
     private void setupLikeLogic(PostViewHolder holder, CommunityPost post, boolean originalLiked) {
-        GestureDetector gestureDetector = new GestureDetector(holder.itemView.getContext(), new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onDoubleTap(@NonNull MotionEvent e) {
-                toggleLike(holder, post, originalLiked);
-                return true;
-            }
-            @Override
-            public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
-                openPostDetail(holder.itemView, post.getPostId());
-                return true;
-            }
-        });
+        holder.itemView.setOnClickListener(v -> openPostDetail(v, post.getPostId()));
 
-        // Enable touch detection on images and entire card
-        holder.vpPostImages.getChildAt(0).setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
-        holder.itemView.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
+        GestureDetector imageGestureDetector = new GestureDetector(holder.itemView.getContext(),
+                new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDoubleTap(@NonNull MotionEvent e) {
+                        toggleLike(holder, post, originalLiked);
+                        return true;
+                    }
+                    @Override
+                    public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
+                        openPostDetail(holder.itemView, post.getPostId());
+                        return true;
+                    }
+                });
+        holder.vpPostImages.getChildAt(0).setOnTouchListener((v, event) -> imageGestureDetector.onTouchEvent(event));
 
         holder.layoutLike.setOnClickListener(v -> toggleLike(holder, post, originalLiked));
     }

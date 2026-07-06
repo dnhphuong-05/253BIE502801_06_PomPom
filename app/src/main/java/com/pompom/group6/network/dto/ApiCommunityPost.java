@@ -13,6 +13,7 @@ public class ApiCommunityPost {
     @SerializedName("product_tag") public String productTag;
     @SerializedName("like_count") public int likeCount;
     @SerializedName("comment_count") public int commentCount;
+    @SerializedName("share_count") public int shareCount;
     @SerializedName("created_at") public String createdAt;
     @SerializedName("author_name") public String authorName;
     @SerializedName("author_avatar") public String authorAvatar;

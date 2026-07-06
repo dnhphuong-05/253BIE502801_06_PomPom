@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:fitsSystemWindows="true">
+    android:background="@color/white">
 
+    <!-- fitsSystemWindows + statusBarForeground trên chính AppBarLayout: Material tự chèn
+         padding đúng theo status bar và tô nền trắng xuyên qua, tránh bị "trong suốt" khi cuộn. -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        app:elevation="0dp">
+        android:fitsSystemWindows="true"
+        app:elevation="0dp"
+        app:statusBarForeground="@color/white">
 
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
@@ -258,16 +262,34 @@
                             android:textSize="14sp" />
                     </LinearLayout>
 
-                    <ImageView
-                        android:id="@+id/btnShare"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                    <LinearLayout
+                        android:id="@+id/layoutShare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="24dp"
-                        android:src="@drawable/ic_share"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@id/layoutComments"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:tint="@color/text_secondary" />
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:id="@+id/btnShare"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_share"
+                            app:tint="@color/text_secondary" />
+
+                        <TextView
+                            android:id="@+id/tvShareCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="0"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+                    </LinearLayout>
 
                     <ImageView
                         android:id="@+id/btnBookmark"
@@ -280,35 +302,6 @@
                         app:tint="@color/text_secondary" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-            </LinearLayout>
-
-            <!-- Tagged Products Section -->
-            <LinearLayout
-                android:id="@+id/layoutTaggedProducts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:orientation="vertical"
-                android:paddingTop="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Sản phẩm đã dùng"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvTaggedProducts"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:orientation="horizontal"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </LinearLayout>
 
             <!-- Comments Section -->
@@ -336,30 +329,28 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvSortLabel"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="300dp"
-                        android:gravity="center_vertical"
-                        android:padding="5dp">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_regular"
-                            android:text="Mới nhất"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-                        <ImageView
-                            android:layout_width="10dp"
-                            android:layout_height="10dp"
-                            android:src="@drawable/ic_arrow"
-                            android:gravity="center"
-                            android:layout_marginStart="5dp"/>
-                    </LinearLayout>
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="Mới nhất"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/ivSortArrow"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/ivSortArrow"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_marginStart="5dp"
+                        android:src="@drawable/ic_arrow"
+                        app:layout_constraintBottom_toBottomOf="@id/tvSortLabel"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvSortLabel"
+                        tools:ignore="ContentDescription" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.recyclerview.widget.RecyclerView

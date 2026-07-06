@@ -211,6 +211,24 @@ router.post("/posts/:id/like", async (req, res) => {
   }
 });
 
+// POST /api/community/posts/:id/share  -> tăng share_count thật, trả về số mới (không toggle,
+// mỗi lần bấm chia sẻ đều tính, giống hành vi share thật của mạng xã hội)
+router.post("/posts/:id/share", async (req, res) => {
+  try {
+    const postId = oid(req.params.id);
+    if (!postId) return res.status(400).json({ error: "id không hợp lệ" });
+    const post = await CommunityPost.findOneAndUpdate(
+      { _id: postId },
+      { $inc: { share_count: 1 } },
+      { new: true }
+    ).lean();
+    if (!post) return res.status(404).json({ error: "Không tìm thấy bài viết" });
+    res.json({ share_count: post.share_count || 0 });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // POST /api/community/posts/:id/save  { user_id }  -> toggle lưu bài (cho tab "Đã lưu")
 router.post("/posts/:id/save", async (req, res) => {
   try {
