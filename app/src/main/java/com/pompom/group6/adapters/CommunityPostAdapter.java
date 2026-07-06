@@ -92,7 +92,7 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         // để tính lại số hiển thị khi người dùng bấm thích/bỏ thích nhiều lần trong cùng 1 lần bind.
         boolean originalLiked = post.isLiked();
         setupLikeLogic(holder, post, originalLiked);
-        setupFollowLogic(holder);
+        setupFollowLogic(holder, post);
         setupSocialActions(holder, post);
 
         holder.btnMore.setOnClickListener(v -> showPostMenu(v, holder.getAdapterPosition()));
@@ -231,25 +231,74 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
                 ivBigHeart.animate().scaleX(1f).scaleY(1f).alpha(0f).setDuration(300).start()).start();
     }
 
-    private void setupFollowLogic(PostViewHolder holder) {
+    /** Theo dõi/bỏ theo dõi tác giả bài viết — lưu thật qua API, tạo thông báo cho người được theo dõi. */
+    private void setupFollowLogic(PostViewHolder holder, CommunityPost post) {
+        String authorId = post.getAuthorId();
+        String viewerId = com.pompom.group6.network.Session.getUserOid(holder.itemView.getContext());
+
+        // Ẩn nút theo dõi khi xem bài của chính mình hoặc chưa xác định được tác giả.
+        boolean canFollow = authorId != null && viewerId != null && !authorId.equals(viewerId);
+        holder.btnFollow.setVisibility(canFollow ? View.VISIBLE : View.GONE);
+        if (!canFollow) return;
+
+        renderFollowButton(holder.btnFollow, false);
+        com.pompom.group6.network.ApiClient.get().getFollowStatus(authorId, viewerId)
+                .enqueue(new retrofit2.Callback<java.util.Map<String, Boolean>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<java.util.Map<String, Boolean>> call,
+                                           retrofit2.Response<java.util.Map<String, Boolean>> resp) {
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            renderFollowButton(holder.btnFollow, Boolean.TRUE.equals(resp.body().get("following")));
+                        }
+                    }
+                    @Override public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {}
+                });
+
         holder.btnFollow.setOnClickListener(v -> {
             boolean isFollowed = v.getTag() != null && (boolean) v.getTag();
-            MaterialButton btn = (MaterialButton) v;
-            
             if (isFollowed) {
-                v.setTag(false);
-                btn.setText("Theo dõi");
-                btn.setBackgroundTintList(ContextCompat.getColorStateList(v.getContext(), R.color.brand_pink_light));
-                btn.setTextColor(ContextCompat.getColor(v.getContext(), R.color.brand_pink));
-                Toast.makeText(v.getContext(), "Đã hủy theo dõi", Toast.LENGTH_SHORT).show();
+                com.pompom.group6.network.ApiClient.get().unfollowUser(authorId, viewerId)
+                        .enqueue(new retrofit2.Callback<java.util.Map<String, Boolean>>() {
+                            @Override
+                            public void onResponse(retrofit2.Call<java.util.Map<String, Boolean>> call,
+                                                   retrofit2.Response<java.util.Map<String, Boolean>> resp) {
+                                if (resp.isSuccessful()) {
+                                    renderFollowButton(holder.btnFollow, false);
+                                    Toast.makeText(v.getContext(), "Đã hủy theo dõi", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            @Override public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {}
+                        });
             } else {
-                v.setTag(true);
-                btn.setText("Đang theo dõi");
-                btn.setBackgroundTintList(ContextCompat.getColorStateList(v.getContext(), R.color.text_secondary));
-                btn.setTextColor(Color.WHITE);
-                Toast.makeText(v.getContext(), "Đã theo dõi người dùng này", Toast.LENGTH_SHORT).show();
+                java.util.Map<String, String> body = new java.util.HashMap<>();
+                body.put("follower_id", viewerId);
+                com.pompom.group6.network.ApiClient.get().followUser(authorId, body)
+                        .enqueue(new retrofit2.Callback<java.util.Map<String, Boolean>>() {
+                            @Override
+                            public void onResponse(retrofit2.Call<java.util.Map<String, Boolean>> call,
+                                                   retrofit2.Response<java.util.Map<String, Boolean>> resp) {
+                                if (resp.isSuccessful()) {
+                                    renderFollowButton(holder.btnFollow, true);
+                                    Toast.makeText(v.getContext(), "Đã theo dõi người dùng này", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            @Override public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {}
+                        });
             }
         });
+    }
+
+    private void renderFollowButton(MaterialButton btn, boolean following) {
+        btn.setTag(following);
+        if (following) {
+            btn.setText("Đang theo dõi");
+            btn.setBackgroundTintList(ContextCompat.getColorStateList(btn.getContext(), R.color.text_secondary));
+            btn.setTextColor(Color.WHITE);
+        } else {
+            btn.setText("Theo dõi");
+            btn.setBackgroundTintList(ContextCompat.getColorStateList(btn.getContext(), R.color.brand_pink_light));
+            btn.setTextColor(ContextCompat.getColor(btn.getContext(), R.color.brand_pink));
+        }
     }
 
     private void showPostMenu(View view, int position) {

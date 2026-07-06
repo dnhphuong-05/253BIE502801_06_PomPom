@@ -7,10 +7,9 @@
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
     app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/pink_light"
-    app:strokeWidth="1dp">
+    app:cardCornerRadius="18dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -36,67 +35,70 @@
             android:layout_marginTop="10dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_avatar"
+            app:strokeColor="@color/brand_lavender"
+            app:strokeWidth="1.5dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivArticleCover"
             app:shapeAppearanceOverlay="@style/CircleShape"
             tools:ignore="ContentDescription" />
 
-        <TextView
-            android:id="@+id/tvArticleExpertName"
+        <LinearLayout
+            android:id="@+id/layoutExpertNameGroup"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="10dp"
-            android:layout_marginTop="10dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/poppins_medium"
-            android:maxLines="1"
-            android:text="BS. Nguyễn Thị Hồng Ân"
-            android:textColor="@color/text_primary"
-            android:textSize="13sp"
+            android:orientation="vertical"
             app:layout_constraintEnd_toStartOf="@id/tvVerifiedBadge"
             app:layout_constraintStart_toEndOf="@id/ivArticleExpertAvatar"
-            app:layout_constraintTop_toTopOf="@id/ivArticleExpertAvatar" />
+            app:layout_constraintBottom_toBottomOf="@id/ivArticleExpertAvatar"
+            app:layout_constraintTop_toTopOf="@id/ivArticleExpertAvatar">
+
+            <TextView
+                android:id="@+id/tvArticleExpertName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_medium"
+                android:maxLines="1"
+                android:text="BS. Nguyễn Thị Hồng Ân"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvArticleExpertTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_regular"
+                android:maxLines="1"
+                android:text="Bác sĩ Da liễu"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvVerifiedBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_white_pill_button"
-            android:backgroundTint="@color/pink_light"
+            android:background="@drawable/bg_label_lavender"
             android:fontFamily="@font/poppins_medium"
             android:paddingHorizontal="8dp"
             android:paddingVertical="2dp"
             android:text="✓ Đã xác minh"
-            android:textColor="@color/brand_pink"
+            android:textColor="@color/white"
             android:textSize="9sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/ivArticleExpertAvatar"
             app:layout_constraintTop_toTopOf="@id/ivArticleExpertAvatar" />
-
-        <TextView
-            android:id="@+id/tvArticleExpertTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="10dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/poppins_regular"
-            android:maxLines="1"
-            android:text="Bác sĩ Da liễu"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/ivArticleExpertAvatar"
-            app:layout_constraintTop_toBottomOf="@id/tvArticleExpertName" />
 
         <TextView
             android:id="@+id/tvArticleTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="12dp"
             android:ellipsize="end"
             android:fontFamily="@font/poppins_semibold"
@@ -114,7 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:layout_marginEnd="12dp"
             android:fontFamily="@font/poppins_regular"
             android:text="7 phút đọc"

@@ -6,67 +6,47 @@
     android:layout_height="match_parent"
     android:background="@color/md_theme_light_background">
 
-    <!-- fitsSystemWindows + statusBarForeground: tô vùng status bar trùng màu nền header,
-         đúng quy chuẩn đang dùng ở fragment_home.xml/fragment_shop.xml. -->
+    <!-- fitsSystemWindows + statusBarForeground: tô vùng status bar trùng màu nền header
+         (brand_pink), đồng nhất status bar/header giống các màn chi tiết khác. -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/md_theme_light_background"
+        android:background="@color/brand_pink"
         android:fitsSystemWindows="true"
         app:elevation="0dp"
-        app:statusBarForeground="@color/md_theme_light_background">
+        app:statusBarForeground="@color/brand_pink">
 
-        <!-- ══ Header cố định: logo/tên, tìm kiếm, thông báo ══ -->
+        <!-- ══ Header cố định: tên, thông báo ══ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="4dp"
-            android:background="@color/md_theme_light_background">
+            android:background="@color/brand_pink">
 
             <!-- Top Bar -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
-                android:paddingTop="16dp">
+                android:paddingTop="18dp"
+                android:paddingBottom="6dp">
 
                 <TextView
                     android:id="@+id/tvTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_semibold"
-                    android:text="Community"
-                    android:textColor="@color/text_primary"
+                    android:text="Cộng đồng"
+                    android:textColor="@color/white"
                     android:textSize="22sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_marginStart="4dp"
-                    android:background="@drawable/bg_circle_pink"
-                    app:layout_constraintStart_toEndOf="@id/tvTitle"
-                    app:layout_constraintTop_toTopOf="@id/tvTitle"
-                    android:layout_marginTop="6dp"/>
-
-                <ImageView
-                    android:id="@+id/btnAiAssistant"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_star_magic"
-                    app:layout_constraintBottom_toBottomOf="@id/tvTitle"
-                    app:layout_constraintEnd_toStartOf="@id/btnNotifications"
-                    app:layout_constraintTop_toTopOf="@id/tvTitle"
-                    app:tint="@color/text_primary"
-                    android:contentDescription="@null" />
-
                 <FrameLayout
                     android:id="@+id/btnNotifications"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     app:layout_constraintBottom_toBottomOf="@id/tvTitle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/tvTitle">
@@ -75,17 +55,17 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:src="@drawable/ic_notification"
-                        app:tint="@color/text_primary"
+                        app:tint="@color/white"
                         android:contentDescription="@null" />
 
                     <TextView
                         android:layout_width="14dp"
                         android:layout_height="14dp"
                         android:layout_gravity="top|end"
-                        android:background="@drawable/bg_circle_pink"
+                        android:background="@drawable/bg_circle_white"
                         android:gravity="center"
                         android:text="3"
-                        android:textColor="@color/white"
+                        android:textColor="@color/brand_pink"
                         android:textSize="8sp"
                         android:textStyle="bold"
                         tools:ignore="SmallSp" />
@@ -93,66 +73,12 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Search Bar -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:paddingHorizontal="16dp">
-
-                <LinearLayout
-                    android:id="@+id/layoutSearch"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_white_pill_button"
-                    android:backgroundTint="@color/white"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/btnPlus"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_search"
-                        app:tint="@color/text_secondary"
-                        android:contentDescription="@null" />
-
-                    <EditText
-                        android:id="@+id/etSearch"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="12dp"
-                        android:background="@null"
-                        android:fontFamily="@font/poppins_regular"
-                        android:hint="Tìm bài viết cộng đồng..."
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:imeOptions="actionSearch"
-                        android:inputType="text" />
-                </LinearLayout>
-
-                <ImageView
-                    android:id="@+id/btnPlus"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginStart="12dp"
-                    android:src="@drawable/ic_pin"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/text_primary"
-                    android:contentDescription="@null" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
             <!-- ══ 4 tab nội dung chính ══ -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:paddingHorizontal="12dp">
+                android:paddingHorizontal="4dp">
 
                 <TextView
                     android:id="@+id/tabReels"
@@ -161,8 +87,8 @@
                     android:fontFamily="@font/poppins_semibold"
                     android:gravity="center"
                     android:text="Thước phim"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="12.5sp"
+                    android:textColor="@color/white"
+                    android:textSize="14.5sp"
                     app:layout_constraintEnd_toStartOf="@+id/tabBlog"
                     app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toStartOf="parent"
@@ -175,8 +101,8 @@
                     android:fontFamily="@font/poppins_medium"
                     android:gravity="center"
                     android:text="Blog"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12.5sp"
+                    android:textColor="@color/brand_pink_light"
+                    android:textSize="14.5sp"
                     app:layout_constraintEnd_toStartOf="@+id/tabTips"
                     app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toEndOf="@+id/tabReels"
@@ -189,8 +115,8 @@
                     android:fontFamily="@font/poppins_medium"
                     android:gravity="center"
                     android:text="Tips bác sĩ"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12.5sp"
+                    android:textColor="@color/brand_pink_light"
+                    android:textSize="14.5sp"
                     app:layout_constraintEnd_toStartOf="@+id/tabNearby"
                     app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toEndOf="@+id/tabBlog"
@@ -203,8 +129,8 @@
                     android:fontFamily="@font/poppins_medium"
                     android:gravity="center"
                     android:text="Tin gần đây"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12.5sp"
+                    android:textColor="@color/brand_pink_light"
+                    android:textSize="14.5sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toEndOf="@+id/tabTips"
@@ -216,7 +142,7 @@
                     android:layout_width="40dp"
                     android:layout_height="3dp"
                     android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_label_pink"
+                    android:background="@color/white"
                     app:layout_constraintEnd_toEndOf="@+id/tabReels"
                     app:layout_constraintStart_toStartOf="@+id/tabReels"
                     app:layout_constraintTop_toBottomOf="@+id/tabReels" />
@@ -227,8 +153,9 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- ══ Nội dung theo tab đang chọn (chỉ 1 panel hiển thị) ══ -->
-    <FrameLayout
+    <!-- ══ Nội dung theo tab đang chọn (chỉ 1 panel hiển thị) — vuốt ngang để chuyển tab ══ -->
+    <com.pompom.group6.utils.SwipeTabFrameLayout
+        android:id="@+id/tabContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -302,39 +229,15 @@
                 android:paddingBottom="90dp"
                 android:visibility="gone" />
 
-            <!-- Panel: Tips bác sĩ (nút Liên hệ tư vấn cố định trên đầu + danh sách) -->
-            <LinearLayout
-                android:id="@+id/panelTips"
+            <!-- Panel: Tips bác sĩ -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTipsFull"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/btnContactConsult"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/bg_pink_gradient_button"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:gravity="center"
-                    android:paddingVertical="13dp"
-                    android:text="💬 Liên hệ tư vấn với bác sĩ"
-                    android:textColor="@color/white"
-                    android:textSize="13.5sp" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvTipsFull"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:clipToPadding="false"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="90dp" />
-            </LinearLayout>
+                android:clipToPadding="false"
+                android:paddingTop="16dp"
+                android:paddingBottom="90dp"
+                android:visibility="gone" />
 
             <!-- Panel: Tin gần đây (feed cộng đồng hiện có: Bài viết/Đã lưu/Của bạn) -->
             <LinearLayout
@@ -354,72 +257,12 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="16dp" />
 
-                <!-- Bộ lọc phụ của feed -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:paddingHorizontal="16dp">
-
-                    <TextView
-                        android:id="@+id/tabPosts"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:gravity="center"
-                        android:text="Bài viết"
-                        android:textColor="@color/brand_pink"
-                        android:textSize="13sp"
-                        app:layout_constraintEnd_toStartOf="@+id/tabSaved"
-                        app:layout_constraintHorizontal_weight="1"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tabSaved"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:gravity="center"
-                        android:text="Đã lưu"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        app:layout_constraintEnd_toStartOf="@+id/tabMyPosts"
-                        app:layout_constraintHorizontal_weight="1"
-                        app:layout_constraintStart_toEndOf="@+id/tabPosts"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tabMyPosts"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:gravity="center"
-                        android:text="Của bạn"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_weight="1"
-                        app:layout_constraintStart_toEndOf="@+id/tabSaved"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <View
-                        android:id="@+id/feedTabIndicator"
-                        android:layout_width="32dp"
-                        android:layout_height="2dp"
-                        android:layout_marginTop="6dp"
-                        android:background="@drawable/bg_label_pink"
-                        app:layout_constraintEnd_toEndOf="@+id/tabPosts"
-                        app:layout_constraintStart_toStartOf="@+id/tabPosts"
-                        app:layout_constraintTop_toBottomOf="@+id/tabPosts" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
                 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                     android:id="@+id/swipeRefresh"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:layout_marginTop="8dp">
+                    android:layout_marginTop="16dp">
 
                     <FrameLayout
                         android:layout_width="match_parent"
@@ -448,34 +291,112 @@
                 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
             </LinearLayout>
 
-            <!-- FAB: Đăng bài — chỉ hiện ở tab "Tin gần đây" -->
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabAddPost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start"
-                android:layout_margin="24dp"
-                android:src="@drawable/ic_plus"
-                app:backgroundTint="@color/brand_pink"
-                app:tint="@color/white"
-                app:elevation="6dp"
-                android:visibility="gone"
-                android:contentDescription="Tạo bài viết mới" />
-
-            <!-- FAB: Liên hệ tư vấn — nổi xuyên suốt mọi tab -->
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabConsult"
+            <!-- Speed-dial nổi xuyên suốt mọi tab: bấm nút chính để nảy lên 2 lựa chọn -->
+            <LinearLayout
+                android:id="@+id/speedDialGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
                 android:layout_margin="24dp"
-                android:src="@drawable/ic_chat"
-                app:backgroundTint="@color/white"
-                app:tint="@color/brand_pink"
-                app:borderWidth="0dp"
-                app:elevation="6dp"
-                android:contentDescription="Liên hệ tư vấn" />
+                android:gravity="end"
+                android:orientation="vertical">
 
-    </FrameLayout>
+                <LinearLayout
+                    android:id="@+id/rowConsult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="invisible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/bg_white_pill_button"
+                        android:fontFamily="@font/poppins_medium"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:text="Liên hệ tư vấn"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12.5sp" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabConsult"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:fabSize="mini"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_chat"
+                        app:shapeAppearanceOverlay="@style/CircleShape"
+                        app:maxImageSize="18dp"
+                        app:backgroundTint="@color/white"
+                        app:tint="@color/brand_pink"
+                        app:borderWidth="0dp"
+                        app:elevation="0dp"
+                        app:pressedTranslationZ="0dp"
+                        app:hoveredFocusedTranslationZ="0dp"
+                        android:contentDescription="Liên hệ tư vấn" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowCreatePost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="invisible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/bg_white_pill_button"
+                        android:fontFamily="@font/poppins_medium"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:text="Tạo bài viết"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12.5sp" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabAddPost"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:fabSize="mini"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_plus"
+                        app:shapeAppearanceOverlay="@style/CircleShape"
+                        app:maxImageSize="18dp"
+                        app:backgroundTint="@color/white"
+                        app:tint="@color/brand_pink"
+                        app:borderWidth="0dp"
+                        app:elevation="0dp"
+                        app:pressedTranslationZ="0dp"
+                        app:hoveredFocusedTranslationZ="0dp"
+                        android:contentDescription="Tạo bài viết mới" />
+                </LinearLayout>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabMain"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_gravity="end"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_plus"
+                    app:shapeAppearanceOverlay="@style/CircleShape"
+                    app:maxImageSize="20dp"
+                    app:backgroundTint="@color/brand_pink"
+                    app:tint="@color/white"
+                    app:elevation="0dp"
+                    app:pressedTranslationZ="0dp"
+                    app:hoveredFocusedTranslationZ="0dp"
+                    android:contentDescription="Tạo bài viết / Liên hệ tư vấn" />
+
+            </LinearLayout>
+
+    </com.pompom.group6.utils.SwipeTabFrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

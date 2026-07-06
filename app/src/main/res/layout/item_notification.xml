@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp">
+
+    <FrameLayout
+        android:id="@+id/frameAvatar"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivActorAvatar"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_avatar"
+            app:shapeAppearanceOverlay="@style/CircleShape"
+            tools:ignore="ContentDescription" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTypeBadge"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="bottom|end"
+            app:cardBackgroundColor="@color/brand_pink"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/white"
+            app:strokeWidth="1.5dp">
+
+            <ImageView
+                android:id="@+id/ivTypeBadge"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_heart"
+                app:tint="@color/white"
+                tools:ignore="ContentDescription" />
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvNotifMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="10dp"
+        android:fontFamily="@font/poppins_regular"
+        android:lineSpacingExtra="2dp"
+        android:text="Ngô Minh Khôi đã thích bài viết của bạn"
+        android:textColor="@color/text_primary"
+        android:textSize="13.5sp"
+        app:layout_constraintEnd_toStartOf="@id/dotUnread"
+        app:layout_constraintStart_toEndOf="@id/frameAvatar"
+        app:layout_constraintTop_toTopOf="@id/frameAvatar" />
+
+    <TextView
+        android:id="@+id/tvNotifTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="2 giờ trước"
+        android:textColor="@color/text_secondary"
+        android:textSize="11.5sp"
+        app:layout_constraintEnd_toEndOf="@id/tvNotifMessage"
+        app:layout_constraintStart_toStartOf="@id/tvNotifMessage"
+        app:layout_constraintTop_toBottomOf="@id/tvNotifMessage" />
+
+    <View
+        android:id="@+id/dotUnread"
+        android:layout_width="9dp"
+        android:layout_height="9dp"
+        android:background="@drawable/bg_circle_pink_solid"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/frameAvatar" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

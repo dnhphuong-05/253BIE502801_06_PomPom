@@ -2,12 +2,10 @@ package com.pompom.group6.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
+import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,7 +34,9 @@ import com.pompom.group6.network.dto.ApiExpertArticle;
 import com.pompom.group6.network.dto.ApiNearbyPost;
 import com.pompom.group6.network.dto.ApiReel;
 import com.pompom.group6.utils.LocationHelper;
+import com.pompom.group6.utils.SwipeTabFrameLayout;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,12 +46,14 @@ import java.util.List;
  */
 public class CommunityFragment extends Fragment {
 
+    private static final String[] TAB_ORDER = {"Reels", "Blog", "Tips", "Nearby"};
+
     private FragmentCommunityBinding binding;
     private CommunityPostAdapter postAdapter;
     private String currentTopTab = "Reels";
-    private String currentFeedSubTab = "Bài viết";
     private final List<ApiReel> allReels = new ArrayList<>();
     private String currentReelSource = null; // null = "Tất cả"
+    private boolean fabExpanded = false;
 
     private final ActivityResultLauncher<String> requestLocationPermission =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -71,18 +73,17 @@ public class CommunityFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         setupTopTabs();
+        setupTabSwipeGesture();
         setupFeedRecyclerView();
         setupStories();
-        setupFeedSubTabs();
         setupRefreshLayout();
         setupFabs();
-        setupSearch();
         setupReelSourceFilter();
 
         loadReels();
         loadBlogs();
         loadTips();
-        fetchPostsForTab(currentFeedSubTab);
+        loadAllPosts();
     }
 
     // ── Tab trên cùng: Thước phim / Blog thương hiệu / Tips bác sĩ / Tin gần đây ──
@@ -96,13 +97,14 @@ public class CommunityFragment extends Fragment {
 
     private void selectTopTab(String tab, TextView tabView) {
         if (currentTopTab.equals(tab)) return;
+        collapseSpeedDial();
 
         resetTabUI(binding.tabReels);
         resetTabUI(binding.tabBlog);
         resetTabUI(binding.tabTips);
         resetTabUI(binding.tabNearby);
 
-        tabView.setTextColor(getResources().getColor(R.color.brand_pink));
+        tabView.setTextColor(getResources().getColor(R.color.white));
         tabView.setTypeface(null, android.graphics.Typeface.BOLD);
 
         ConstraintLayout layout = (ConstraintLayout) binding.tabIndicator.getParent();
@@ -119,17 +121,57 @@ public class CommunityFragment extends Fragment {
     }
 
     private void resetTabUI(TextView tabView) {
-        tabView.setTextColor(getResources().getColor(R.color.text_secondary));
+        tabView.setTextColor(getResources().getColor(R.color.brand_pink_light));
         tabView.setTypeface(null, android.graphics.Typeface.NORMAL);
     }
 
+    /** Chuyển panel kèm hiệu ứng mờ dần (crossfade) cho mượt thay vì đổi visibility đột ngột. */
     private void showPanel(String tab) {
-        binding.panelReels.setVisibility("Reels".equals(tab) ? View.VISIBLE : View.GONE);
-        binding.rvBlogFull.setVisibility("Blog".equals(tab) ? View.VISIBLE : View.GONE);
-        binding.panelTips.setVisibility("Tips".equals(tab) ? View.VISIBLE : View.GONE);
-        binding.panelNearby.setVisibility("Nearby".equals(tab) ? View.VISIBLE : View.GONE);
-        // Đăng bài chỉ có ý nghĩa trong feed "Tin gần đây"; nút tư vấn luôn nổi ở mọi tab.
-        binding.fabAddPost.setVisibility("Nearby".equals(tab) ? View.VISIBLE : View.GONE);
+        View next = "Reels".equals(tab) ? binding.panelReels
+                : "Blog".equals(tab) ? binding.rvBlogFull
+                : "Tips".equals(tab) ? binding.rvTipsFull
+                : binding.panelNearby;
+
+        for (View panel : new View[]{binding.panelReels, binding.rvBlogFull, binding.rvTipsFull, binding.panelNearby}) {
+            if (panel == next) {
+                panel.setVisibility(View.VISIBLE);
+                panel.setAlpha(0f);
+                panel.animate().alpha(1f).setDuration(200).setListener(null).start();
+            } else if (panel.getVisibility() == View.VISIBLE) {
+                panel.animate().alpha(0f).setDuration(150)
+                        .setListener(new android.animation.AnimatorListenerAdapter() {
+                            @Override public void onAnimationEnd(android.animation.Animator animation) {
+                                panel.setVisibility(View.GONE);
+                                panel.setAlpha(1f);
+                            }
+                        }).start();
+            }
+        }
+    }
+
+    /** Vuốt ngang trên nội dung để chuyển qua lại 4 tab, giống lướt trang. */
+    private void setupTabSwipeGesture() {
+        binding.tabContent.setExcludedView(binding.rvStories);
+        binding.tabContent.setOnSwipeListener(new SwipeTabFrameLayout.OnSwipeListener() {
+            @Override public void onSwipeLeft() { moveTab(1); }
+            @Override public void onSwipeRight() { moveTab(-1); }
+        });
+    }
+
+    private void moveTab(int delta) {
+        int index = Arrays.asList(TAB_ORDER).indexOf(currentTopTab) + delta;
+        if (index < 0 || index >= TAB_ORDER.length) return;
+        String tab = TAB_ORDER[index];
+        selectTopTab(tab, tabViewFor(tab));
+    }
+
+    private TextView tabViewFor(String tab) {
+        switch (tab) {
+            case "Reels": return binding.tabReels;
+            case "Blog": return binding.tabBlog;
+            case "Tips": return binding.tabTips;
+            default: return binding.tabNearby;
+        }
     }
 
     // ── Thước phim: video đăng lại từ Instagram/Facebook/TikTok ──
@@ -196,7 +238,7 @@ public class CommunityFragment extends Fragment {
                 });
     }
 
-    // ── Tips từ bác sĩ tư vấn + Liên hệ tư vấn ──
+    // ── Tips từ bác sĩ tư vấn ──
 
     private void loadTips() {
         binding.rvTipsFull.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -210,75 +252,19 @@ public class CommunityFragment extends Fragment {
                     }
                     @Override public void onFailure(retrofit2.Call<List<ApiExpertArticle>> call, Throwable t) {}
                 });
-
-        binding.btnContactConsult.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), ConsultationRequestActivity.class)));
     }
 
-    // ── Tìm kiếm (tìm trong feed "Tin gần đây" — endpoint search hiện chỉ hỗ trợ bài viết cộng đồng) ──
-
-    private void setupSearch() {
-        binding.etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() >= 2) {
-                    performSearch(s.toString());
-                } else if (s.length() == 0) {
-                    fetchPostsForTab(currentFeedSubTab);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-
-        binding.etSearch.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch(binding.etSearch.getText().toString());
-                return true;
-            }
-            return false;
-        });
-    }
-
-    private void performSearch(String keyword) {
-        selectTopTab("Nearby", binding.tabNearby);
-        com.pompom.group6.network.ApiClient.get().getCommunityPosts(30, keyword)
-                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiCommunityPost>>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call,
-                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiCommunityPost>> resp) {
-                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        bindPostList(mapPosts(resp.body()), "Không tìm thấy bài viết phù hợp");
-                    }
-                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call, Throwable t) {}
-                });
-    }
-
-    /** Tải feed cho từng tab phụ, đúng theo dữ liệu thật: Bài viết (tất cả) / Đã lưu / Của bạn (theo user_id). */
-    private void fetchPostsForTab(String tab) {
+    /** Feed "Tin gần đây": mọi bài viết cộng đồng thật, mới nhất trước — không còn lọc theo tab phụ
+     * (Bài viết/Đã lưu/Của bạn); mục "Đã lưu" sẽ chuyển sang màn Profile ở bản sau. */
+    private void loadAllPosts() {
         String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
-        String authorId = "Của bạn".equals(tab) ? userOid : null;
-        String savedBy = "Đã lưu".equals(tab) ? userOid : null;
-
-        if (("Của bạn".equals(tab) || "Đã lưu".equals(tab)) && userOid == null) {
-            bindPostList(new java.util.ArrayList<>(), "Vui lòng đăng nhập để xem mục này");
-            return;
-        }
-
-        com.pompom.group6.network.ApiClient.get().getCommunityPostsFiltered(50, authorId, savedBy, userOid)
+        com.pompom.group6.network.ApiClient.get().getCommunityPostsFiltered(50, null, null, userOid)
                 .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiCommunityPost>>() {
                     @Override
                     public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call,
                                            retrofit2.Response<List<com.pompom.group6.network.dto.ApiCommunityPost>> resp) {
                         if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        String emptyText = "Đã lưu".equals(tab) ? "Bạn chưa lưu bài viết nào"
-                                : "Của bạn".equals(tab) ? "Bạn chưa đăng bài viết nào"
-                                : "Chưa có bài viết nào";
-                        bindPostList(mapPosts(resp.body()), emptyText);
+                        bindPostList(mapPosts(resp.body()), "Chưa có bài viết nào");
                     }
                     @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call, Throwable t) {}
                 });
@@ -293,6 +279,7 @@ public class CommunityFragment extends Fragment {
             if (a.images != null) cp.setImages(a.images);
             cp.setSaved(a.isSaved);
             cp.setLiked(a.isLiked);
+            cp.setAuthorId(a.userId);
             posts.add(cp);
         }
         return posts;
@@ -309,16 +296,61 @@ public class CommunityFragment extends Fragment {
     private void setupRefreshLayout() {
         binding.swipeRefresh.setColorSchemeColors(getResources().getColor(R.color.brand_pink));
         binding.swipeRefresh.setOnRefreshListener(() -> {
-            fetchPostsForTab(currentFeedSubTab);
+            loadAllPosts();
             binding.swipeRefresh.postDelayed(() -> binding.swipeRefresh.setRefreshing(false), 1000);
         });
     }
 
+    /** Nút tròn nổi: bấm để nảy lên 2 lựa chọn "Tạo bài viết" / "Liên hệ tư vấn". */
     private void setupFabs() {
-        binding.fabAddPost.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), AddCommunityPostActivity.class)));
-        binding.fabConsult.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), ConsultationRequestActivity.class)));
+        binding.fabMain.setOnClickListener(v -> {
+            if (fabExpanded) collapseSpeedDial(); else expandSpeedDial();
+        });
+        binding.fabAddPost.setOnClickListener(v -> {
+            collapseSpeedDial();
+            startActivity(new Intent(requireContext(), AddCommunityPostActivity.class));
+        });
+        binding.fabConsult.setOnClickListener(v -> {
+            collapseSpeedDial();
+            startActivity(new Intent(requireContext(), ConsultationRequestActivity.class));
+        });
+    }
+
+    private void expandSpeedDial() {
+        fabExpanded = true;
+        binding.fabMain.animate().rotation(45f).setDuration(200).start();
+        bounceIn(binding.rowCreatePost, 0);
+        bounceIn(binding.rowConsult, 60);
+    }
+
+    private void collapseSpeedDial() {
+        if (!fabExpanded) return;
+        fabExpanded = false;
+        binding.fabMain.animate().rotation(0f).setDuration(150).start();
+        bounceOut(binding.rowCreatePost);
+        bounceOut(binding.rowConsult);
+    }
+
+    private void bounceIn(View row, long startDelay) {
+        row.setVisibility(View.VISIBLE);
+        row.setAlpha(0f);
+        row.setScaleX(0.4f);
+        row.setScaleY(0.4f);
+        row.setTranslationY(28f);
+        row.animate()
+                .alpha(1f).scaleX(1f).scaleY(1f).translationY(0f)
+                .setStartDelay(startDelay)
+                .setDuration(260)
+                .setInterpolator(new OvershootInterpolator(2.4f))
+                .start();
+    }
+
+    private void bounceOut(View row) {
+        row.animate()
+                .alpha(0f).scaleX(0.4f).scaleY(0.4f).translationY(28f)
+                .setDuration(140)
+                .withEndAction(() -> row.setVisibility(View.INVISIBLE))
+                .start();
     }
 
     private void setupFeedRecyclerView() {
@@ -372,41 +404,6 @@ public class CommunityFragment extends Fragment {
                 showStoriesAddButtonOnly();
             }
         });
-    }
-
-    private void setupFeedSubTabs() {
-        binding.tabPosts.setOnClickListener(v -> selectFeedSubTab("Bài viết", binding.tabPosts));
-        binding.tabSaved.setOnClickListener(v -> selectFeedSubTab("Đã lưu", binding.tabSaved));
-        binding.tabMyPosts.setOnClickListener(v -> selectFeedSubTab("Của bạn", binding.tabMyPosts));
-    }
-
-    private void selectFeedSubTab(String tab, TextView tabView) {
-        if (currentFeedSubTab.equals(tab)) return;
-
-        resetFeedSubTabUI(binding.tabPosts);
-        resetFeedSubTabUI(binding.tabSaved);
-        resetFeedSubTabUI(binding.tabMyPosts);
-
-        tabView.setTextColor(getResources().getColor(R.color.brand_pink));
-        tabView.setTypeface(null, android.graphics.Typeface.BOLD);
-
-        ConstraintLayout layout = (ConstraintLayout) binding.feedTabIndicator.getParent();
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.clone(layout);
-        constraintSet.connect(binding.feedTabIndicator.getId(), ConstraintSet.START, tabView.getId(), ConstraintSet.START);
-        constraintSet.connect(binding.feedTabIndicator.getId(), ConstraintSet.END, tabView.getId(), ConstraintSet.END);
-
-        TransitionManager.beginDelayedTransition(layout);
-        constraintSet.applyTo(layout);
-
-        currentFeedSubTab = tab;
-        binding.tvFeedEmpty.setVisibility(View.GONE);
-        fetchPostsForTab(tab);
-    }
-
-    private void resetFeedSubTabUI(TextView tabView) {
-        tabView.setTextColor(getResources().getColor(R.color.text_secondary));
-        tabView.setTypeface(null, android.graphics.Typeface.NORMAL);
     }
 
     @Override

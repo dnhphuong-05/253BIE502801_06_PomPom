@@ -4,7 +4,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.OptIn;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -65,6 +67,14 @@ public class ReelPlayerActivity extends SwipeBackActivity {
                 adapter.setActivePosition(position);
             }
         });
+
+        // Chừa khoảng cho caption/tag không bị thanh điều hướng hệ thống che mất.
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            int bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+            adapter.setBottomInset(bottom);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(binding.getRoot());
     }
 
     @Override

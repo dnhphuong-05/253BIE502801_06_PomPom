@@ -15,10 +15,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:resize_mode="fit"
-        app:use_controller="true" />
+        app:use_controller="true"
+        app:show_timeout="3000" />
 
     <!-- Overlay: author + caption + tagged products -->
     <LinearLayout
+        android:id="@+id/layoutReelOverlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_reel_bottom_gradient"
