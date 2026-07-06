@@ -15,5 +15,21 @@ public class ApiUser {
     @SerializedName("points") public int points;
     @SerializedName("gender") public String gender;
     @SerializedName("birth_date") public String birthDate;
+
+    // ---- Hồ sơ mỹ phẩm (có thể null nếu user chưa nhập -> UI hiện "Thêm thông tin") ----
     @SerializedName("skin_type") public String skinType;
+    @SerializedName("skin_concerns") public String skinConcerns;
+    @SerializedName("skin_tone") public String skinTone;
+    @SerializedName("avoid_ingredients") public String avoidIngredients;
+
+    // ---- Số liệu community & mua sắm (đọc thật từ DB qua toUserDto) ----
+    @SerializedName("followers_count") public int followersCount;
+    @SerializedName("following_count") public int followingCount;
+    @SerializedName("post_count") public int postCount;
+    @SerializedName("story_count") public int storyCount;
+    @SerializedName("review_count") public int reviewCount;
+    @SerializedName("saved_count") public int savedCount;
+    @SerializedName("consultation_count") public int consultationCount;
+    @SerializedName("wishlist_count") public int wishlistCount;
+    @SerializedName("address_count") public int addressCount;
 }
