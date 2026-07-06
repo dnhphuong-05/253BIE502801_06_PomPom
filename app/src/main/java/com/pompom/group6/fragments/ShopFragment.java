@@ -25,7 +25,6 @@ import com.pompom.group6.activities.SearchActivity;
 import com.pompom.group6.adapters.CategoryAdapter;
 import com.pompom.group6.adapters.ProductAdapter;
 import com.pompom.group6.database.CategoryDAO;
-import com.pompom.group6.database.ProductDAO;
 import com.pompom.group6.database.PromotionDAO;
 import com.pompom.group6.database.UserDAO;
 import com.pompom.group6.databinding.FragmentShopBinding;
@@ -42,7 +41,6 @@ import java.util.Set;
 public class ShopFragment extends Fragment implements CartManager.CartChangeListener {
 
     private FragmentShopBinding binding;
-    private ProductDAO productDAO;
     private CategoryDAO categoryDAO;
     private PromotionDAO promotionDAO;
     private CartManager cartManager;
@@ -52,7 +50,9 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
     // Ánh xạ index chip danh mục -> ObjectId thật (để lọc sản phẩm theo danh mục qua API).
     private final java.util.Map<Integer, String> categoryOidByIndex = new java.util.HashMap<>();
 
-    // Pagination
+    // Pagination — server trả về toàn bộ danh sách đã lọc trong 1 lần gọi;
+    // ta tự cắt trang ở client để có hiệu ứng cuộn-tải-thêm.
+    private final List<Product> allProducts = new java.util.ArrayList<>();
     private int currentPage = 0;
     private final int pageSize = 8;
     private boolean isLastPage = false;
@@ -79,7 +79,6 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        productDAO  = new ProductDAO(requireContext());
         categoryDAO = new CategoryDAO(requireContext());
         promotionDAO = new PromotionDAO(requireContext());
         cartManager = CartManager.getInstance(requireContext());
@@ -371,9 +370,7 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
     // ── Data loading ──────────────────────────────────────────────────────
 
     private void reloadProductsFiltered() {
-        currentPage = 0;
         // Nạp sản phẩm từ MongoDB, có áp bộ lọc giá/đánh giá/sắp xếp (danh mục sẽ nối sau).
-        isLastPage = true;
         Long minPrice = currentFilter.minPrice > 0 ? currentFilter.minPrice : null;
         Long maxPrice = currentFilter.maxPrice > 0 ? currentFilter.maxPrice : null;
         Float minRating = currentFilter.minRating > 0 ? currentFilter.minRating : null;
@@ -404,11 +401,11 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
                     public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiProduct>> call,
                                            retrofit2.Response<List<com.pompom.group6.network.dto.ApiProduct>> resp) {
                         if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        List<Product> products = new java.util.ArrayList<>();
+                        allProducts.clear();
                         for (com.pompom.group6.network.dto.ApiProduct a : resp.body()) {
-                            products.add(com.pompom.group6.network.ProductMapper.toProduct(a));
+                            allProducts.add(com.pompom.group6.network.ProductMapper.toProduct(a));
                         }
-                        productAdapter.setProducts(products);
+                        showFirstPage();
                     }
 
                     @Override
@@ -418,32 +415,34 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
                 });
     }
 
+    /** Hiện trang đầu tiên (pageSize sản phẩm) của danh sách server vừa trả về. */
+    private void showFirstPage() {
+        currentPage = 0;
+        int end = Math.min(pageSize, allProducts.size());
+        productAdapter.setProducts(new java.util.ArrayList<>(allProducts.subList(0, end)));
+        isLastPage = end >= allProducts.size();
+    }
+
+    /** Cuộn để tải thêm — cắt tiếp trang kế tiếp từ danh sách server đã lọc, không gọi lại mạng. */
     private void loadMoreProducts() {
+        if (isLoading || isLastPage) return;
         isLoading = true;
         productAdapter.showLoading();
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (binding == null) return;
-            currentPage++;
-            List<Product> more = productDAO.getProductsFiltered(
-                    currentFilter.categoryIds.isEmpty() ? null : currentFilter.categoryIds,
-                    currentFilter.minPrice,
-                    currentFilter.maxPrice,
-                    currentFilter.minRating,
-                    currentFilter.sortAlpha,
-                    currentFilter.sortPrice,
-                    currentFilter.sortNewest,
-                    currentFilter.sortPopular,
-                    pageSize, currentPage * pageSize);
+            int from = (currentPage + 1) * pageSize;
+            int to = Math.min(from + pageSize, allProducts.size());
 
             productAdapter.hideLoading();
-            if (more.isEmpty()) {
+            if (from >= allProducts.size()) {
                 isLastPage = true;
             } else {
-                productAdapter.addProducts(more);
-                if (more.size() < pageSize) isLastPage = true;
+                currentPage++;
+                productAdapter.addProducts(allProducts.subList(from, to));
+                isLastPage = to >= allProducts.size();
             }
             isLoading = false;
-        }, 1000);
+        }, 400);
     }
 }

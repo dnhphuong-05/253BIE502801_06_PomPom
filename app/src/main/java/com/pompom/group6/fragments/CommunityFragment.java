@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -21,12 +23,21 @@ import androidx.transition.TransitionManager;
 
 import com.pompom.group6.R;
 import com.pompom.group6.activities.AddCommunityPostActivity;
+import com.pompom.group6.activities.ConsultationRequestActivity;
+import com.pompom.group6.adapters.BlogAdapter;
 import com.pompom.group6.adapters.CommunityPostAdapter;
+import com.pompom.group6.adapters.ExpertArticleAdapter;
+import com.pompom.group6.adapters.ReelAdapter;
 import com.pompom.group6.adapters.StoryAdapter;
 import com.pompom.group6.database.CommunityDAO;
 import com.pompom.group6.databinding.FragmentCommunityBinding;
 import com.pompom.group6.models.CommunityPost;
 import com.pompom.group6.models.Story;
+import com.pompom.group6.network.dto.ApiBlog;
+import com.pompom.group6.network.dto.ApiExpertArticle;
+import com.pompom.group6.network.dto.ApiNearbyPost;
+import com.pompom.group6.network.dto.ApiReel;
+import com.pompom.group6.utils.LocationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +48,12 @@ public class CommunityFragment extends Fragment {
     private CommunityDAO communityDAO;
     private CommunityPostAdapter postAdapter;
     private String currentTab = "Reels";
+
+    private final ActivityResultLauncher<String> requestLocationPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (granted) fetchNearbyStories();
+                else showStoriesAddButtonOnly();
+            });
 
     @Nullable
     @Override
@@ -56,7 +73,64 @@ public class CommunityFragment extends Fragment {
         setupRefreshLayout();
         setupFab();
         setupSearch();
+        setupBlogs();
+        setupExpertArticles();
         loadPosts("Reels");
+    }
+
+    // ── Khám phá: Blog thương hiệu ──────────────────────────────────────────
+
+    private void setupBlogs() {
+        fetchBlogs(6);
+        binding.btnSeeAllBlogs.setOnClickListener(v -> fetchBlogs(50));
+    }
+
+    private void fetchBlogs(int limit) {
+        com.pompom.group6.network.ApiClient.get().getBlogs(limit)
+                .enqueue(new retrofit2.Callback<List<ApiBlog>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<ApiBlog>> call, retrofit2.Response<List<ApiBlog>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        binding.rvBlogs.setLayoutManager(
+                                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+                        binding.rvBlogs.setAdapter(new BlogAdapter(resp.body()));
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<ApiBlog>> call, Throwable t) {}
+                });
+    }
+
+    // ── Khám phá: Tips từ chuyên gia + Liên hệ tư vấn ────────────────────────
+
+    private void setupExpertArticles() {
+        com.pompom.group6.network.ApiClient.get().getExpertArticles(10)
+                .enqueue(new retrofit2.Callback<List<ApiExpertArticle>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<ApiExpertArticle>> call,
+                                           retrofit2.Response<List<ApiExpertArticle>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        binding.rvExpertArticles.setLayoutManager(
+                                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+                        binding.rvExpertArticles.setAdapter(new ExpertArticleAdapter(resp.body()));
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<ApiExpertArticle>> call, Throwable t) {}
+                });
+
+        binding.btnContactConsult.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ConsultationRequestActivity.class)));
+    }
+
+    // ── Reels: video đăng lại từ Instagram/Facebook/TikTok ───────────────────
+
+    private void loadReels() {
+        com.pompom.group6.network.ApiClient.get().getReels(20)
+                .enqueue(new retrofit2.Callback<List<ApiReel>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<ApiReel>> call, retrofit2.Response<List<ApiReel>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        binding.rvCommunity.setAdapter(new ReelAdapter(resp.body()));
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<ApiReel>> call, Throwable t) {}
+                });
     }
 
     private void setupSearch() {
@@ -98,18 +172,58 @@ public class CommunityFragment extends Fragment {
                     public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call,
                                            retrofit2.Response<List<com.pompom.group6.network.dto.ApiCommunityPost>> resp) {
                         if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        List<CommunityPost> posts = new java.util.ArrayList<>();
-                        for (com.pompom.group6.network.dto.ApiCommunityPost a : resp.body()) {
-                            String img = a.images != null && !a.images.isEmpty() ? a.images.get(0) : null;
-                            CommunityPost cp = new CommunityPost(a.id, 0, a.content, img,
-                                    a.likeCount, a.commentCount, "review", a.authorName, a.authorAvatar);
-                            if (a.images != null) cp.setImages(a.images);
-                            posts.add(cp);
-                        }
-                        postAdapter.setPosts(posts);
+                        bindPostList(mapPosts(resp.body()), "Không tìm thấy bài viết phù hợp");
                     }
                     @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call, Throwable t) {}
                 });
+    }
+
+    /** Tải feed cho từng tab, đúng theo dữ liệu thật: Bài viết (tất cả) / Đã lưu / Của bạn (theo user_id). */
+    private void fetchPostsForTab(String tab) {
+        String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
+        String authorId = "Của bạn".equals(tab) ? userOid : null;
+        String savedBy = "Đã lưu".equals(tab) ? userOid : null;
+
+        if (("Của bạn".equals(tab) || "Đã lưu".equals(tab)) && userOid == null) {
+            bindPostList(new java.util.ArrayList<>(), "Vui lòng đăng nhập để xem mục này");
+            return;
+        }
+
+        com.pompom.group6.network.ApiClient.get().getCommunityPostsFiltered(50, authorId, savedBy, userOid)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiCommunityPost>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiCommunityPost>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        String emptyText = "Đã lưu".equals(tab) ? "Bạn chưa lưu bài viết nào"
+                                : "Của bạn".equals(tab) ? "Bạn chưa đăng bài viết nào"
+                                : "Chưa có bài viết nào";
+                        bindPostList(mapPosts(resp.body()), emptyText);
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call, Throwable t) {}
+                });
+    }
+
+    private List<CommunityPost> mapPosts(List<com.pompom.group6.network.dto.ApiCommunityPost> apiPosts) {
+        List<CommunityPost> posts = new java.util.ArrayList<>();
+        for (com.pompom.group6.network.dto.ApiCommunityPost a : apiPosts) {
+            String img = a.images != null && !a.images.isEmpty() ? a.images.get(0) : null;
+            CommunityPost cp = new CommunityPost(a.id, 0, a.content, img,
+                    a.likeCount, a.commentCount, "review", a.authorName, a.authorAvatar);
+            if (a.images != null) cp.setImages(a.images);
+            cp.setSaved(a.isSaved);
+            cp.setLiked(a.isLiked);
+            posts.add(cp);
+        }
+        return posts;
+    }
+
+    private void bindPostList(List<CommunityPost> posts, String emptyText) {
+        if (binding == null) return;
+        binding.rvCommunity.setAdapter(postAdapter);
+        postAdapter.setPosts(posts);
+        binding.tvFeedEmpty.setText(emptyText);
+        binding.tvFeedEmpty.setVisibility(posts.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void setupRefreshLayout() {
@@ -146,21 +260,51 @@ public class CommunityFragment extends Fragment {
         binding.rvCommunity.setAdapter(postAdapter);
     }
 
+    /** Hàng Story 24h theo bán kính GPS — luôn có ô "Đăng story" đầu tiên. */
     private void setupStories() {
-        List<Story> stories = new ArrayList<>();
-        // 1. Create Room Story
-        stories.add(new Story(0, "Tạo Room", "Trò chuyện ngay", 0, false, false, true));
-        // 2. Live Story (Huyền My)
-        stories.add(new Story(2, "Huyền My", "Đang live", R.drawable.ic_avatar, false, true, false));
-        // 3. User Story (Trần Linh)
-        stories.add(new Story(3, "Trần Linh", "Story mới", R.drawable.ic_avatar, false, false, false));
-        // 4. Topics
-        stories.add(new Story(4, "Skincare 101", "1.2K thành viên", R.drawable.promotion1, false, false, false));
-        stories.add(new Story(5, "Makeup Tips", "856 thành viên", R.drawable.promotion2, false, false, false));
-        
-        StoryAdapter storyAdapter = new StoryAdapter(stories);
         binding.rvStories.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        binding.rvStories.setAdapter(storyAdapter);
+        if (LocationHelper.hasPermission(requireContext())) {
+            fetchNearbyStories();
+        } else {
+            requestLocationPermission.launch(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+
+    private void showStoriesAddButtonOnly() {
+        if (binding == null) return;
+        List<Story> stories = new ArrayList<>();
+        stories.add(new Story());
+        binding.rvStories.setAdapter(new StoryAdapter(stories));
+    }
+
+    private void fetchNearbyStories() {
+        LocationHelper.getCurrentLocation(requireContext(), new LocationHelper.Callback() {
+            @Override
+            public void onLocation(double lat, double lng) {
+                com.pompom.group6.network.ApiClient.get().getNearbyPosts(lat, lng, 100)
+                        .enqueue(new retrofit2.Callback<List<ApiNearbyPost>>() {
+                            @Override
+                            public void onResponse(retrofit2.Call<List<ApiNearbyPost>> call,
+                                                   retrofit2.Response<List<ApiNearbyPost>> resp) {
+                                if (binding == null) return;
+                                List<Story> stories = new ArrayList<>();
+                                stories.add(new Story());
+                                if (resp.isSuccessful() && resp.body() != null) {
+                                    for (ApiNearbyPost p : resp.body()) stories.add(new Story(p));
+                                }
+                                binding.rvStories.setAdapter(new StoryAdapter(stories));
+                            }
+                            @Override public void onFailure(retrofit2.Call<List<ApiNearbyPost>> call, Throwable t) {
+                                showStoriesAddButtonOnly();
+                            }
+                        });
+            }
+
+            @Override
+            public void onUnavailable() {
+                showStoriesAddButtonOnly();
+            }
+        });
     }
 
     private void setupTabListeners() {
@@ -201,8 +345,13 @@ public class CommunityFragment extends Fragment {
     }
 
     private void loadPosts(String type) {
-        // MongoDB chưa có post_type → hiện tất cả bài viết (mọi tab).
-        fetchPosts(20, null);
+        binding.tvFeedEmpty.setVisibility(View.GONE);
+        if ("Reels".equals(type)) {
+            loadReels();
+            return;
+        }
+        // "Bài viết" = tất cả bài hiển thị; "Đã lưu"/"Của bạn" lọc thật theo user_id đang đăng nhập.
+        fetchPostsForTab(type);
     }
 
     @Override

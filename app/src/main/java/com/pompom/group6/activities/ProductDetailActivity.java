@@ -52,6 +52,10 @@ public class ProductDetailActivity extends AppCompatActivity
     private Product currentProduct;
     private boolean isWishlisted = false; // fix 2A
 
+    // Đánh giá — mặc định chỉ hiện 1 đánh giá, bấm "Xem tất cả" mới hiện hết.
+    private final List<Review> allReviews = new java.util.ArrayList<>();
+    private boolean reviewsExpanded = false;
+
     // Edge-swipe-to-exit (vuốt mép trái sang phải để thoát)
     private float swipeDownX, swipeDownY;
     private boolean edgeSwipe, swipeDragging;
@@ -383,8 +387,10 @@ public class ProductDetailActivity extends AppCompatActivity
                         if (images.isEmpty() && product.getImageUrl() != null) images.add(product.getImageUrl());
                         if (!images.isEmpty()) setupImageSlider(images);
 
+                        bindCloudVariants(a.variants);
                         loadCloudReviews();
                         loadCloudRelated();
+                        loadCloudVouchers();
                     }
 
                     @Override
@@ -405,26 +411,47 @@ public class ProductDetailActivity extends AppCompatActivity
                     public void onResponse(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiReview>> call,
                                            retrofit2.Response<java.util.List<com.pompom.group6.network.dto.ApiReview>> resp) {
                         if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        List<Review> reviews = new java.util.ArrayList<>();
+                        allReviews.clear();
                         for (com.pompom.group6.network.dto.ApiReview r : resp.body()) {
-                            reviews.add(new Review(0, 0, r.userName, r.userAvatar, 0,
-                                    r.rating, r.comment, r.images, r.createdAt));
+                            String imagesCsv = r.images != null ? android.text.TextUtils.join(",", r.images) : null;
+                            allReviews.add(new Review(0, 0, r.userName, r.userAvatar, 0,
+                                    r.rating, r.comment, imagesCsv, r.createdAt));
                         }
-                        bindReviewSummary(reviews);
-                        if (!reviews.isEmpty()) {
-                            binding.rvReviews.setVisibility(View.VISIBLE);
-                            binding.rvReviews.setLayoutManager(
-                                    new androidx.recyclerview.widget.LinearLayoutManager(ProductDetailActivity.this));
-                            binding.rvReviews.setNestedScrollingEnabled(false);
-                            binding.rvReviews.setAdapter(new ReviewAdapter(reviews));
-                        } else {
-                            binding.rvReviews.setVisibility(View.GONE);
-                        }
+                        reviewsExpanded = false;
+                        bindReviewSummary(allReviews);
+                        renderReviewList();
                     }
 
                     @Override
                     public void onFailure(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiReview>> call, Throwable t) {}
                 });
+    }
+
+    /** Chỉ hiện 1 đánh giá đầu tiên; bấm "Xem tất cả" mới hiện hết. */
+    private void renderReviewList() {
+        if (binding == null) return;
+        if (allReviews.isEmpty()) {
+            binding.rvReviews.setVisibility(View.GONE);
+            binding.btnSeeAllReviews.setVisibility(View.GONE);
+            return;
+        }
+        binding.rvReviews.setVisibility(View.VISIBLE);
+        binding.rvReviews.setLayoutManager(
+                new androidx.recyclerview.widget.LinearLayoutManager(ProductDetailActivity.this));
+        binding.rvReviews.setNestedScrollingEnabled(false);
+        List<Review> shown = reviewsExpanded ? allReviews : allReviews.subList(0, 1);
+        binding.rvReviews.setAdapter(new ReviewAdapter(shown));
+
+        if (allReviews.size() <= 1) {
+            binding.btnSeeAllReviews.setVisibility(View.GONE);
+        } else {
+            binding.btnSeeAllReviews.setVisibility(View.VISIBLE);
+            binding.btnSeeAllReviews.setText(reviewsExpanded ? "Thu gọn" : "Xem tất cả");
+            binding.btnSeeAllReviews.setOnClickListener(v -> {
+                reviewsExpanded = !reviewsExpanded;
+                renderReviewList();
+            });
+        }
     }
 
     /** Sản phẩm liên quan của sản phẩm cloud (từ MongoDB). */
@@ -454,6 +481,70 @@ public class ProductDetailActivity extends AppCompatActivity
 
                     @Override
                     public void onFailure(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiProduct>> call, Throwable t) {}
+                });
+    }
+
+    /** Lựa chọn màu sắc (biến thể) của sản phẩm cloud (từ MongoDB). */
+    private void bindCloudVariants(List<com.pompom.group6.network.dto.ApiProductVariant> apiVariants) {
+        if (binding == null) return;
+        List<ProductVariant> variants = new java.util.ArrayList<>();
+        if (apiVariants != null) {
+            for (com.pompom.group6.network.dto.ApiProductVariant av : apiVariants) {
+                ProductVariant v = new ProductVariant(0, 0,
+                        av.variantName != null ? av.variantName : "", "",
+                        av.additionalPrice, av.stock, av.imageUrl);
+                v.setOid(av.id);
+                variants.add(v);
+            }
+        }
+        if (!variants.isEmpty()) {
+            binding.rvVariants.setVisibility(View.VISIBLE);
+            VariantAdapter variantAdapter = new VariantAdapter(variants, variant -> { });
+            binding.rvVariants.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(
+                    this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+            binding.rvVariants.setAdapter(variantAdapter);
+        } else {
+            binding.rvVariants.setVisibility(View.GONE);
+        }
+    }
+
+    /** Voucher đang hoạt động (từ MongoDB) — áp dụng chung, không lọc theo sản phẩm. */
+    private void loadCloudVouchers() {
+        com.pompom.group6.network.ApiClient.get().getVouchers()
+                .enqueue(new retrofit2.Callback<java.util.List<com.pompom.group6.network.dto.ApiVoucher>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiVoucher>> call,
+                                           retrofit2.Response<java.util.List<com.pompom.group6.network.dto.ApiVoucher>> resp) {
+                        if (binding == null) return;
+                        List<Voucher> vouchers = new java.util.ArrayList<>();
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            for (com.pompom.group6.network.dto.ApiVoucher a : resp.body()) {
+                                int remaining = Math.max(a.usageLimit - a.usedCount, 0);
+                                String expiry = a.endDate != null && a.endDate.length() >= 10
+                                        ? a.endDate.substring(0, 10) : a.endDate;
+                                Voucher v = new Voucher(0, a.code, a.discountType, a.discountValue,
+                                        a.minOrderAmount, expiry, remaining);
+                                v.setOid(a.id);
+                                vouchers.add(v);
+                            }
+                        }
+                        if (!vouchers.isEmpty()) {
+                            binding.rvVouchers.setVisibility(View.VISIBLE);
+                            VoucherAdapter voucherAdapter = new VoucherAdapter(vouchers);
+                            binding.rvVouchers.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(
+                                    ProductDetailActivity.this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+                            binding.rvVouchers.setAdapter(voucherAdapter);
+                            binding.btnSeeAllVouchers.setText("Chọn voucher (" + vouchers.size() + ")");
+                            binding.btnSeeAllVouchers.setOnClickListener(v -> showVoucherRadioDialog(vouchers));
+                        } else {
+                            binding.rvVouchers.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<java.util.List<com.pompom.group6.network.dto.ApiVoucher>> call, Throwable t) {
+                        if (binding != null) binding.rvVouchers.setVisibility(View.GONE);
+                    }
                 });
     }
 
@@ -558,17 +649,11 @@ public class ProductDetailActivity extends AppCompatActivity
                 // Load reviews list
                 try {
                     List<Review> reviews = productDAO.getReviewsForProduct(sqliteId);
-                    bindReviewSummary(reviews);
-                    if (reviews != null && !reviews.isEmpty()) {
-                        binding.rvReviews.setVisibility(View.VISIBLE);
-                        binding.rvReviews.setLayoutManager(
-                                new androidx.recyclerview.widget.LinearLayoutManager(this));
-                        binding.rvReviews.setNestedScrollingEnabled(false);
-                        ReviewAdapter reviewAdapter = new ReviewAdapter(reviews);
-                        binding.rvReviews.setAdapter(reviewAdapter);
-                    } else {
-                        binding.rvReviews.setVisibility(View.GONE);
-                    }
+                    allReviews.clear();
+                    if (reviews != null) allReviews.addAll(reviews);
+                    reviewsExpanded = false;
+                    bindReviewSummary(allReviews);
+                    renderReviewList();
                 } catch (Exception e) {
                     android.util.Log.e("ProductDetailActivity", "Error loading reviews", e);
                     binding.rvReviews.setVisibility(View.GONE);

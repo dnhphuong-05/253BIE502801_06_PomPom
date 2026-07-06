@@ -165,6 +165,37 @@ public interface ApiService {
     @GET("api/promotions")
     Call<List<com.pompom.group6.network.dto.ApiProduct>> getPromotions();
 
+    // ---- Community: Reels / Blog / Tips từ chuyên gia ----
+    @GET("api/reels")
+    Call<List<com.pompom.group6.network.dto.ApiReel>> getReels(@Query("limit") Integer limit);
+
+    @GET("api/blogs")
+    Call<List<com.pompom.group6.network.dto.ApiBlog>> getBlogs(@Query("limit") Integer limit);
+
+    @GET("api/blogs/{id}")
+    Call<com.pompom.group6.network.dto.ApiBlog> getBlog(@Path("id") String id);
+
+    @GET("api/experts")
+    Call<List<com.pompom.group6.network.dto.ApiExpert>> getExperts();
+
+    @GET("api/expert-articles")
+    Call<List<com.pompom.group6.network.dto.ApiExpertArticle>> getExpertArticles(@Query("limit") Integer limit);
+
+    @GET("api/expert-articles/{id}")
+    Call<com.pompom.group6.network.dto.ApiExpertArticle> getExpertArticle(@Path("id") String id);
+
+    @POST("api/consultation-requests")
+    Call<Void> submitConsultationRequest(@Body com.pompom.group6.network.dto.ConsultationRequestBody body);
+
+    // ---- Community: Story 24h theo bán kính GPS ----
+    @GET("api/nearby-posts")
+    Call<List<com.pompom.group6.network.dto.ApiNearbyPost>> getNearbyPosts(@Query("lat") double lat,
+                                                                            @Query("lng") double lng,
+                                                                            @Query("radius_km") Integer radiusKm);
+
+    @POST("api/nearby-posts")
+    Call<com.pompom.group6.network.dto.ApiNearbyPost> createNearbyPost(@Body com.pompom.group6.network.dto.NearbyPostRequest body);
+
     @GET("api/notifications")
     Call<List<JsonElement>> getNotifications(@Query("user_id") String userId);
 
@@ -172,6 +203,18 @@ public interface ApiService {
     @GET("api/community/posts")
     Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityPosts(@Query("limit") Integer limit,
                                                                                  @Query("q") String query);
+
+    /** author_id → tab "Của bạn"; saved_by → tab "Đã lưu"; viewer_id → gắn is_saved/is_liked đúng người xem. */
+    @GET("api/community/posts")
+    Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityPostsFiltered(
+            @Query("limit") Integer limit,
+            @Query("author_id") String authorId,
+            @Query("saved_by") String savedBy,
+            @Query("viewer_id") String viewerId);
+
+    @POST("api/community/posts/{id}/save")
+    Call<java.util.Map<String, Boolean>> toggleSavePost(@Path("id") String postId,
+                                                        @Body java.util.Map<String, String> body);
 
     @GET("api/community/highlights")
     Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityHighlights(@Query("limit") Integer limit);

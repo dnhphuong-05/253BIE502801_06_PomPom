@@ -39,14 +39,17 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     // isHorizontal=false → 2-col grid → item_product_horizontal (VIEW_TYPE_VERTICAL)
     // isHorizontal=true  → 1-col list → item_product_vertical   (VIEW_TYPE_HORIZONTAL)
-    private static final int VIEW_TYPE_VERTICAL   = 0; // 2-col grid
-    private static final int VIEW_TYPE_HORIZONTAL = 1; // 1-col list
-    private static final int VIEW_TYPE_LOADING    = 2;
+    // useGridCarousel=true → carousel cuộn ngang, card dài cố định bề rộng → item_product_grid_carousel (VIEW_TYPE_GRID_CAROUSEL)
+    private static final int VIEW_TYPE_VERTICAL      = 0; // 2-col grid
+    private static final int VIEW_TYPE_HORIZONTAL    = 1; // 1-col list
+    private static final int VIEW_TYPE_LOADING       = 2;
+    private static final int VIEW_TYPE_GRID_CAROUSEL = 3; // carousel ngang, card dài như lưới Shop
 
     private final List<Product> products = new ArrayList<>();
     private final Set<String> wishlistedIds = new HashSet<>();
     private boolean isLoading = false;
     private boolean isHorizontal = false;
+    private boolean useGridCarousel = false;
 
     public ProductAdapter() {}
 
@@ -58,6 +61,11 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public void setHorizontal(boolean horizontal) {
         this.isHorizontal = horizontal;
+    }
+
+    /** Card dài (giống lưới 2 cột ở Shop) nhưng rộng cố định, dùng cho carousel cuộn ngang trên Home. */
+    public void setUseGridCarousel(boolean useGridCarousel) {
+        this.useGridCarousel = useGridCarousel;
     }
 
     public void setProducts(List<Product> newProducts) {
@@ -91,6 +99,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public int getItemViewType(int position) {
         if (position == products.size()) return VIEW_TYPE_LOADING;
+        if (useGridCarousel) return VIEW_TYPE_GRID_CAROUSEL;
         return isHorizontal ? VIEW_TYPE_HORIZONTAL : VIEW_TYPE_VERTICAL;
     }
 
@@ -106,6 +115,10 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } else if (viewType == VIEW_TYPE_HORIZONTAL) {
             // 1-col row card
             View v = inf.inflate(R.layout.item_product_vertical, parent, false);
+            return new ProductViewHolder(v);
+        } else if (viewType == VIEW_TYPE_GRID_CAROUSEL) {
+            // Card dài, rộng cố định — carousel cuộn ngang (VD: Sản phẩm bán chạy ở Home)
+            View v = inf.inflate(R.layout.item_product_grid_carousel, parent, false);
             return new ProductViewHolder(v);
         } else {
             // 2-col grid card

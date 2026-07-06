@@ -86,11 +86,31 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
             holder.layoutPostImages.setVisibility(View.GONE);
         }
 
-        setupLikeLogic(holder, post);
+        bindLikeState(holder, post);
+        bindBookmarkState(holder, post);
+        // like_count từ server đã tính theo đúng trạng thái is_liked lúc tải — cố định làm mốc
+        // để tính lại số hiển thị khi người dùng bấm thích/bỏ thích nhiều lần trong cùng 1 lần bind.
+        boolean originalLiked = post.isLiked();
+        setupLikeLogic(holder, post, originalLiked);
         setupFollowLogic(holder);
         setupSocialActions(holder, post);
 
         holder.btnMore.setOnClickListener(v -> showPostMenu(v, holder.getAdapterPosition()));
+    }
+
+    private void bindLikeState(PostViewHolder holder, CommunityPost post) {
+        holder.layoutLike.setTag(post.isLiked());
+        ImageView ivHeart = (ImageView) ((ViewGroup) holder.layoutLike).getChildAt(0);
+        int color = ContextCompat.getColor(holder.itemView.getContext(),
+                post.isLiked() ? R.color.brand_pink : R.color.text_secondary);
+        ivHeart.setColorFilter(color);
+    }
+
+    private void bindBookmarkState(PostViewHolder holder, CommunityPost post) {
+        holder.btnBookmark.setTag(post.isSaved());
+        holder.btnBookmark.setImageResource(post.isSaved() ? R.drawable.ic_save : R.drawable.ic_bookmark);
+        holder.btnBookmark.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(),
+                post.isSaved() ? R.color.brand_pink : R.color.text_secondary));
     }
 
     private void setupSocialActions(PostViewHolder holder, CommunityPost post) {
@@ -105,28 +125,44 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
             v.getContext().startActivity(Intent.createChooser(shareIntent, "Chia sẻ bài viết qua"));
         });
 
-        // Bookmark Button Click
+        // Bookmark Button Click — lưu/bỏ lưu thật trên server (cho tab "Đã lưu")
         holder.btnBookmark.setOnClickListener(v -> {
-            boolean isBookmarked = v.getTag() != null && (boolean) v.getTag();
-            if (isBookmarked) {
-                v.setTag(false);
-                holder.btnBookmark.setImageResource(R.drawable.ic_bookmark);
-                holder.btnBookmark.setColorFilter(ContextCompat.getColor(v.getContext(), R.color.text_secondary));
-                Toast.makeText(v.getContext(), "Đã bỏ lưu bài viết", Toast.LENGTH_SHORT).show();
-            } else {
-                v.setTag(true);
-                holder.btnBookmark.setImageResource(R.drawable.ic_save);
-                holder.btnBookmark.setColorFilter(ContextCompat.getColor(v.getContext(), R.color.brand_pink));
-                Toast.makeText(v.getContext(), "Đã lưu bài viết vào mục Đã lưu", Toast.LENGTH_SHORT).show();
+            String userOid = com.pompom.group6.network.Session.getUserOid(v.getContext());
+            if (userOid == null) {
+                Toast.makeText(v.getContext(), "Vui lòng đăng nhập để lưu bài viết", Toast.LENGTH_SHORT).show();
+                return;
             }
+            boolean wasSaved = post.isSaved();
+            post.setSaved(!wasSaved);
+            bindBookmarkState(holder, post);
+            Toast.makeText(v.getContext(),
+                    wasSaved ? "Đã bỏ lưu bài viết" : "Đã lưu bài viết vào mục Đã lưu", Toast.LENGTH_SHORT).show();
+
+            java.util.Map<String, String> body = new java.util.HashMap<>();
+            body.put("user_id", userOid);
+            com.pompom.group6.network.ApiClient.get().toggleSavePost(post.getPostId(), body)
+                    .enqueue(new retrofit2.Callback<java.util.Map<String, Boolean>>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<java.util.Map<String, Boolean>> call,
+                                               retrofit2.Response<java.util.Map<String, Boolean>> resp) {
+                            if (!resp.isSuccessful()) {
+                                post.setSaved(wasSaved);
+                                bindBookmarkState(holder, post);
+                            }
+                        }
+                        @Override public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {
+                            post.setSaved(wasSaved);
+                            bindBookmarkState(holder, post);
+                        }
+                    });
         });
     }
 
-    private void setupLikeLogic(PostViewHolder holder, CommunityPost post) {
+    private void setupLikeLogic(PostViewHolder holder, CommunityPost post, boolean originalLiked) {
         GestureDetector gestureDetector = new GestureDetector(holder.itemView.getContext(), new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDoubleTap(@NonNull MotionEvent e) {
-                toggleLike(holder, post);
+                toggleLike(holder, post, originalLiked);
                 return true;
             }
             @Override
@@ -139,8 +175,8 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         // Enable touch detection on images and entire card
         holder.vpPostImages.getChildAt(0).setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
         holder.itemView.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
-        
-        holder.layoutLike.setOnClickListener(v -> toggleLike(holder, post));
+
+        holder.layoutLike.setOnClickListener(v -> toggleLike(holder, post, originalLiked));
     }
 
     private void openPostDetail(View v, String postId) {
@@ -149,22 +185,42 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         v.getContext().startActivity(intent);
     }
 
-    private void toggleLike(PostViewHolder holder, CommunityPost post) {
-        ImageView ivHeart = (ImageView) ((ViewGroup) holder.layoutLike).getChildAt(0);
-        boolean isLiked = holder.layoutLike.getTag() != null && (boolean) holder.layoutLike.getTag();
-        
-        if (isLiked) {
-            holder.layoutLike.setTag(false);
-            ivHeart.setImageResource(R.drawable.ic_heart);
-            ivHeart.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_secondary));
-            holder.tvLikeCount.setText(formatCount(post.getLikeCount()));
-        } else {
-            holder.layoutLike.setTag(true);
-            ivHeart.setImageResource(R.drawable.ic_heart);
-            ivHeart.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.brand_pink));
-            holder.tvLikeCount.setText(formatCount(post.getLikeCount() + 1));
-            showBigHeartAnimation(holder.ivBigHeart);
+    /** originalLiked = trạng thái is_liked lúc bind (cố định) — mốc để like_count luôn tính đúng dù bấm nhiều lần. */
+    private void toggleLike(PostViewHolder holder, CommunityPost post, boolean originalLiked) {
+        String userOid = com.pompom.group6.network.Session.getUserOid(holder.itemView.getContext());
+        if (userOid == null) {
+            Toast.makeText(holder.itemView.getContext(), "Vui lòng đăng nhập để thích bài viết", Toast.LENGTH_SHORT).show();
+            return;
         }
+        post.setLiked(!post.isLiked());
+        renderLikeState(holder, post, originalLiked);
+        if (post.isLiked()) showBigHeartAnimation(holder.ivBigHeart);
+
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("user_id", userOid);
+        com.pompom.group6.network.ApiClient.get().toggleLike(post.getPostId(), body)
+                .enqueue(new retrofit2.Callback<java.util.Map<String, Boolean>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<java.util.Map<String, Boolean>> call,
+                                           retrofit2.Response<java.util.Map<String, Boolean>> resp) {
+                        if (!resp.isSuccessful()) {
+                            post.setLiked(!post.isLiked());
+                            renderLikeState(holder, post, originalLiked);
+                        }
+                    }
+                    @Override public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {
+                        post.setLiked(!post.isLiked());
+                        renderLikeState(holder, post, originalLiked);
+                    }
+                });
+    }
+
+    private void renderLikeState(PostViewHolder holder, CommunityPost post, boolean originalLiked) {
+        ImageView ivHeart = (ImageView) ((ViewGroup) holder.layoutLike).getChildAt(0);
+        ivHeart.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(),
+                post.isLiked() ? R.color.brand_pink : R.color.text_secondary));
+        int displayCount = post.getLikeCount() + (post.isLiked() ? 1 : 0) - (originalLiked ? 1 : 0);
+        holder.tvLikeCount.setText(formatCount(displayCount));
     }
 
     private void showBigHeartAnimation(ImageView ivBigHeart) {

@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".PomPomApp"
@@ -187,6 +189,28 @@
             android:name=".activities.StoryViewerActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6.FullScreen" />
+
+        <activity
+            android:name=".activities.ReelPlayerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6.FullScreen" />
+
+        <activity
+            android:name=".activities.ArticleDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.ConsultationRequestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.AddStoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
 
     </application>
 

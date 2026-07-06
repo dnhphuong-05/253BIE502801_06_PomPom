@@ -68,6 +68,14 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 
+    // Media3 ExoPlayer — video playback for Community Reels
+    val media3_version = "1.4.1"
+    implementation("androidx.media3:media3-exoplayer:${media3_version}")
+    implementation("androidx.media3:media3-ui:${media3_version}")
+
+    // Play Services Location — GPS toạ độ cho story theo bán kính
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

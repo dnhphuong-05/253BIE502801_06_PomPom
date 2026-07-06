@@ -1,6 +1,6 @@
 const express = require("express");
 const { Types } = require("mongoose");
-const { CommunityPost, Comment, User, Product } = require("../models");
+const { CommunityPost, Comment, User, Product, Like, SavedPost } = require("../models");
 const { serialize } = require("../serialize");
 
 const router = express.Router();
@@ -15,14 +15,49 @@ async function withAuthors(posts) {
   return posts;
 }
 
-// GET /api/community/posts?limit=&q=  -> visible posts (optionally search) with author info
+// Gắn is_saved/is_liked của viewerId vào từng bài — để nút bookmark/tim hiện đúng
+// trạng thái ngay từ lần tải đầu, không chỉ là toggle tạm trên UI.
+async function withViewerState(posts, viewerId) {
+  if (!viewerId) return posts;
+  const postIds = posts.map((p) => p._id);
+  const [savedIds, likedIds] = await Promise.all([
+    SavedPost.find({ user_id: viewerId, post_id: { $in: postIds } }).distinct("post_id"),
+    Like.find({ user_id: viewerId, post_id: { $in: postIds } }).distinct("post_id"),
+  ]);
+  const savedSet = new Set(savedIds.map(String));
+  const likedSet = new Set(likedIds.map(String));
+  for (const p of posts) {
+    p.is_saved = savedSet.has(String(p._id));
+    p.is_liked = likedSet.has(String(p._id));
+  }
+  return posts;
+}
+
+// GET /api/community/posts?limit=&q=&author_id=&saved_by=&viewer_id=
+//  -> "Bài viết" (mặc định): mọi bài hiển thị
+//  -> "Của bạn": author_id=<uid> lọc theo đúng người đăng
+//  -> "Đã lưu": saved_by=<uid> lọc theo bài đã lưu của uid đó
+//  -> viewer_id: gắn is_saved/is_liked theo đúng người đang xem (khác với author_id/saved_by)
 router.get("/posts", async (req, res) => {
   try {
     const filter = { is_hidden: { $ne: true } };
     if (req.query.q) filter.content = { $regex: req.query.q, $options: "i" };
+    if (req.query.author_id) {
+      const authorId = oid(req.query.author_id);
+      if (!authorId) return res.status(400).json({ error: "author_id không hợp lệ" });
+      filter.user_id = authorId;
+    }
+    if (req.query.saved_by) {
+      const savedBy = oid(req.query.saved_by);
+      if (!savedBy) return res.status(400).json({ error: "saved_by không hợp lệ" });
+      const savedIds = await SavedPost.find({ user_id: savedBy }).distinct("post_id");
+      filter._id = { $in: savedIds };
+    }
+
     let query = CommunityPost.find(filter).sort({ created_at: -1 });
     if (req.query.limit) query = query.limit(parseInt(req.query.limit, 10));
-    const posts = await withAuthors(await query.lean());
+    let posts = await withAuthors(await query.lean());
+    posts = await withViewerState(posts, oid(req.query.viewer_id));
     res.json(posts.map(serialize));
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -136,7 +171,6 @@ router.post("/posts/:id/comments", async (req, res) => {
 // POST /api/community/posts/:id/like  { user_id }  -> toggle like (idempotent)
 router.post("/posts/:id/like", async (req, res) => {
   try {
-    const { Like } = require("../models");
     const uid = oid(req.body?.user_id);
     const postId = oid(req.params.id);
     if (!uid || !postId) return res.status(400).json({ error: "Thiếu user_id" });
@@ -150,6 +184,26 @@ router.post("/posts/:id/like", async (req, res) => {
       await Like.create({ user_id: uid, post_id: postId, created_at: new Date() });
       await CommunityPost.updateOne({ _id: postId }, { $inc: { like_count: 1 } });
       res.json({ liked: true });
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/community/posts/:id/save  { user_id }  -> toggle lưu bài (cho tab "Đã lưu")
+router.post("/posts/:id/save", async (req, res) => {
+  try {
+    const uid = oid(req.body?.user_id);
+    const postId = oid(req.params.id);
+    if (!uid || !postId) return res.status(400).json({ error: "Thiếu user_id" });
+
+    const existing = await SavedPost.findOne({ user_id: uid, post_id: postId }).lean();
+    if (existing) {
+      await SavedPost.deleteOne({ _id: existing._id });
+      res.json({ saved: false });
+    } else {
+      await SavedPost.create({ user_id: uid, post_id: postId, created_at: new Date() });
+      res.json({ saved: true });
     }
   } catch (e) {
     res.status(500).json({ error: e.message });

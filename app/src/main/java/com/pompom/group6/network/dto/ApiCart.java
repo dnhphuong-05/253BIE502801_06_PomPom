@@ -15,5 +15,8 @@ public class ApiCart {
         @SerializedName("price") public double price;
         @SerializedName("quantity") public int quantity;
         @SerializedName("thumbnail_url") public String thumbnailUrl;
+        @SerializedName("variant_id") public String variantId;
+        @SerializedName("variant_name") public String variantName;
+        @SerializedName("variant_image_url") public String variantImageUrl;
     }
 }

@@ -168,7 +168,11 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
         holder.binding.tvCartTitle.setText(item.getTitle());
 
         // ── Variant label ────────────────────────────────────────────────────────
-        String vname = selectedVariant.get(item.getProductId());
+        // Ưu tiên lựa chọn tạm trong phiên (đổi màu ở ô xổ ra); nếu chưa đổi thì
+        // dùng màu đã chọn lúc thêm vào giỏ (item.getVariantName()).
+        String vname = selectedVariant.containsKey(item.getProductId())
+                ? selectedVariant.get(item.getProductId())
+                : item.getVariantName();
         holder.binding.tvCartVariant.setText("Màu sắc: " + (vname != null ? vname : "Mặc định"));
 
         // ── Quantity ─────────────────────────────────────────────────────────────
@@ -254,10 +258,12 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
                             String meta = cat;
                             if (!brand.isEmpty()) meta += (meta.isEmpty() ? "" : "  •  ") + brand;
                             holder.binding.tvExpandMeta.setText(meta);
+                            bindCloudExpandVariants(holder, item, a.variants);
                         }
                         @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiProduct> call, Throwable t) {
                             holder.binding.tvExpandDesc.setText("Không tải được thông tin sản phẩm.");
                             holder.binding.tvExpandMeta.setText("");
+                            holder.binding.rvExpandVariants.setVisibility(View.GONE);
                         }
                     });
             return;
@@ -287,6 +293,35 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
             });
             holder.binding.rvExpandVariants.setLayoutManager(
                     new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false));
+            holder.binding.rvExpandVariants.setAdapter(va);
+        } else {
+            holder.binding.rvExpandVariants.setVisibility(View.GONE);
+        }
+    }
+
+    /** Danh sách màu sắc của sản phẩm cloud trong ô xổ ra (tương đương phần local ở trên). */
+    private void bindCloudExpandVariants(@NonNull CartViewHolder holder, CartItem item,
+                                         List<com.pompom.group6.network.dto.ApiProductVariant> apiVariants) {
+        List<ProductVariant> variants = new java.util.ArrayList<>();
+        if (apiVariants != null) {
+            for (com.pompom.group6.network.dto.ApiProductVariant av : apiVariants) {
+                ProductVariant v = new ProductVariant(0, 0,
+                        av.variantName != null ? av.variantName : "", "",
+                        av.additionalPrice, av.stock, av.imageUrl);
+                v.setOid(av.id);
+                variants.add(v);
+            }
+        }
+        if (!variants.isEmpty()) {
+            holder.binding.rvExpandVariants.setVisibility(View.VISIBLE);
+            VariantAdapter va = new VariantAdapter(variants, variant -> {
+                selectedVariant.put(item.getProductId(), variant.getName());
+                item.setVariantId(variant.getOid());
+                item.setVariantName(variant.getName());
+                holder.binding.tvCartVariant.setText("Màu sắc: " + variant.getName());
+            });
+            holder.binding.rvExpandVariants.setLayoutManager(
+                    new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
             holder.binding.rvExpandVariants.setAdapter(va);
         } else {
             holder.binding.rvExpandVariants.setVisibility(View.GONE);

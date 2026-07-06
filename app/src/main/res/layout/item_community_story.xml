@@ -27,7 +27,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_chat"
+                android:src="@drawable/ic_plus"
                 app:tint="@color/brand_pink"
                 android:contentDescription="@null" />
 
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="Tạo Room"
+                android:text="Đăng story"
                 android:textColor="@color/brand_pink"
                 android:textSize="10sp"
                 tools:ignore="SmallSp" />
@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
-                android:text="Chat ngay"
+                android:text="Ảnh &amp; video"
                 android:textColor="@color/text_secondary"
                 android:textSize="8sp"
                 tools:ignore="SmallSp" />

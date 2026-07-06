@@ -173,13 +173,15 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
                             List<ProductVariant> variants = new java.util.ArrayList<>();
                             if (apiVariants != null) {
                                 for (com.pompom.group6.network.dto.ApiProductVariant av : apiVariants) {
-                                    variants.add(new ProductVariant(
+                                    ProductVariant variant = new ProductVariant(
                                             0, 0,
                                             av.variantName != null ? av.variantName : "",
                                             "",
                                             av.additionalPrice,
                                             av.stock,
-                                            av.imageUrl));
+                                            av.imageUrl);
+                                    variant.setOid(av.id);
+                                    variants.add(variant);
                                 }
                             }
                             getActivity().runOnUiThread(() -> bindVariants(variants));
@@ -246,13 +248,16 @@ public class ProductOptionsBottomSheetDialog extends BottomSheetDialogFragment {
             // Nếu là sản phẩm cloud (id ObjectId) thì lưu lại để đặt đơn thật lên MongoDB.
             boolean isCloud = productId != null && !productId.matches("\\d+");
             if (isCloud) item.setProductOid(productId);
+            String variantOid = selectedVariant != null ? selectedVariant.getOid() : null;
+            if (selectedVariant != null) item.setVariantName(selectedVariant.getName());
+            item.setVariantId(variantOid);
             CartManager.getInstance(requireContext()).addItem(item);
 
             // Đồng bộ lên giỏ hàng server (nếu đã đăng nhập & là sản phẩm cloud) — để giỏ theo được nhiều thiết bị.
             String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
             if (isCloud && userOid != null) {
                 com.pompom.group6.network.ApiClient.get()
-                        .addCartItem(new com.pompom.group6.network.dto.CartItemRequest(userOid, productId, quantity))
+                        .addCartItem(new com.pompom.group6.network.dto.CartItemRequest(userOid, productId, variantOid, quantity))
                         .enqueue(new retrofit2.Callback<Void>() {
                             @Override public void onResponse(retrofit2.Call<Void> c, retrofit2.Response<Void> r) {}
                             @Override public void onFailure(retrofit2.Call<Void> c, Throwable t) {}

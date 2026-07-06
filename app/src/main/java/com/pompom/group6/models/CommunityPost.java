@@ -15,6 +15,8 @@ public class CommunityPost {
     private String postType;
     private String userName;
     private String userAvatar;
+    private boolean saved;
+    private boolean liked;
 
     public CommunityPost(String postId, int userId, String content, String imageUrl, int likeCount, int commentCount, String postType) {
         this.postId = postId;
@@ -57,4 +59,8 @@ public class CommunityPost {
     public void setUserName(String userName) { this.userName = userName; }
     public String getUserAvatar() { return userAvatar; }
     public void setUserAvatar(String userAvatar) { this.userAvatar = userAvatar; }
+    public boolean isSaved() { return saved; }
+    public void setSaved(boolean saved) { this.saved = saved; }
+    public boolean isLiked() { return liked; }
+    public void setLiked(boolean liked) { this.liked = liked; }
 }

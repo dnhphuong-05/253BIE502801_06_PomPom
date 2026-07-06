@@ -28,6 +28,14 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/promotion1" />
 
+            <androidx.media3.ui.PlayerView
+                android:id="@+id/playerViewStory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:resize_mode="zoom"
+                app:use_controller="false" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
@@ -41,36 +49,7 @@
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ProgressBar
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginHorizontal="2dp"
-                    android:layout_weight="1"
-                    android:progress="100"
-                    android:progressTint="@color/white" />
-
-                <ProgressBar
-                    android:id="@+id/pbStory"
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginHorizontal="2dp"
-                    android:layout_weight="1"
-                    android:progress="30"
-                    android:progressTint="@color/white" />
-
-                <ProgressBar
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginHorizontal="2dp"
-                    android:layout_weight="1"
-                    android:progress="0"
-                    android:progressTint="@color/white" />
-            </LinearLayout>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
                 android:id="@+id/layoutUser"
