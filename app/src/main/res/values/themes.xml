@@ -32,6 +32,20 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <!-- Chip lọc nguồn thước phim (Tất cả/Instagram/TikTok/Facebook) trong tab Community. -->
+    <style name="ReelSourceChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_white_pill_button</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:paddingHorizontal">14dp</item>
+        <item name="android:paddingVertical">7dp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">12.5sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
     <style name="ChatBubbleUserShape">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>

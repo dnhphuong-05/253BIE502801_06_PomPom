@@ -7,7 +7,6 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
@@ -28,7 +27,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /** Form gửi yêu cầu tư vấn tới chuyên gia/bác sĩ PomPom. */
-public class ConsultationRequestActivity extends AppCompatActivity {
+public class ConsultationRequestActivity extends SwipeBackActivity {
 
     public static final String EXTRA_EXPERT_ID = "extra_expert_id";
     public static final String EXTRA_ARTICLE_ID = "extra_article_id";
@@ -54,6 +53,7 @@ public class ConsultationRequestActivity extends AppCompatActivity {
         binding = ActivityConsultationRequestBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         StatusBarUtils.applyPinkHeader(this);
+        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
 
         binding.header.btnBack.setOnClickListener(v -> finish());
         binding.header.tvHeaderTitle.setText("Liên hệ tư vấn");

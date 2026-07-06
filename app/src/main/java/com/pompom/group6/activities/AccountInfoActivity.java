@@ -8,7 +8,7 @@ import com.pompom.group6.network.ApiClient;
 import com.pompom.group6.network.Session;
 import com.pompom.group6.network.dto.ApiUser;
 import com.pompom.group6.network.dto.UserUpdateRequest;
-import com.pompom.group6.utils.UiUtils;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,7 +24,8 @@ public class AccountInfoActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAccountInfoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        UiUtils.applyPinkStatusBar(this);
+        StatusBarUtils.applyPinkHeader(this);
+        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
 
         binding.header.tvHeaderTitle.setText("Thông tin tài khoản");
         binding.header.btnBack.setOnClickListener(v -> finish());

@@ -198,7 +198,8 @@
         <activity
             android:name=".activities.ArticleDetailActivity"
             android:exported="false"
-            android:theme="@style/Theme.Group6" />
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".activities.ConsultationRequestActivity"

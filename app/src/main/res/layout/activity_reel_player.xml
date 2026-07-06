@@ -6,94 +6,28 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <androidx.media3.ui.PlayerView
-        android:id="@+id/playerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+    <!-- Lướt dọc để xem thước phim tiếp theo, giống Reels trên Facebook/Instagram -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vpReels"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:resize_mode="fit"
-        app:use_controller="true" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/btnBack"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="52dp"
         android:padding="8dp"
         android:src="@drawable/ic_left_chevron"
         app:tint="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription" />
-
-    <!-- Overlay: author + caption + tagged products -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_reel_bottom_gradient"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivPlayerAuthorAvatar"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_avatar"
-                app:shapeAppearanceOverlay="@style/CircleShape"
-                tools:ignore="ContentDescription" />
-
-            <TextView
-                android:id="@+id/tvPlayerAuthorName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="Beauty by Linh"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-            <ImageView
-                android:id="@+id/ivPlayerVerified"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_marginStart="4dp"
-                android:src="@drawable/ic_verified_badge"
-                tools:ignore="ContentDescription" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvPlayerCaption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins_regular"
-            android:text="Swatch son PomPom Velvet Rose 💋 lên môi mịn như nhung"
-            android:textColor="@color/white"
-            android:textSize="13sp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvPlayerProductTags"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:clipToPadding="false"
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

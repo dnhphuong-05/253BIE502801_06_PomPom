@@ -197,13 +197,11 @@ public class ProductDetailActivity extends AppCompatActivity
                     // nền + viền: trắng/hồng nhạt → hồng đậm; mũi tên: hồng nhạt → trắng.
                     float t = Math.max(0f, Math.min(1f,
                             (dx - colorStartPx) / (colorEndPx - colorStartPx)));
-                    int pinkLight = ContextCompat.getColor(this, R.color.brand_pink_light);
-                    int pinkDark = ContextCompat.getColor(this, R.color.pink_button);
-                    int bgColor = (int) argbEvaluator.evaluate(t, android.graphics.Color.WHITE, pinkDark);
-                    int strokeColor = (int) argbEvaluator.evaluate(t, pinkLight, pinkDark);
-                    int arrowColor = (int) argbEvaluator.evaluate(t, pinkLight, android.graphics.Color.WHITE);
+                    int brandPink = ContextCompat.getColor(this, R.color.brand_pink);
+                    int bgColor = (int) argbEvaluator.evaluate(t, android.graphics.Color.WHITE, brandPink);
+                    int arrowColor = (int) argbEvaluator.evaluate(t, brandPink, android.graphics.Color.WHITE);
                     binding.swipeBackIndicator.setCardBackgroundColor(bgColor);
-                    binding.swipeBackIndicator.setStrokeColor(strokeColor);
+                    binding.swipeBackIndicator.setStrokeColor(brandPink);
                     binding.ivSwipeArrow.setColorFilter(arrowColor);
                     return true;
                 }

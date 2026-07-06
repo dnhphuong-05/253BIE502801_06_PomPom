@@ -8,7 +8,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.pompom.group6.databinding.ActivityPaymentBinding;
-import com.pompom.group6.utils.UiUtils;
+import com.pompom.group6.utils.StatusBarUtils;
 
 public class PaymentActivity extends SwipeBackActivity {
 
@@ -20,7 +20,8 @@ public class PaymentActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityPaymentBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        UiUtils.applyPinkStatusBar(this);
+        StatusBarUtils.applyPinkHeader(this);
+        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
 
         binding.header.tvHeaderTitle.setText("Thanh toán");
         binding.header.btnBack.setOnClickListener(v -> finish());

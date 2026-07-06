@@ -918,7 +918,7 @@
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="24dp"
         app:cardElevation="6dp"
-        app:strokeColor="@color/brand_pink_light"
+        app:strokeColor="@color/brand_pink"
         app:strokeWidth="2dp">
 
         <ImageView
@@ -928,7 +928,7 @@
             android:layout_gravity="center"
             android:contentDescription="@null"
             android:src="@drawable/ic_left_chevron"
-            app:tint="@color/brand_pink_light" />
+            app:tint="@color/brand_pink" />
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

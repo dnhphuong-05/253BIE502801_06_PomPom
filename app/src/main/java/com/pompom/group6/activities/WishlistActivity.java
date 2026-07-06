@@ -13,7 +13,7 @@ import com.pompom.group6.network.ApiClient;
 import com.pompom.group6.network.ProductMapper;
 import com.pompom.group6.network.Session;
 import com.pompom.group6.network.dto.ApiProduct;
-import com.pompom.group6.utils.UiUtils;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,8 @@ public class WishlistActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityWishlistBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        UiUtils.applyPinkStatusBar(this);
+        StatusBarUtils.applyPinkHeader(this);
+        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
 
         binding.header.tvHeaderTitle.setText("Yêu thích");
         binding.header.btnBack.setOnClickListener(v -> finish());
