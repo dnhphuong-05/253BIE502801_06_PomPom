@@ -1,10 +1,29 @@
 const express = require("express");
 const { Types } = require("mongoose");
-const { CommunityPost, Comment, User, Product, Like, SavedPost } = require("../models");
+const { CommunityPost, Comment, User, Product, Like, SavedPost, Notification } = require("../models");
 const { serialize } = require("../serialize");
 
 const router = express.Router();
 const oid = (v) => (Types.ObjectId.isValid(v) ? new Types.ObjectId(v) : null);
+
+// Tạo thông báo cho chủ bài viết khi có người khác thích/bình luận — bỏ qua khi tự tương tác
+// với bài của chính mình (không cần tự thông báo cho bản thân).
+async function notifyPostOwner(postId, actorId, type, message) {
+  const post = await CommunityPost.findById(postId).lean();
+  if (!post || String(post.user_id) === String(actorId)) return;
+  const actor = await User.findById(actorId).lean();
+  await Notification.create({
+    user_id: post.user_id,
+    type,
+    actor_id: actorId,
+    actor_name: actor?.full_name || "Người dùng",
+    actor_avatar: actor?.avatar_url || null,
+    post_id: postId,
+    message,
+    is_read: false,
+    created_at: new Date(),
+  });
+}
 
 async function withAuthors(posts) {
   for (const p of posts) {
@@ -157,6 +176,7 @@ router.post("/posts/:id/comments", async (req, res) => {
       created_at: new Date(),
     });
     await CommunityPost.updateOne({ _id: postId }, { $inc: { comment_count: 1 } });
+    await notifyPostOwner(postId, uid, "comment", "đã bình luận về bài viết của bạn");
 
     const u = await User.findById(uid).lean();
     const out = serialize(comment.toObject());
@@ -183,6 +203,7 @@ router.post("/posts/:id/like", async (req, res) => {
     } else {
       await Like.create({ user_id: uid, post_id: postId, created_at: new Date() });
       await CommunityPost.updateOne({ _id: postId }, { $inc: { like_count: 1 } });
+      await notifyPostOwner(postId, uid, "like", "đã thích bài viết của bạn");
       res.json({ liked: true });
     }
   } catch (e) {

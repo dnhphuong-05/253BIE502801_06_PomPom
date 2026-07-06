@@ -68,15 +68,17 @@ public final class StatusBarUtils {
      * (nền hồng) xuống dưới status bar mà vẫn tô màu xuyên qua vùng đó, và chừa khoảng dưới
      * để nội dung không bị thanh điều hướng hệ thống che mất.
      *
-     * <p>Cần thiết vì từ Android 15 (targetSdk 35+), hệ thống LUÔN vẽ edge-to-edge — thuộc
-     * tính {@code android:fitsSystemWindows} trên các View thường (không phải widget Material
-     * như AppBarLayout) không còn tự động chèn padding như trước.</p>
+     * <p>Chủ động bật edge-to-edge (thay vì dựa vào mặc định của từng bản Android — Android 15+
+     * luôn ép edge-to-edge, các bản cũ hơn thì KHÔNG, hệ thống tự chừa padding sẵn). Nếu không
+     * ép edge-to-edge ở đây, trên Android cũ padding thủ công bên dưới sẽ bị CỘNG DỒN với phần
+     * hệ thống đã tự chừa sẵn, làm header/nội dung bị đẩy lệch xuống gấp đôi.</p>
      *
      * @param headerRoot      root view của include_screen_header (nhận padding-top)
      * @param bottomPaddedView view sẽ nhận thêm padding-bottom (thường là root layout của màn)
      */
     public static void applyHeaderContentInsets(Activity activity, View headerRoot, View bottomPaddedView) {
         if (activity == null) return;
+        WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), false);
         View decor = activity.getWindow().getDecorView();
         ViewCompat.setOnApplyWindowInsetsListener(decor, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

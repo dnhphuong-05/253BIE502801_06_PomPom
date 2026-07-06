@@ -17,6 +17,7 @@ public class CommunityPost {
     private String userAvatar;
     private boolean saved;
     private boolean liked;
+    private String authorId; // ObjectId thật của tác giả (khác userId int cũ) — dùng để theo dõi
 
     public CommunityPost(String postId, int userId, String content, String imageUrl, int likeCount, int commentCount, String postType) {
         this.postId = postId;
@@ -63,4 +64,6 @@ public class CommunityPost {
     public void setSaved(boolean saved) { this.saved = saved; }
     public boolean isLiked() { return liked; }
     public void setLiked(boolean liked) { this.liked = liked; }
+    public String getAuthorId() { return authorId; }
+    public void setAuthorId(String authorId) { this.authorId = authorId; }
 }

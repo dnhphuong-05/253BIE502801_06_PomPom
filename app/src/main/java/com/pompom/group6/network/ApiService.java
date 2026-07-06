@@ -1,6 +1,5 @@
 package com.pompom.group6.network;
 
-import com.google.gson.JsonElement;
 import com.pompom.group6.network.dto.ApiAddress;
 import com.pompom.group6.network.dto.ApiOrder;
 import com.pompom.group6.network.dto.ApiPointsTransaction;
@@ -58,6 +57,16 @@ public interface ApiService {
 
     @DELETE("api/users/{id}/addresses/{addrId}")
     Call<Void> deleteAddress(@Path("id") String userId, @Path("addrId") String addrId);
+
+    /** Theo dõi / bỏ theo dõi người dùng khác — tạo thông báo thật cho người được theo dõi. */
+    @GET("api/users/{id}/follow-status")
+    Call<Map<String, Boolean>> getFollowStatus(@Path("id") String userId, @Query("follower_id") String followerId);
+
+    @POST("api/users/{id}/follow")
+    Call<Map<String, Boolean>> followUser(@Path("id") String userId, @Body Map<String, String> body);
+
+    @DELETE("api/users/{id}/follow")
+    Call<Map<String, Boolean>> unfollowUser(@Path("id") String userId, @Query("follower_id") String followerId);
 
     /** Voucher của user. */
     @GET("api/users/{id}/vouchers")
@@ -197,7 +206,7 @@ public interface ApiService {
     Call<com.pompom.group6.network.dto.ApiNearbyPost> createNearbyPost(@Body com.pompom.group6.network.dto.NearbyPostRequest body);
 
     @GET("api/notifications")
-    Call<List<JsonElement>> getNotifications(@Query("user_id") String userId);
+    Call<List<com.pompom.group6.network.dto.ApiNotification>> getNotifications(@Query("user_id") String userId);
 
     // ---- Community ----
     @GET("api/community/posts")

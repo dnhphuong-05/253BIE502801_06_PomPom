@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         
         if (controller != null) {
             // Dynamic Status Bar Icon Color based on Fragment background
-            if (index == 0 || index == 1 || index == 4) { // Home (0), Shop (1) or Me (4) have pink headers
+            if (index == 0 || index == 1 || index == 3 || index == 4) { // Home (0), Shop (1), Community (3), Me (4) have pink headers
                 // Pink background -> White icons (disable light status bar)
                 controller.setAppearanceLightStatusBars(false);
             } else {

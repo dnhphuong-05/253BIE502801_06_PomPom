@@ -26,6 +26,7 @@ public class ReelPagerAdapter extends RecyclerView.Adapter<ReelPagerAdapter.Page
     private final List<ApiReel> reels;
     private final ExoPlayer player;
     private int activePosition = -1;
+    private int bottomInsetPx = 0;
     private RecyclerView recyclerView;
 
     public ReelPagerAdapter(List<ApiReel> reels, ExoPlayer player) {
@@ -64,6 +65,13 @@ public class ReelPagerAdapter extends RecyclerView.Adapter<ReelPagerAdapter.Page
         }
         holder.binding.tvPlayerCaption.setText(reel.caption);
 
+        // Chừa khoảng cho thanh điều hướng hệ thống (video tràn full-screen phía sau nó) —
+        // áp cho cả overlay chú thích lẫn PlayerView để thanh tua ExoPlayer không bị che.
+        float d = holder.itemView.getResources().getDisplayMetrics().density;
+        View overlay = holder.binding.layoutReelOverlay;
+        overlay.setPadding((int) (16 * d), (int) (32 * d), (int) (16 * d), (int) (24 * d) + bottomInsetPx);
+        holder.binding.playerView.setPadding(0, 0, 0, bottomInsetPx);
+
         if (reel.productTags != null && !reel.productTags.isEmpty()) {
             holder.binding.rvPlayerProductTags.setVisibility(View.VISIBLE);
             holder.binding.rvPlayerProductTags.setLayoutManager(
@@ -89,6 +97,13 @@ public class ReelPagerAdapter extends RecyclerView.Adapter<ReelPagerAdapter.Page
     @Override
     public int getItemCount() {
         return reels != null ? reels.size() : 0;
+    }
+
+    /** Gọi khi biết chiều cao thanh điều hướng hệ thống — áp cho các trang đã bind lại. */
+    public void setBottomInset(int px) {
+        if (bottomInsetPx == px) return;
+        bottomInsetPx = px;
+        notifyDataSetChanged();
     }
 
     /** Gọi khi ViewPager2 đổi trang: phát reel đang hiển thị, gỡ player khỏi trang cũ. */

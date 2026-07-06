@@ -69,15 +69,19 @@ public class ArticleDetailActivity extends SwipeBackActivity {
         Glide.with(this).load(coverImage).placeholder(R.drawable.logo_pompom).into(binding.ivArticleCover);
         Glide.with(this).load(authorAvatar).placeholder(R.drawable.ic_avatar).into(binding.ivArticleAuthorAvatar);
 
-        // Luôn hiện nút liên hệ tư vấn — bài blog thì để người dùng tự chọn chuyên gia,
-        // bài tips thì đã có sẵn chuyên gia phụ trách (expertId).
-        binding.btnConsultFromArticle.setVisibility(View.VISIBLE);
-        binding.btnConsultFromArticle.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ConsultationRequestActivity.class);
-            if (expertId != null) intent.putExtra(ConsultationRequestActivity.EXTRA_EXPERT_ID, expertId);
-            if (articleId != null) intent.putExtra(ConsultationRequestActivity.EXTRA_ARTICLE_ID, articleId);
-            startActivity(intent);
-        });
+        // Chỉ bài Tips (có expertId — bác sĩ phụ trách) mới hiện nút liên hệ tư vấn;
+        // bài Blog thương hiệu không có bác sĩ gắn sẵn nên bỏ nút này (đã có nút tư vấn nổi chung).
+        if (expertId != null) {
+            binding.btnConsultFromArticle.setVisibility(View.VISIBLE);
+            binding.btnConsultFromArticle.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ConsultationRequestActivity.class);
+                intent.putExtra(ConsultationRequestActivity.EXTRA_EXPERT_ID, expertId);
+                if (articleId != null) intent.putExtra(ConsultationRequestActivity.EXTRA_ARTICLE_ID, articleId);
+                startActivity(intent);
+            });
+        } else {
+            binding.btnConsultFromArticle.setVisibility(View.GONE);
+        }
 
         setupComments(articleId);
     }

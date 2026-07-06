@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { Types } = require("mongoose");
-const { User, UserAddress, Wishlist, Product, ProductImage, UserVoucher, Voucher, PointsTransaction } = require("../models");
+const { User, UserAddress, Wishlist, Product, ProductImage, UserVoucher, Voucher, PointsTransaction, Follow, Notification } = require("../models");
 const { toUserDto, serialize } = require("../dto");
 
 const router = express.Router();
@@ -176,6 +176,64 @@ router.delete("/:id/wishlist/:productId", async (req, res) => {
   try {
     const r = await Wishlist.deleteOne({ user_id: oid(req.params.id), product_id: oid(req.params.productId) });
     res.json({ ok: r.deletedCount > 0 });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/users/:id/follow-status?follower_id=  -> follower_id đang có theo dõi :id hay không
+router.get("/:id/follow-status", async (req, res) => {
+  try {
+    const followingId = oid(req.params.id);
+    const followerId = oid(req.query.follower_id);
+    if (!followingId || !followerId) return res.status(400).json({ error: "id không hợp lệ" });
+    const exists = await Follow.exists({ follower_id: followerId, following_id: followingId });
+    res.json({ following: !!exists });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/users/:id/follow  { follower_id }  -> theo dõi (idempotent) + tạo thông báo
+router.post("/:id/follow", async (req, res) => {
+  try {
+    const followingId = oid(req.params.id);
+    const followerId = oid(req.body?.follower_id);
+    if (!followingId || !followerId) return res.status(400).json({ error: "id không hợp lệ" });
+    if (String(followingId) === String(followerId)) {
+      return res.status(400).json({ error: "Không thể tự theo dõi chính mình" });
+    }
+
+    const existing = await Follow.findOne({ follower_id: followerId, following_id: followingId });
+    if (!existing) {
+      await Follow.create({ follower_id: followerId, following_id: followingId, created_at: new Date() });
+      const actor = await User.findById(followerId).lean();
+      await Notification.create({
+        user_id: followingId,
+        type: "follow",
+        actor_id: followerId,
+        actor_name: actor?.full_name || "Người dùng",
+        actor_avatar: actor?.avatar_url || null,
+        post_id: null,
+        message: "đã bắt đầu theo dõi bạn",
+        is_read: false,
+        created_at: new Date(),
+      });
+    }
+    res.status(201).json({ following: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// DELETE /api/users/:id/follow?follower_id=  -> bỏ theo dõi
+router.delete("/:id/follow", async (req, res) => {
+  try {
+    const followingId = oid(req.params.id);
+    const followerId = oid(req.query.follower_id);
+    if (!followingId || !followerId) return res.status(400).json({ error: "id không hợp lệ" });
+    await Follow.deleteOne({ follower_id: followerId, following_id: followingId });
+    res.json({ following: false });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
