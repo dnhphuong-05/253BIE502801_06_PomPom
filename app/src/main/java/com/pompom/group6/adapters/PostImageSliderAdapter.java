@@ -1,6 +1,9 @@
 package com.pompom.group6.adapters;
 
+import android.content.Context;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,9 +20,16 @@ public class PostImageSliderAdapter extends RecyclerView.Adapter<PostImageSlider
 
     private final List<String> imageUrls;
     private OnImageLongClickListener longClickListener;
+    private OnImageTapListener tapListener;
 
     public interface OnImageLongClickListener {
         void onImageLongClick(String imageUrl);
+    }
+
+    /** Chạm 1 lần trên ảnh -> mở chi tiết bài viết; chạm đúp -> thích nhanh (kiểu Instagram). */
+    public interface OnImageTapListener {
+        void onSingleTap();
+        void onDoubleTap();
     }
 
     public PostImageSliderAdapter(List<String> imageUrls) {
@@ -28,6 +38,10 @@ public class PostImageSliderAdapter extends RecyclerView.Adapter<PostImageSlider
 
     public void setOnImageLongClickListener(OnImageLongClickListener listener) {
         this.longClickListener = listener;
+    }
+
+    public void setOnImageTapListener(OnImageTapListener listener) {
+        this.tapListener = listener;
     }
 
     @NonNull
@@ -52,6 +66,26 @@ public class PostImageSliderAdapter extends RecyclerView.Adapter<PostImageSlider
                 return true;
             }
             return false;
+        });
+
+        // Gắn trực tiếp lên ImageView của từng trang (không phải lên ViewPager2 bao ngoài) —
+        // đây mới là view thực sự nhận sự kiện chạm, tương thích với thao tác vuốt đổi trang.
+        Context context = holder.imageView.getContext();
+        GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(@NonNull MotionEvent e) {
+                if (tapListener != null) tapListener.onDoubleTap();
+                return true;
+            }
+            @Override
+            public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
+                if (tapListener != null) tapListener.onSingleTap();
+                return true;
+            }
+        });
+        holder.imageView.setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            return true;
         });
     }
 

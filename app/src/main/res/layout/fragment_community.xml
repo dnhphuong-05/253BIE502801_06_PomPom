@@ -43,6 +43,20 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivUserAvatar"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user2"
+                    app:shapeAppearanceOverlay="@style/CircleShape"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="1dp"
+                    app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+                    app:layout_constraintEnd_toStartOf="@id/btnNotifications"
+                    app:layout_constraintTop_toTopOf="@id/tvTitle" />
+
                 <FrameLayout
                     android:id="@+id/btnNotifications"
                     android:layout_width="26dp"
