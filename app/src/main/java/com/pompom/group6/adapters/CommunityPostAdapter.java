@@ -4,9 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -68,14 +66,22 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
                 .placeholder(R.drawable.ic_avatar)
                 .into(holder.ivUserAvatar);
 
-        // SLIDER LOGIC
+        // like_count từ server đã tính theo đúng trạng thái is_liked lúc tải — cố định làm mốc
+        // để tính lại số hiển thị khi người dùng bấm thích/bỏ thích nhiều lần trong cùng 1 lần bind.
+        boolean originalLiked = post.isLiked();
+
+        // SLIDER LOGIC — chạm 1 lần trên ảnh mở chi tiết bài viết, chạm đúp để thích nhanh.
         List<String> imageList = post.getImages();
         if (imageList != null && !imageList.isEmpty()) {
             holder.layoutPostImages.setVisibility(View.VISIBLE);
             PostImageSliderAdapter sliderAdapter = new PostImageSliderAdapter(imageList);
             sliderAdapter.setOnImageLongClickListener(imageUrl -> showImagePreview(holder.itemView.getContext(), imageUrl));
+            sliderAdapter.setOnImageTapListener(new PostImageSliderAdapter.OnImageTapListener() {
+                @Override public void onSingleTap() { openPostDetail(holder.itemView, post.getPostId()); }
+                @Override public void onDoubleTap() { toggleLike(holder, post, originalLiked); }
+            });
             holder.vpPostImages.setAdapter(sliderAdapter);
-            
+
             if (imageList.size() > 1) {
                 holder.tabIndicator.setVisibility(View.VISIBLE);
                 new TabLayoutMediator(holder.tabIndicator, holder.vpPostImages, (tab, pos) -> {}).attach();
@@ -88,9 +94,6 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
 
         bindLikeState(holder, post);
         bindBookmarkState(holder, post);
-        // like_count từ server đã tính theo đúng trạng thái is_liked lúc tải — cố định làm mốc
-        // để tính lại số hiển thị khi người dùng bấm thích/bỏ thích nhiều lần trong cùng 1 lần bind.
-        boolean originalLiked = post.isLiked();
         setupLikeLogic(holder, post, originalLiked);
         setupFollowLogic(holder, post);
         setupSocialActions(holder, post);
@@ -179,22 +182,6 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
      */
     private void setupLikeLogic(PostViewHolder holder, CommunityPost post, boolean originalLiked) {
         holder.itemView.setOnClickListener(v -> openPostDetail(v, post.getPostId()));
-
-        GestureDetector imageGestureDetector = new GestureDetector(holder.itemView.getContext(),
-                new GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onDoubleTap(@NonNull MotionEvent e) {
-                        toggleLike(holder, post, originalLiked);
-                        return true;
-                    }
-                    @Override
-                    public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
-                        openPostDetail(holder.itemView, post.getPostId());
-                        return true;
-                    }
-                });
-        holder.vpPostImages.getChildAt(0).setOnTouchListener((v, event) -> imageGestureDetector.onTouchEvent(event));
-
         holder.layoutLike.setOnClickListener(v -> toggleLike(holder, post, originalLiked));
     }
 

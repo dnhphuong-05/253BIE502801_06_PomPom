@@ -6,19 +6,16 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- fitsSystemWindows + statusBarForeground trên chính AppBarLayout: Material tự chèn
-         padding đúng theo status bar và tô nền trắng xuyên qua, tránh bị "trong suốt" khi cuộn. -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:fitsSystemWindows="true"
-        app:elevation="0dp"
-        app:statusBarForeground="@color/white">
+        app:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/white">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -405,23 +402,11 @@
                     android:backgroundTint="#F8F8F8"
                     android:fontFamily="@font/poppins_regular"
                     android:hint="Viết bình luận..."
+                    android:imeOptions="actionSend"
+                    android:inputType="text"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:textSize="14sp" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="12dp"
-                    android:src="@drawable/ic_images"
-                    app:tint="@color/text_secondary" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="12dp"
-                    android:src="@drawable/ic_emoji"
-                    app:tint="@color/text_secondary" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

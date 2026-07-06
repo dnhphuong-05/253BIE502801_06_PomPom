@@ -29,6 +29,7 @@ public final class Session {
                 .putString("user_oid", user.id)
                 .putString("user_name", user.fullName)
                 .putString("user_email", user.email)
+                .putString("user_avatar", user.avatarUrl)
                 .apply();
     }
 
@@ -45,12 +46,17 @@ public final class Session {
         return prefs(c).getString("user_name", null);
     }
 
+    public static String getUserAvatar(Context c) {
+        return prefs(c).getString("user_avatar", null);
+    }
+
     public static void logout(Context c) {
         prefs(c).edit()
                 .remove("is_logged_in")
                 .remove("user_oid")
                 .remove("user_name")
                 .remove("user_email")
+                .remove("user_avatar")
                 .apply();
     }
 }

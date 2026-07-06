@@ -3,6 +3,7 @@ package com.pompom.group6.activities;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
@@ -38,10 +39,10 @@ public class PostDetailActivity extends SwipeBackActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Header trắng, cuộn không bị trong suốt: edge-to-edge tường minh + status bar trong
-        // suốt với icon TỐI (vì AppBarLayout/nội dung nền trắng), thay cho cờ cũ đã lỗi thời.
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        // Màn này không cần edge-to-edge: để hệ thống tự chừa khoảng (padding) cho status bar
+        // và nav bar như bình thường — cách này đã chứng minh ổn định trên máy thật, tránh
+        // header bị lệch màu với status bar và nội dung bị đè xuống thanh điều hướng dưới.
+        getWindow().setStatusBarColor(Color.WHITE);
         getWindow().setNavigationBarColor(Color.WHITE);
         WindowInsetsControllerCompat controller =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
@@ -138,9 +139,9 @@ public class PostDetailActivity extends SwipeBackActivity {
                 binding.tvPostContent.setText(p.content);
                 binding.tvPostTime.setText(TimeUtils.relativeTime(p.createdAt));
                 binding.tvLikeCount.setText(formatCount(p.likeCount));
-                binding.tvCommentCount.setText(String.valueOf(p.commentCount));
                 binding.tvShareCount.setText(formatCount(p.shareCount));
-                binding.tvCommentSectionTitle.setText("Bình luận (" + p.commentCount + ")");
+                // Số bình luận hiển thị dựa trên danh sách bình luận thật tải được bên dưới
+                // (không dùng comment_count lưu sẵn — có thể lệch với số bản ghi Comment thật).
 
                 String img = p.images != null && !p.images.isEmpty() ? p.images.get(0) : null;
                 Glide.with(PostDetailActivity.this).load(img).into(binding.ivPostImage);
@@ -167,6 +168,11 @@ public class PostDetailActivity extends SwipeBackActivity {
 
         // 3) Bình luận thật.
         binding.rvComments.setLayoutManager(new LinearLayoutManager(this));
+        loadComments();
+        setupCommentInput();
+    }
+
+    private void loadComments() {
         ApiClient.get().getPostComments(postId).enqueue(new Callback<List<com.pompom.group6.network.dto.ApiComment>>() {
             @Override
             public void onResponse(Call<List<com.pompom.group6.network.dto.ApiComment>> call,
@@ -178,8 +184,47 @@ public class PostDetailActivity extends SwipeBackActivity {
                             TimeUtils.relativeTime(c.createdAt)));
                 }
                 binding.rvComments.setAdapter(new CommentAdapter(comments));
+                binding.tvCommentCount.setText(String.valueOf(comments.size()));
+                binding.tvCommentSectionTitle.setText("Bình luận (" + comments.size() + ")");
             }
             @Override public void onFailure(Call<List<com.pompom.group6.network.dto.ApiComment>> call, Throwable t) {}
+        });
+    }
+
+    /** Bấm Enter/nút gửi trên bàn phím để đăng bình luận thật, lưu qua MongoDB. */
+    private void setupCommentInput() {
+        binding.etComment.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                submitComment();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void submitComment() {
+        String userOid = Session.getUserOid(this);
+        if (userOid == null) {
+            Toast.makeText(this, "Vui lòng đăng nhập để bình luận", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String content = binding.etComment.getText().toString().trim();
+        if (content.isEmpty()) return;
+
+        Map<String, String> body = new java.util.HashMap<>();
+        body.put("user_id", userOid);
+        body.put("content", content);
+        ApiClient.get().addComment(postId, body).enqueue(new Callback<com.pompom.group6.network.dto.ApiComment>() {
+            @Override
+            public void onResponse(Call<com.pompom.group6.network.dto.ApiComment> call,
+                                   Response<com.pompom.group6.network.dto.ApiComment> resp) {
+                if (binding == null || !resp.isSuccessful()) return;
+                binding.etComment.setText("");
+                loadComments();
+            }
+            @Override public void onFailure(Call<com.pompom.group6.network.dto.ApiComment> call, Throwable t) {
+                Toast.makeText(PostDetailActivity.this, "Không gửi được bình luận", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

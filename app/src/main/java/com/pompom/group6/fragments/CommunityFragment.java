@@ -79,11 +79,29 @@ public class CommunityFragment extends Fragment {
         setupRefreshLayout();
         setupFabs();
         setupReelSourceFilter();
+        setupHeaderIcons();
 
         loadReels();
         loadBlogs();
         loadTips();
         loadAllPosts();
+    }
+
+    /** Avatar nếu đã đăng nhập, icon khách nếu chưa; chuông thông báo mở màn Thông báo thật. */
+    private void setupHeaderIcons() {
+        String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
+        if (userOid != null) {
+            String avatarUrl = com.pompom.group6.network.Session.getUserAvatar(requireContext());
+            com.bumptech.glide.Glide.with(this)
+                    .load(avatarUrl)
+                    .placeholder(R.drawable.ic_user2)
+                    .into(binding.ivUserAvatar);
+        } else {
+            binding.ivUserAvatar.setImageResource(R.drawable.ic_user2);
+        }
+
+        binding.btnNotifications.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), com.pompom.group6.activities.NotificationActivity.class)));
     }
 
     // ── Tab trên cùng: Thước phim / Blog thương hiệu / Tips bác sĩ / Tin gần đây ──
