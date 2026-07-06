@@ -242,6 +242,10 @@ public interface ApiService {
     Call<java.util.Map<String, Boolean>> toggleLike(@Path("id") String postId,
                                                     @Body java.util.Map<String, String> body);
 
+    /** Tăng lượt chia sẻ thật (không toggle) — trả về { share_count }. */
+    @POST("api/community/posts/{id}/share")
+    Call<java.util.Map<String, Integer>> sharePost(@Path("id") String postId);
+
     @GET("api/community/posts/{id}/tagged")
     Call<List<ApiProduct>> getPostTaggedProducts(@Path("id") String postId);
 

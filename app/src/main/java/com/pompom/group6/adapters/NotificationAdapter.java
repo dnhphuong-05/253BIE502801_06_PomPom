@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
 import com.pompom.group6.network.dto.ApiNotification;
+import com.pompom.group6.utils.TimeUtils;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Danh sách thông báo thật (khớp GET /api/notifications) — 2 dạng: tương tác xã hội
@@ -67,7 +67,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                             : R.drawable.ic_heart);
         }
 
-        holder.tvTime.setText(relativeTime(n.createdAt));
+        holder.tvTime.setText(TimeUtils.relativeTime(n.createdAt));
         holder.dotUnread.setVisibility(n.isRead ? View.GONE : View.VISIBLE);
 
         holder.itemView.setOnClickListener(v -> {
@@ -78,25 +78,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public int getItemCount() {
         return items != null ? items.size() : 0;
-    }
-
-    /** Đổi ISO timestamp thật từ server thành "x phút/giờ/ngày trước". */
-    private String relativeTime(String iso) {
-        if (iso == null) return "";
-        try {
-            java.time.Instant then = java.time.Instant.parse(iso);
-            long minutes = TimeUnit.MILLISECONDS.toMinutes(
-                    java.time.Instant.now().toEpochMilli() - then.toEpochMilli());
-            if (minutes < 1) return "Vừa xong";
-            if (minutes < 60) return minutes + " phút trước";
-            long hours = minutes / 60;
-            if (hours < 24) return hours + " giờ trước";
-            long days = hours / 24;
-            if (days < 7) return days + " ngày trước";
-            return then.toString().substring(0, 10);
-        } catch (Exception e) {
-            return "";
-        }
     }
 
     static class NotifViewHolder extends RecyclerView.ViewHolder {

@@ -280,6 +280,8 @@ public class CommunityFragment extends Fragment {
             cp.setSaved(a.isSaved);
             cp.setLiked(a.isLiked);
             cp.setAuthorId(a.userId);
+            cp.setShareCount(a.shareCount);
+            cp.setCreatedAt(a.createdAt);
             posts.add(cp);
         }
         return posts;
@@ -301,8 +303,14 @@ public class CommunityFragment extends Fragment {
         });
     }
 
-    /** Nút tròn nổi: bấm để nảy lên 2 lựa chọn "Tạo bài viết" / "Liên hệ tư vấn". */
+    /** Nút tròn nổi: bấm để nảy lên 2 lựa chọn "Tạo bài viết" / "Liên hệ tư vấn"; kéo được tự do. */
     private void setupFabs() {
+        // Vài thiết bị/theme Material3 vẫn tự áp animator đổi elevation khi nhấn/giữ dù đã khai
+        // báo app:elevation="0dp" trong XML — tắt hẳn bằng code để bóng không còn "giới hạn cứng".
+        binding.fabMain.setStateListAnimator(null);
+        binding.fabAddPost.setStateListAnimator(null);
+        binding.fabConsult.setStateListAnimator(null);
+
         binding.fabMain.setOnClickListener(v -> {
             if (fabExpanded) collapseSpeedDial(); else expandSpeedDial();
         });
@@ -313,6 +321,42 @@ public class CommunityFragment extends Fragment {
         binding.fabConsult.setOnClickListener(v -> {
             collapseSpeedDial();
             startActivity(new Intent(requireContext(), ConsultationRequestActivity.class));
+        });
+
+        setupFabDrag();
+    }
+
+    /** Kéo-thả cả cụm nút nổi đi bất kỳ đâu trên màn hình — nhấn nhẹ (không kéo) vẫn mở/đóng dial. */
+    private void setupFabDrag() {
+        binding.fabMain.setOnTouchListener(new View.OnTouchListener() {
+            private float dX, dY, startX, startY;
+            private static final int CLICK_THRESHOLD = 10;
+
+            @Override
+            public boolean onTouch(View view, android.view.MotionEvent event) {
+                View group = binding.speedDialGroup;
+                switch (event.getAction()) {
+                    case android.view.MotionEvent.ACTION_DOWN:
+                        dX = group.getTranslationX() - event.getRawX();
+                        dY = group.getTranslationY() - event.getRawY();
+                        startX = event.getRawX();
+                        startY = event.getRawY();
+                        return true;
+                    case android.view.MotionEvent.ACTION_MOVE:
+                        group.setTranslationX(event.getRawX() + dX);
+                        group.setTranslationY(event.getRawY() + dY);
+                        return true;
+                    case android.view.MotionEvent.ACTION_UP:
+                        float diffX = Math.abs(event.getRawX() - startX);
+                        float diffY = Math.abs(event.getRawY() - startY);
+                        if (diffX < CLICK_THRESHOLD && diffY < CLICK_THRESHOLD) {
+                            view.performClick();
+                        }
+                        return true;
+                    default:
+                        return false;
+                }
+            }
         });
     }
 
