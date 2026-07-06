@@ -33,6 +33,11 @@ router.get("/", async (req, res) => {
       it.price = p?.sale_price && p.sale_price < p.price ? p.sale_price : p?.price || it.unit_price || 0;
       const img = await ProductImage.findOne({ product_id: it.product_id }).sort({ sort_order: 1 }).lean();
       it.thumbnail_url = p?.thumbnail_url || img?.image_url || null;
+      if (it.variant_id) {
+        const variant = await ProductVariant.findById(it.variant_id).lean();
+        it.variant_name = variant?.variant_name || null;
+        it.variant_image_url = variant?.image_url || null;
+      }
       total += (it.price || 0) * (it.quantity || 0);
     }
     const out = serialize(cart);

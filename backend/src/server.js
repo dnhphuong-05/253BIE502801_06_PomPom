@@ -17,6 +17,9 @@ app.use("/api/categories", productsRouter.categoriesRouter);
 app.use("/api/orders", require("./routes/orders"));
 app.use("/api/carts", require("./routes/carts"));
 app.use("/api/community", require("./routes/community"));
+app.use("/api/blogs", require("./routes/blogs"));
+app.use("/api", require("./routes/experts"));
+app.use("/api/nearby-posts", require("./routes/nearbyPosts"));
 app.use("/api", require("./routes/catalog"));
 
 // Health check: reports whether the API is up and connected to Atlas.

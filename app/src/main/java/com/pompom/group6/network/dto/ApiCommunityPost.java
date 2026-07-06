@@ -16,4 +16,6 @@ public class ApiCommunityPost {
     @SerializedName("created_at") public String createdAt;
     @SerializedName("author_name") public String authorName;
     @SerializedName("author_avatar") public String authorAvatar;
+    @SerializedName("is_saved") public boolean isSaved;
+    @SerializedName("is_liked") public boolean isLiked;
 }

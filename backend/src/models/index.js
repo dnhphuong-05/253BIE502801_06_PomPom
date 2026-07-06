@@ -9,7 +9,16 @@ function model(name, collection) {
   return mongoose.model(name, schema);
 }
 
+// NearbyPost: story 24h theo bán kính GPS. Cần 2 index đặc biệt mà model() không tạo:
+//  - 2dsphere trên `location` (GeoJSON Point) để truy vấn theo bán kính (km).
+//  - TTL trên `expires_at` (expireAfterSeconds:0) để MongoDB tự xoá sau đúng thời điểm hết hạn (24h).
+const nearbyPostSchema = new mongoose.Schema({}, { strict: false, collection: "nearbyposts", versionKey: false });
+nearbyPostSchema.index({ location: "2dsphere" });
+nearbyPostSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });
+const NearbyPost = mongoose.model("NearbyPost", nearbyPostSchema);
+
 module.exports = {
+  NearbyPost,
   User: model("User", "users"),
   Product: model("Product", "products"),
   Category: model("Category", "categories"),
@@ -36,4 +45,10 @@ module.exports = {
   Wishlist: model("Wishlist", "wishlists"),
   Promotion: model("Promotion", "promotions"),
   PromotionDetail: model("PromotionDetail", "promotiondetails"),
+  SavedPost: model("SavedPost", "savedposts"),
+  Reel: model("Reel", "reels"),
+  Blog: model("Blog", "blogs"),
+  ExpertArticle: model("ExpertArticle", "expertarticles"),
+  Expert: model("Expert", "experts"),
+  ConsultationRequest: model("ConsultationRequest", "consultationrequests"),
 };

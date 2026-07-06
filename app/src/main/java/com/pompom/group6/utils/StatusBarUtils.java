@@ -5,7 +5,11 @@ import android.graphics.Color;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
+import com.pompom.group6.R;
 
 /**
  * Centralised status-bar helper.
@@ -38,5 +42,20 @@ public final class StatusBarUtils {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(Color.TRANSPARENT);
+    }
+
+    /**
+     * Cho các màn chi tiết dùng header hồng cố định (include_screen_header): tô status bar
+     * cùng màu hồng với header (icon trắng), thanh điều hướng hệ thống theo nền sáng của màn (icon đen).
+     */
+    public static void applyPinkHeader(Activity activity) {
+        if (activity == null) return;
+        Window window = activity.getWindow();
+        window.setStatusBarColor(ContextCompat.getColor(activity, R.color.brand_pink));
+        window.setNavigationBarColor(ContextCompat.getColor(activity, R.color.md_theme_light_background));
+
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
+        controller.setAppearanceLightStatusBars(false);
+        controller.setAppearanceLightNavigationBars(true);
     }
 }

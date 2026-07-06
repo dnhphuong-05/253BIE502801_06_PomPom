@@ -88,6 +88,8 @@ public class CartActivity extends SwipeBackActivity implements CartManager.CartC
                                     it.productName != null ? it.productName : "Sản phẩm",
                                     priceStr, it.thumbnailUrl, it.quantity);
                             ci.setProductOid(it.productId);
+                            ci.setVariantId(it.variantId);
+                            ci.setVariantName(it.variantName);
                             restored.add(ci);
                         }
                         if (!restored.isEmpty()) {

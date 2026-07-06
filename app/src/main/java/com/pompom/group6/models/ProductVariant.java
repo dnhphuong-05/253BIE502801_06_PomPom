@@ -3,6 +3,7 @@ package com.pompom.group6.models;
 public class ProductVariant {
     private int id;
     private int productId;
+    private String oid; // id chuỗi (ObjectId) khi lấy từ MongoDB; null nếu từ SQLite
     private String name;
     private String sku;
     private double additionalPrice;
@@ -20,6 +21,8 @@ public class ProductVariant {
     }
 
     public int getId() { return id; }
+    public String getOid() { return oid; }
+    public void setOid(String oid) { this.oid = oid; }
     public int getProductId() { return productId; }
     public String getName() { return name; }
     public String getSku() { return sku; }

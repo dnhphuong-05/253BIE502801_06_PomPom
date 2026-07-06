@@ -8,6 +8,8 @@ public class CartItem {
     private String originalPrice; // Added for UI
     private String imageUrl;
     private int quantity;
+    private String variantId;   // ObjectId biến thể (cloud) hoặc null nếu không chọn màu
+    private String variantName; // Tên hiển thị của biến thể đã chọn, vd "Tone 01 – Sáng"
 
     public CartItem(int productId, String title, String price, String imageUrl, int quantity) {
         this.productId = productId;
@@ -21,6 +23,11 @@ public class CartItem {
 
     public String getProductOid() { return productOid; }
     public void setProductOid(String productOid) { this.productOid = productOid; }
+
+    public String getVariantId() { return variantId; }
+    public void setVariantId(String variantId) { this.variantId = variantId; }
+    public String getVariantName() { return variantName; }
+    public void setVariantName(String variantName) { this.variantName = variantName; }
     public String getTitle() { return title; }
     public String getPrice() { return price; }
     

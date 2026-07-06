@@ -1,5 +1,5 @@
 const express = require("express");
-const { Voucher, Banner, Promotion, PromotionDetail, Notification, Product, ProductImage } = require("../models");
+const { Voucher, Banner, Promotion, PromotionDetail, Notification, Product, ProductImage, Reel } = require("../models");
 const { serialize } = require("../serialize");
 const { Types } = require("mongoose");
 
@@ -67,6 +67,27 @@ router.get("/promotions", async (req, res) => {
     pr.details = details;
   }
   res.json(promos.map(serialize));
+});
+
+// GET /api/reels?limit=  -> reels đăng lại từ Instagram/Facebook, có gắn thẻ sản phẩm
+router.get("/reels", async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 20, 50);
+    const reels = await Reel.find({ is_active: { $ne: false } })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .lean();
+    for (const r of reels) {
+      const tagIds = Array.isArray(r.product_tags) ? r.product_tags : [];
+      const products = await Product.find({ _id: { $in: tagIds } })
+        .select("name thumbnail_url price sale_price")
+        .lean();
+      r.product_tags = products.map(serialize);
+    }
+    res.json(reels.map(serialize));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // GET /api/notifications?user_id=

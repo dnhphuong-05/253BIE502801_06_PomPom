@@ -322,7 +322,7 @@ public class HomeFragment extends Fragment {
     private void setupBestSellers() {
         // Lấy sản phẩm từ MongoDB (qua backend). Lấy 6 sản phẩm đầu làm "bán chạy".
         ProductAdapter adapter = new ProductAdapter(new java.util.ArrayList<>());
-        adapter.setHorizontal(true);
+        adapter.setUseGridCarousel(true);
         binding.rvBestSellers.setAdapter(adapter);
 
         com.pompom.group6.network.ApiClient.get().getProducts()
