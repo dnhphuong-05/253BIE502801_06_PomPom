@@ -13,7 +13,7 @@ import com.pompom.group6.network.ApiClient;
 import com.pompom.group6.network.Session;
 import com.pompom.group6.network.dto.ApiPointsTransaction;
 import com.pompom.group6.network.dto.ApiUser;
-import com.pompom.group6.utils.UiUtils;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,8 @@ public class PointsActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityPointsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        UiUtils.applyPinkStatusBar(this);
+        StatusBarUtils.applyPinkHeader(this);
+        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
 
         binding.header.tvHeaderTitle.setText("Điểm của tôi");
         binding.header.btnBack.setOnClickListener(v -> finish());

@@ -81,6 +81,7 @@ public class LoginActivity extends SwipeBackActivity {
                         @Override
                         public void onFailure(Call<ApiUser> call, Throwable t) {
                             binding.btnLoginSubmit.setEnabled(true);
+                            android.util.Log.e("PomPomLoginDebug", "login onFailure url=" + call.request().url(), t);
                             Toast.makeText(LoginActivity.this,
                                     "Không kết nối được máy chủ. Kiểm tra backend đang chạy?", Toast.LENGTH_LONG).show();
                         }

@@ -12,7 +12,7 @@ import com.pompom.group6.models.Voucher;
 import com.pompom.group6.network.ApiClient;
 import com.pompom.group6.network.Session;
 import com.pompom.group6.network.dto.ApiVoucher;
-import com.pompom.group6.utils.UiUtils;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,8 @@ public class VouchersActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityVouchersBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        UiUtils.applyPinkStatusBar(this);
+        StatusBarUtils.applyPinkHeader(this);
+        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
 
         binding.header.tvHeaderTitle.setText("Voucher của tôi");
         binding.header.btnBack.setOnClickListener(v -> finish());

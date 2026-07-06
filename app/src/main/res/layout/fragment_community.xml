@@ -6,22 +6,23 @@
     android:layout_height="match_parent"
     android:background="@color/md_theme_light_background">
 
+    <!-- fitsSystemWindows + statusBarForeground: tô vùng status bar trùng màu nền header,
+         đúng quy chuẩn đang dùng ở fragment_home.xml/fragment_shop.xml. -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/md_theme_light_background"
         android:fitsSystemWindows="true"
         app:elevation="0dp"
-        app:liftOnScroll="false"
         app:statusBarForeground="@color/md_theme_light_background">
 
+        <!-- ══ Header cố định: logo/tên, tìm kiếm, thông báo ══ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="8dp"
-            android:background="@color/md_theme_light_background"
-            app:layout_scrollFlags="scroll">
+            android:paddingBottom="4dp"
+            android:background="@color/md_theme_light_background">
 
             <!-- Top Bar -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -35,7 +36,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_semibold"
-                    android:text="Cộng đồng"
+                    android:text="Community"
                     android:textColor="@color/text_primary"
                     android:textSize="22sp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -92,7 +93,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Search Bar Area (REFINED with Plus Icon) -->
+            <!-- Search Bar -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -126,7 +127,7 @@
                         android:layout_marginStart="12dp"
                         android:background="@null"
                         android:fontFamily="@font/poppins_regular"
-                        android:hint="Tìm kiếm bài viết..."
+                        android:hint="Tìm bài viết cộng đồng..."
                         android:textColor="@color/text_primary"
                         android:textSize="13sp"
                         android:imeOptions="actionSearch"
@@ -146,14 +147,12 @@
                     android:contentDescription="@null" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Create Post Button (RE-STYLIZED) - REMOVED AS REQUESTED -->
-
-            <!-- Tabs Navigation -->
+            <!-- ══ 4 tab nội dung chính ══ -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:paddingHorizontal="16dp">
+                android:layout_marginTop="20dp"
+                android:paddingHorizontal="12dp">
 
                 <TextView
                     android:id="@+id/tabReels"
@@ -161,54 +160,54 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_semibold"
                     android:gravity="center"
-                    android:text="Reels"
+                    android:text="Thước phim"
                     android:textColor="@color/brand_pink"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toStartOf="@+id/tabPosts"
+                    android:textSize="12.5sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tabBlog"
                     app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/tabPosts"
+                    android:id="@+id/tabBlog"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_medium"
                     android:gravity="center"
-                    android:text="Bài viết"
+                    android:text="Blog"
                     android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toStartOf="@+id/tabSaved"
+                    android:textSize="12.5sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tabTips"
                     app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toEndOf="@+id/tabReels"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/tabSaved"
+                    android:id="@+id/tabTips"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_medium"
                     android:gravity="center"
-                    android:text="Đã lưu"
+                    android:text="Tips bác sĩ"
                     android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toStartOf="@+id/tabMyPosts"
+                    android:textSize="12.5sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tabNearby"
                     app:layout_constraintHorizontal_weight="1"
-                    app:layout_constraintStart_toEndOf="@+id/tabPosts"
+                    app:layout_constraintStart_toEndOf="@+id/tabBlog"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/tabMyPosts"
+                    android:id="@+id/tabNearby"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_medium"
                     android:gravity="center"
-                    android:text="Của bạn"
+                    android:text="Tin gần đây"
                     android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
+                    android:textSize="12.5sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_weight="1"
-                    app:layout_constraintStart_toEndOf="@+id/tabSaved"
+                    app:layout_constraintStart_toEndOf="@+id/tabTips"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <!-- Tab Indicator Underline -->
@@ -224,144 +223,259 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Stories / Highlights Bar -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvStories"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp" />
-
-            <!-- Khám phá: Blog thương hiệu -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:paddingHorizontal="16dp">
-
-                <TextView
-                    android:id="@+id/tvBlogSectionTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/garamond_condensed_bold"
-                    android:text="BLOG THƯƠNG HIỆU"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/btnSeeAllBlogs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_white_pill_button"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Xem tất cả ›"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="@id/tvBlogSectionTitle"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/tvBlogSectionTitle" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvBlogs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-            <!-- Khám phá: Tips từ chuyên gia -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:paddingHorizontal="16dp">
-
-                <TextView
-                    android:id="@+id/tvTipsSectionTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/garamond_condensed_bold"
-                    android:text="TIPS TỪ CHUYÊN GIA"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/btnContactConsult"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_white_pill_button"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Liên hệ tư vấn ›"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="@id/tvTipsSectionTitle"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/tvTipsSectionTitle" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvExpertArticles"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="4dp"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
         </LinearLayout>
+
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefresh"
+    <!-- ══ Nội dung theo tab đang chọn (chỉ 1 panel hiển thị) ══ -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCommunity"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="80dp" />
+            <!-- Panel: Thước phim -->
+            <LinearLayout
+                android:id="@+id/panelReels"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="visible">
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                <!-- Bộ lọc theo nguồn mạng xã hội -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="4dp"
+                    android:scrollbars="none">
 
-    <TextView
-        android:id="@+id/tvFeedEmpty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:fontFamily="@font/poppins_regular"
-        android:gravity="center"
-        android:paddingHorizontal="32dp"
-        android:text="Chưa có bài viết nào"
-        android:textColor="@color/text_secondary"
-        android:textSize="14sp"
-        android:visibility="gone" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_plus"
-        app:backgroundTint="@color/brand_pink"
-        app:tint="@color/white"
-        app:elevation="6dp"
-        android:contentDescription="Tạo bài viết mới" />
+                        <TextView
+                            android:id="@+id/chipSourceAll"
+                            style="@style/ReelSourceChip"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_label_pink"
+                            android:text="Tất cả"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/chipSourceInstagram"
+                            style="@style/ReelSourceChip"
+                            android:layout_marginEnd="8dp"
+                            android:text="Instagram" />
+
+                        <TextView
+                            android:id="@+id/chipSourceTiktok"
+                            style="@style/ReelSourceChip"
+                            android:layout_marginEnd="8dp"
+                            android:text="TikTok" />
+
+                        <TextView
+                            android:id="@+id/chipSourceFacebook"
+                            style="@style/ReelSourceChip"
+                            android:text="Facebook" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvReels"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:clipToPadding="false"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="90dp" />
+            </LinearLayout>
+
+            <!-- Panel: Blog thương hiệu -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvBlogFull"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="16dp"
+                android:paddingBottom="90dp"
+                android:visibility="gone" />
+
+            <!-- Panel: Tips bác sĩ (nút Liên hệ tư vấn cố định trên đầu + danh sách) -->
+            <LinearLayout
+                android:id="@+id/panelTips"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/btnContactConsult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/bg_pink_gradient_button"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:gravity="center"
+                    android:paddingVertical="13dp"
+                    android:text="💬 Liên hệ tư vấn với bác sĩ"
+                    android:textColor="@color/white"
+                    android:textSize="13.5sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvTipsFull"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:clipToPadding="false"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="90dp" />
+            </LinearLayout>
+
+            <!-- Panel: Tin gần đây (feed cộng đồng hiện có: Bài viết/Đã lưu/Của bạn) -->
+            <LinearLayout
+                android:id="@+id/panelNearby"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- Stories 24h theo bán kính GPS -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvStories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp" />
+
+                <!-- Bộ lọc phụ của feed -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:id="@+id/tabPosts"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:gravity="center"
+                        android:text="Bài viết"
+                        android:textColor="@color/brand_pink"
+                        android:textSize="13sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tabSaved"
+                        app:layout_constraintHorizontal_weight="1"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tabSaved"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:gravity="center"
+                        android:text="Đã lưu"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tabMyPosts"
+                        app:layout_constraintHorizontal_weight="1"
+                        app:layout_constraintStart_toEndOf="@+id/tabPosts"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tabMyPosts"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:gravity="center"
+                        android:text="Của bạn"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_weight="1"
+                        app:layout_constraintStart_toEndOf="@+id/tabSaved"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <View
+                        android:id="@+id/feedTabIndicator"
+                        android:layout_width="32dp"
+                        android:layout_height="2dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_label_pink"
+                        app:layout_constraintEnd_toEndOf="@+id/tabPosts"
+                        app:layout_constraintStart_toStartOf="@+id/tabPosts"
+                        app:layout_constraintTop_toBottomOf="@+id/tabPosts" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                    android:id="@+id/swipeRefresh"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="8dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvFeed"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clipToPadding="false"
+                            android:paddingBottom="90dp" />
+
+                        <TextView
+                            android:id="@+id/tvFeedEmpty"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="@font/poppins_regular"
+                            android:gravity="center"
+                            android:paddingHorizontal="32dp"
+                            android:text="Chưa có bài viết nào"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp"
+                            android:visibility="gone" />
+                    </FrameLayout>
+                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            </LinearLayout>
+
+            <!-- FAB: Đăng bài — chỉ hiện ở tab "Tin gần đây" -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAddPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="24dp"
+                android:src="@drawable/ic_plus"
+                app:backgroundTint="@color/brand_pink"
+                app:tint="@color/white"
+                app:elevation="6dp"
+                android:visibility="gone"
+                android:contentDescription="Tạo bài viết mới" />
+
+            <!-- FAB: Liên hệ tư vấn — nổi xuyên suốt mọi tab -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabConsult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="24dp"
+                android:src="@drawable/ic_chat"
+                app:backgroundTint="@color/white"
+                app:tint="@color/brand_pink"
+                app:borderWidth="0dp"
+                app:elevation="6dp"
+                android:contentDescription="Liên hệ tư vấn" />
+
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -8,7 +8,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
@@ -26,7 +25,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /** Đăng story 24h (ảnh/video) kèm vị trí GPS hiện tại. */
-public class AddStoryActivity extends AppCompatActivity {
+public class AddStoryActivity extends SwipeBackActivity {
 
     private ActivityAddStoryBinding binding;
     private Uri pickedUri;
@@ -58,6 +57,7 @@ public class AddStoryActivity extends AppCompatActivity {
         binding = ActivityAddStoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         StatusBarUtils.applyPinkHeader(this);
+        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
 
         binding.header.btnBack.setOnClickListener(v -> finish());
         binding.header.tvHeaderTitle.setText("Đăng story");

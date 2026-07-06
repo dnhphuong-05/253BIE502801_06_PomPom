@@ -76,8 +76,11 @@ public class ReelAdapter extends RecyclerView.Adapter<ReelAdapter.ReelViewHolder
         }
 
         holder.itemView.setOnClickListener(v -> {
+            int pos = holder.getBindingAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) pos = position;
             Intent intent = new Intent(v.getContext(), ReelPlayerActivity.class);
-            intent.putExtra(ReelPlayerActivity.EXTRA_REEL, reel);
+            intent.putExtra(ReelPlayerActivity.EXTRA_REELS, new java.util.ArrayList<>(reels));
+            intent.putExtra(ReelPlayerActivity.EXTRA_START_INDEX, pos);
             v.getContext().startActivity(intent);
         });
     }

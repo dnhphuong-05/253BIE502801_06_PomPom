@@ -55,7 +55,7 @@ public abstract class SwipeBackActivity extends AppCompatActivity {
         colorEndPx = 30 * d;
         iconLiftPx = 64 * d;
 
-        int pinkLight = ContextCompat.getColor(this, R.color.brand_pink_light);
+        int brandPink = ContextCompat.getColor(this, R.color.brand_pink);
 
         MaterialCardView card = new MaterialCardView(this);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams((int) (48 * d), (int) (48 * d));
@@ -66,7 +66,7 @@ public abstract class SwipeBackActivity extends AppCompatActivity {
         card.setCardElevation(6 * d);
         card.setElevation(20 * d);
         card.setStrokeWidth((int) (2 * d));
-        card.setStrokeColor(pinkLight);
+        card.setStrokeColor(brandPink);
         card.setCardBackgroundColor(Color.WHITE);
         card.setAlpha(0f);
 
@@ -75,7 +75,7 @@ public abstract class SwipeBackActivity extends AppCompatActivity {
         alp.gravity = Gravity.CENTER;
         arrow.setLayoutParams(alp);
         arrow.setImageResource(R.drawable.ic_left_chevron);
-        arrow.setColorFilter(pinkLight);
+        arrow.setColorFilter(brandPink);
         card.addView(arrow);
 
         content.addView(card);
@@ -118,13 +118,11 @@ public abstract class SwipeBackActivity extends AppCompatActivity {
 
                     float t = Math.max(0f, Math.min(1f,
                             (dx - colorStartPx) / (colorEndPx - colorStartPx)));
-                    int pinkLight = ContextCompat.getColor(this, R.color.brand_pink_light);
-                    int pinkDark = ContextCompat.getColor(this, R.color.pink_button);
-                    int bg = (int) argbEvaluator.evaluate(t, Color.WHITE, pinkDark);
-                    int stroke = (int) argbEvaluator.evaluate(t, pinkLight, pinkDark);
-                    int arrow = (int) argbEvaluator.evaluate(t, pinkLight, Color.WHITE);
+                    int brandPink = ContextCompat.getColor(this, R.color.brand_pink);
+                    int bg = (int) argbEvaluator.evaluate(t, Color.WHITE, brandPink);
+                    int arrow = (int) argbEvaluator.evaluate(t, brandPink, Color.WHITE);
                     swipeIndicator.setCardBackgroundColor(bg);
-                    swipeIndicator.setStrokeColor(stroke);
+                    swipeIndicator.setStrokeColor(brandPink);
                     swipeArrow.setColorFilter(arrow);
                     return true;
                 }

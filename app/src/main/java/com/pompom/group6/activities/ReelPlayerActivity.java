@@ -1,29 +1,30 @@
 package com.pompom.group6.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.OptIn;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.media3.common.MediaItem;
-import androidx.media3.common.Player;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
-import com.pompom.group6.R;
-import com.pompom.group6.adapters.ReelAdapter;
+import com.pompom.group6.adapters.ReelPagerAdapter;
 import com.pompom.group6.databinding.ActivityReelPlayerBinding;
 import com.pompom.group6.network.dto.ApiReel;
 
-/** Phát reel toàn màn hình, lặp lại liên tục — giống trải nghiệm Reels của Instagram/TikTok. */
-public class ReelPlayerActivity extends AppCompatActivity {
+import java.util.ArrayList;
 
-    public static final String EXTRA_REEL = "extra_reel";
+/** Lướt dọc liên tục qua các thước phim, giống trải nghiệm Reels của Facebook/Instagram. */
+public class ReelPlayerActivity extends SwipeBackActivity {
+
+    public static final String EXTRA_REELS = "extra_reels";
+    public static final String EXTRA_START_INDEX = "extra_start_index";
 
     private ActivityReelPlayerBinding binding;
     private ExoPlayer player;
+    private ReelPagerAdapter adapter;
 
     @OptIn(markerClass = UnstableApi.class)
     @Override
@@ -32,41 +33,38 @@ public class ReelPlayerActivity extends AppCompatActivity {
         binding = ActivityReelPlayerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ApiReel reel = (ApiReel) getIntent().getSerializableExtra(EXTRA_REEL);
-        if (reel == null) {
+        // Video toàn màn hình, tràn qua status bar/nav bar — nền luôn đen nên icon để trắng.
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        controller.setAppearanceLightStatusBars(false);
+        controller.setAppearanceLightNavigationBars(false);
+
+        @SuppressWarnings("unchecked")
+        ArrayList<ApiReel> reels = (ArrayList<ApiReel>) getIntent().getSerializableExtra(EXTRA_REELS);
+        int startIndex = getIntent().getIntExtra(EXTRA_START_INDEX, 0);
+        if (reels == null || reels.isEmpty()) {
             finish();
             return;
         }
 
         binding.btnBack.setOnClickListener(v -> finish());
 
-        binding.tvPlayerCaption.setText(reel.caption);
-        if (reel.author != null) {
-            binding.tvPlayerAuthorName.setText(reel.author.name);
-            binding.ivPlayerVerified.setVisibility(reel.author.verified ? View.VISIBLE : View.GONE);
-            Glide.with(this)
-                    .load(reel.author.avatarUrl)
-                    .placeholder(R.drawable.ic_avatar)
-                    .into(binding.ivPlayerAuthorAvatar);
-        } else {
-            binding.ivPlayerVerified.setVisibility(View.GONE);
-        }
-
-        if (reel.productTags != null && !reel.productTags.isEmpty()) {
-            binding.rvPlayerProductTags.setVisibility(View.VISIBLE);
-            binding.rvPlayerProductTags.setLayoutManager(
-                    new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-            binding.rvPlayerProductTags.setAdapter(new ReelAdapter.TaggedProductAdapter(reel.productTags));
-        } else {
-            binding.rvPlayerProductTags.setVisibility(View.GONE);
-        }
-
         player = new ExoPlayer.Builder(this).build();
-        binding.playerView.setPlayer(player);
-        player.setMediaItem(MediaItem.fromUri(reel.videoUrl));
-        player.setRepeatMode(Player.REPEAT_MODE_ONE);
-        player.prepare();
-        player.setPlayWhenReady(true);
+        adapter = new ReelPagerAdapter(reels, player);
+        binding.vpReels.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+        binding.vpReels.setAdapter(adapter);
+        binding.vpReels.setCurrentItem(startIndex, false);
+        adapter.setActivePosition(startIndex);
+
+        binding.vpReels.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                adapter.setActivePosition(position);
+            }
+        });
     }
 
     @Override

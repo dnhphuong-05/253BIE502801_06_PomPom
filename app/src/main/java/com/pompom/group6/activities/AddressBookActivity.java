@@ -16,7 +16,7 @@ import com.pompom.group6.network.ApiClient;
 import com.pompom.group6.network.Session;
 import com.pompom.group6.network.dto.ApiAddress;
 import com.pompom.group6.network.dto.AddressRequest;
-import com.pompom.group6.utils.UiUtils;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,8 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
         super.onCreate(savedInstanceState);
         binding = ActivityAddressBookBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        UiUtils.applyPinkStatusBar(this);
+        StatusBarUtils.applyPinkHeader(this);
+        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
 
         binding.header.tvHeaderTitle.setText("Sổ địa chỉ");
         binding.header.btnBack.setOnClickListener(v -> finish());

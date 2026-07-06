@@ -18,7 +18,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.transition.TransitionManager;
 
 import com.pompom.group6.R;
@@ -29,7 +28,6 @@ import com.pompom.group6.adapters.CommunityPostAdapter;
 import com.pompom.group6.adapters.ExpertArticleAdapter;
 import com.pompom.group6.adapters.ReelAdapter;
 import com.pompom.group6.adapters.StoryAdapter;
-import com.pompom.group6.database.CommunityDAO;
 import com.pompom.group6.databinding.FragmentCommunityBinding;
 import com.pompom.group6.models.CommunityPost;
 import com.pompom.group6.models.Story;
@@ -42,12 +40,18 @@ import com.pompom.group6.utils.LocationHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Màn Community: 4 tab nội dung — Thước phim / Blog thương hiệu / Tips bác sĩ / Tin gần đây.
+ * "Tin gần đây" tái sử dụng nguyên feed cộng đồng hiện có (Bài viết/Đã lưu/Của bạn, story 24h theo GPS).
+ */
 public class CommunityFragment extends Fragment {
 
     private FragmentCommunityBinding binding;
-    private CommunityDAO communityDAO;
     private CommunityPostAdapter postAdapter;
-    private String currentTab = "Reels";
+    private String currentTopTab = "Reels";
+    private String currentFeedSubTab = "Bài viết";
+    private final List<ApiReel> allReels = new ArrayList<>();
+    private String currentReelSource = null; // null = "Tất cả"
 
     private final ActivityResultLauncher<String> requestLocationPermission =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -65,52 +69,144 @@ public class CommunityFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
-        communityDAO = new CommunityDAO(requireContext());
-        setupRecyclerView();
+
+        setupTopTabs();
+        setupFeedRecyclerView();
         setupStories();
-        setupTabListeners();
+        setupFeedSubTabs();
         setupRefreshLayout();
-        setupFab();
+        setupFabs();
         setupSearch();
-        setupBlogs();
-        setupExpertArticles();
-        loadPosts("Reels");
+        setupReelSourceFilter();
+
+        loadReels();
+        loadBlogs();
+        loadTips();
+        fetchPostsForTab(currentFeedSubTab);
     }
 
-    // ── Khám phá: Blog thương hiệu ──────────────────────────────────────────
+    // ── Tab trên cùng: Thước phim / Blog thương hiệu / Tips bác sĩ / Tin gần đây ──
 
-    private void setupBlogs() {
-        fetchBlogs(6);
-        binding.btnSeeAllBlogs.setOnClickListener(v -> fetchBlogs(50));
+    private void setupTopTabs() {
+        binding.tabReels.setOnClickListener(v -> selectTopTab("Reels", binding.tabReels));
+        binding.tabBlog.setOnClickListener(v -> selectTopTab("Blog", binding.tabBlog));
+        binding.tabTips.setOnClickListener(v -> selectTopTab("Tips", binding.tabTips));
+        binding.tabNearby.setOnClickListener(v -> selectTopTab("Nearby", binding.tabNearby));
     }
 
-    private void fetchBlogs(int limit) {
-        com.pompom.group6.network.ApiClient.get().getBlogs(limit)
+    private void selectTopTab(String tab, TextView tabView) {
+        if (currentTopTab.equals(tab)) return;
+
+        resetTabUI(binding.tabReels);
+        resetTabUI(binding.tabBlog);
+        resetTabUI(binding.tabTips);
+        resetTabUI(binding.tabNearby);
+
+        tabView.setTextColor(getResources().getColor(R.color.brand_pink));
+        tabView.setTypeface(null, android.graphics.Typeface.BOLD);
+
+        ConstraintLayout layout = (ConstraintLayout) binding.tabIndicator.getParent();
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(layout);
+        constraintSet.connect(binding.tabIndicator.getId(), ConstraintSet.START, tabView.getId(), ConstraintSet.START);
+        constraintSet.connect(binding.tabIndicator.getId(), ConstraintSet.END, tabView.getId(), ConstraintSet.END);
+
+        TransitionManager.beginDelayedTransition(layout);
+        constraintSet.applyTo(layout);
+
+        currentTopTab = tab;
+        showPanel(tab);
+    }
+
+    private void resetTabUI(TextView tabView) {
+        tabView.setTextColor(getResources().getColor(R.color.text_secondary));
+        tabView.setTypeface(null, android.graphics.Typeface.NORMAL);
+    }
+
+    private void showPanel(String tab) {
+        binding.panelReels.setVisibility("Reels".equals(tab) ? View.VISIBLE : View.GONE);
+        binding.rvBlogFull.setVisibility("Blog".equals(tab) ? View.VISIBLE : View.GONE);
+        binding.panelTips.setVisibility("Tips".equals(tab) ? View.VISIBLE : View.GONE);
+        binding.panelNearby.setVisibility("Nearby".equals(tab) ? View.VISIBLE : View.GONE);
+        // Đăng bài chỉ có ý nghĩa trong feed "Tin gần đây"; nút tư vấn luôn nổi ở mọi tab.
+        binding.fabAddPost.setVisibility("Nearby".equals(tab) ? View.VISIBLE : View.GONE);
+    }
+
+    // ── Thước phim: video đăng lại từ Instagram/Facebook/TikTok ──
+
+    private void loadReels() {
+        binding.rvReels.setLayoutManager(new LinearLayoutManager(requireContext()));
+        com.pompom.group6.network.ApiClient.get().getReels(20)
+                .enqueue(new retrofit2.Callback<List<ApiReel>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<ApiReel>> call, retrofit2.Response<List<ApiReel>> resp) {
+                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        allReels.clear();
+                        allReels.addAll(resp.body());
+                        applyReelSourceFilter();
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<ApiReel>> call, Throwable t) {}
+                });
+    }
+
+    /** Bộ lọc theo nguồn mạng xã hội (Tất cả/Instagram/TikTok/Facebook) — lọc cục bộ trên danh sách đã tải. */
+    private void setupReelSourceFilter() {
+        binding.chipSourceAll.setOnClickListener(v -> selectReelSource(null, binding.chipSourceAll));
+        binding.chipSourceInstagram.setOnClickListener(v -> selectReelSource("instagram", binding.chipSourceInstagram));
+        binding.chipSourceTiktok.setOnClickListener(v -> selectReelSource("tiktok", binding.chipSourceTiktok));
+        binding.chipSourceFacebook.setOnClickListener(v -> selectReelSource("facebook", binding.chipSourceFacebook));
+    }
+
+    private void selectReelSource(String source, TextView chip) {
+        if ((source == null && currentReelSource == null) || (source != null && source.equals(currentReelSource))) return;
+        currentReelSource = source;
+        setChipSelected(binding.chipSourceAll, chip == binding.chipSourceAll);
+        setChipSelected(binding.chipSourceInstagram, chip == binding.chipSourceInstagram);
+        setChipSelected(binding.chipSourceTiktok, chip == binding.chipSourceTiktok);
+        setChipSelected(binding.chipSourceFacebook, chip == binding.chipSourceFacebook);
+        applyReelSourceFilter();
+    }
+
+    private void setChipSelected(TextView chip, boolean selected) {
+        chip.setBackgroundResource(selected ? R.drawable.bg_label_pink : R.drawable.bg_white_pill_button);
+        chip.setTextColor(getResources().getColor(selected ? R.color.white : R.color.text_secondary));
+    }
+
+    private void applyReelSourceFilter() {
+        if (binding == null) return;
+        List<ApiReel> filtered = new ArrayList<>();
+        for (ApiReel r : allReels) {
+            if (currentReelSource == null || currentReelSource.equalsIgnoreCase(r.source)) filtered.add(r);
+        }
+        binding.rvReels.setAdapter(new ReelAdapter(filtered));
+    }
+
+    // ── Blog thương hiệu ──
+
+    private void loadBlogs() {
+        binding.rvBlogFull.setLayoutManager(new LinearLayoutManager(requireContext()));
+        com.pompom.group6.network.ApiClient.get().getBlogs(50)
                 .enqueue(new retrofit2.Callback<List<ApiBlog>>() {
                     @Override
                     public void onResponse(retrofit2.Call<List<ApiBlog>> call, retrofit2.Response<List<ApiBlog>> resp) {
                         if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        binding.rvBlogs.setLayoutManager(
-                                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-                        binding.rvBlogs.setAdapter(new BlogAdapter(resp.body()));
+                        binding.rvBlogFull.setAdapter(new BlogAdapter(resp.body(), true));
                     }
                     @Override public void onFailure(retrofit2.Call<List<ApiBlog>> call, Throwable t) {}
                 });
     }
 
-    // ── Khám phá: Tips từ chuyên gia + Liên hệ tư vấn ────────────────────────
+    // ── Tips từ bác sĩ tư vấn + Liên hệ tư vấn ──
 
-    private void setupExpertArticles() {
-        com.pompom.group6.network.ApiClient.get().getExpertArticles(10)
+    private void loadTips() {
+        binding.rvTipsFull.setLayoutManager(new LinearLayoutManager(requireContext()));
+        com.pompom.group6.network.ApiClient.get().getExpertArticles(50)
                 .enqueue(new retrofit2.Callback<List<ApiExpertArticle>>() {
                     @Override
                     public void onResponse(retrofit2.Call<List<ApiExpertArticle>> call,
                                            retrofit2.Response<List<ApiExpertArticle>> resp) {
                         if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        binding.rvExpertArticles.setLayoutManager(
-                                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-                        binding.rvExpertArticles.setAdapter(new ExpertArticleAdapter(resp.body()));
+                        binding.rvTipsFull.setAdapter(new ExpertArticleAdapter(resp.body(), true));
                     }
                     @Override public void onFailure(retrofit2.Call<List<ApiExpertArticle>> call, Throwable t) {}
                 });
@@ -119,19 +215,7 @@ public class CommunityFragment extends Fragment {
                 startActivity(new Intent(requireContext(), ConsultationRequestActivity.class)));
     }
 
-    // ── Reels: video đăng lại từ Instagram/Facebook/TikTok ───────────────────
-
-    private void loadReels() {
-        com.pompom.group6.network.ApiClient.get().getReels(20)
-                .enqueue(new retrofit2.Callback<List<ApiReel>>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<List<ApiReel>> call, retrofit2.Response<List<ApiReel>> resp) {
-                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        binding.rvCommunity.setAdapter(new ReelAdapter(resp.body()));
-                    }
-                    @Override public void onFailure(retrofit2.Call<List<ApiReel>> call, Throwable t) {}
-                });
-    }
+    // ── Tìm kiếm (tìm trong feed "Tin gần đây" — endpoint search hiện chỉ hỗ trợ bài viết cộng đồng) ──
 
     private void setupSearch() {
         binding.etSearch.addTextChangedListener(new TextWatcher() {
@@ -143,7 +227,7 @@ public class CommunityFragment extends Fragment {
                 if (s.length() >= 2) {
                     performSearch(s.toString());
                 } else if (s.length() == 0) {
-                    loadPosts(currentTab);
+                    fetchPostsForTab(currentFeedSubTab);
                 }
             }
 
@@ -161,12 +245,8 @@ public class CommunityFragment extends Fragment {
     }
 
     private void performSearch(String keyword) {
-        fetchPosts(30, keyword);
-    }
-
-    /** Map bài viết từ API sang model + đổ vào adapter. */
-    private void fetchPosts(Integer limit, String query) {
-        com.pompom.group6.network.ApiClient.get().getCommunityPosts(limit, query)
+        selectTopTab("Nearby", binding.tabNearby);
+        com.pompom.group6.network.ApiClient.get().getCommunityPosts(30, keyword)
                 .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiCommunityPost>>() {
                     @Override
                     public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call,
@@ -178,7 +258,7 @@ public class CommunityFragment extends Fragment {
                 });
     }
 
-    /** Tải feed cho từng tab, đúng theo dữ liệu thật: Bài viết (tất cả) / Đã lưu / Của bạn (theo user_id). */
+    /** Tải feed cho từng tab phụ, đúng theo dữ liệu thật: Bài viết (tất cả) / Đã lưu / Của bạn (theo user_id). */
     private void fetchPostsForTab(String tab) {
         String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
         String authorId = "Của bạn".equals(tab) ? userOid : null;
@@ -220,7 +300,7 @@ public class CommunityFragment extends Fragment {
 
     private void bindPostList(List<CommunityPost> posts, String emptyText) {
         if (binding == null) return;
-        binding.rvCommunity.setAdapter(postAdapter);
+        binding.rvFeed.setAdapter(postAdapter);
         postAdapter.setPosts(posts);
         binding.tvFeedEmpty.setText(emptyText);
         binding.tvFeedEmpty.setVisibility(posts.isEmpty() ? View.VISIBLE : View.GONE);
@@ -229,35 +309,22 @@ public class CommunityFragment extends Fragment {
     private void setupRefreshLayout() {
         binding.swipeRefresh.setColorSchemeColors(getResources().getColor(R.color.brand_pink));
         binding.swipeRefresh.setOnRefreshListener(() -> {
-            loadPosts(currentTab);
-            // Simulate network delay
+            fetchPostsForTab(currentFeedSubTab);
             binding.swipeRefresh.postDelayed(() -> binding.swipeRefresh.setRefreshing(false), 1000);
         });
     }
 
-    private void setupFab() {
-        binding.fabAddPost.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), AddCommunityPostActivity.class);
-            startActivity(intent);
-        });
-        
-        // Hide/Show FAB on scroll
-        binding.rvCommunity.addOnScrollListener(new androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull androidx.recyclerview.widget.RecyclerView recyclerView, int dx, int dy) {
-                if (dy > 0 && binding.fabAddPost.isShown()) {
-                    binding.fabAddPost.hide();
-                } else if (dy < 0 && !binding.fabAddPost.isShown()) {
-                    binding.fabAddPost.show();
-                }
-            }
-        });
+    private void setupFabs() {
+        binding.fabAddPost.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), AddCommunityPostActivity.class)));
+        binding.fabConsult.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ConsultationRequestActivity.class)));
     }
 
-    private void setupRecyclerView() {
+    private void setupFeedRecyclerView() {
         postAdapter = new CommunityPostAdapter();
-        binding.rvCommunity.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.rvCommunity.setAdapter(postAdapter);
+        binding.rvFeed.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvFeed.setAdapter(postAdapter);
     }
 
     /** Hàng Story 24h theo bán kính GPS — luôn có ô "Đăng story" đầu tiên. */
@@ -307,51 +374,39 @@ public class CommunityFragment extends Fragment {
         });
     }
 
-    private void setupTabListeners() {
-        binding.tabReels.setOnClickListener(v -> selectTab("Reels", binding.tabReels));
-        binding.tabPosts.setOnClickListener(v -> selectTab("Bài viết", binding.tabPosts));
-        binding.tabSaved.setOnClickListener(v -> selectTab("Đã lưu", binding.tabSaved));
-        binding.tabMyPosts.setOnClickListener(v -> selectTab("Của bạn", binding.tabMyPosts));
+    private void setupFeedSubTabs() {
+        binding.tabPosts.setOnClickListener(v -> selectFeedSubTab("Bài viết", binding.tabPosts));
+        binding.tabSaved.setOnClickListener(v -> selectFeedSubTab("Đã lưu", binding.tabSaved));
+        binding.tabMyPosts.setOnClickListener(v -> selectFeedSubTab("Của bạn", binding.tabMyPosts));
     }
 
-    private void selectTab(String tab, TextView tabView) {
-        if (currentTab.equals(tab)) return;
-        
-        resetTabUI(binding.tabReels);
-        resetTabUI(binding.tabPosts);
-        resetTabUI(binding.tabSaved);
-        resetTabUI(binding.tabMyPosts);
-        
+    private void selectFeedSubTab(String tab, TextView tabView) {
+        if (currentFeedSubTab.equals(tab)) return;
+
+        resetFeedSubTabUI(binding.tabPosts);
+        resetFeedSubTabUI(binding.tabSaved);
+        resetFeedSubTabUI(binding.tabMyPosts);
+
         tabView.setTextColor(getResources().getColor(R.color.brand_pink));
         tabView.setTypeface(null, android.graphics.Typeface.BOLD);
-        
-        // Di chuyển thanh gạch chân mượt mà bằng ConstraintSet
-        ConstraintLayout layout = (ConstraintLayout) binding.tabIndicator.getParent();
+
+        ConstraintLayout layout = (ConstraintLayout) binding.feedTabIndicator.getParent();
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(layout);
-        constraintSet.connect(binding.tabIndicator.getId(), ConstraintSet.START, tabView.getId(), ConstraintSet.START);
-        constraintSet.connect(binding.tabIndicator.getId(), ConstraintSet.END, tabView.getId(), ConstraintSet.END);
-        
+        constraintSet.connect(binding.feedTabIndicator.getId(), ConstraintSet.START, tabView.getId(), ConstraintSet.START);
+        constraintSet.connect(binding.feedTabIndicator.getId(), ConstraintSet.END, tabView.getId(), ConstraintSet.END);
+
         TransitionManager.beginDelayedTransition(layout);
         constraintSet.applyTo(layout);
 
-        currentTab = tab;
-        loadPosts(tab);
+        currentFeedSubTab = tab;
+        binding.tvFeedEmpty.setVisibility(View.GONE);
+        fetchPostsForTab(tab);
     }
 
-    private void resetTabUI(TextView tabView) {
+    private void resetFeedSubTabUI(TextView tabView) {
         tabView.setTextColor(getResources().getColor(R.color.text_secondary));
         tabView.setTypeface(null, android.graphics.Typeface.NORMAL);
-    }
-
-    private void loadPosts(String type) {
-        binding.tvFeedEmpty.setVisibility(View.GONE);
-        if ("Reels".equals(type)) {
-            loadReels();
-            return;
-        }
-        // "Bài viết" = tất cả bài hiển thị; "Đã lưu"/"Của bạn" lọc thật theo user_id đang đăng nhập.
-        fetchPostsForTab(type);
     }
 
     @Override
