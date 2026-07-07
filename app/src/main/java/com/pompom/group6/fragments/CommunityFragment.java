@@ -89,19 +89,42 @@ public class CommunityFragment extends Fragment {
 
     /** Avatar nếu đã đăng nhập, icon khách nếu chưa; chuông thông báo mở màn Thông báo thật. */
     private void setupHeaderIcons() {
-        String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
-        if (userOid != null) {
-            String avatarUrl = com.pompom.group6.network.Session.getUserAvatar(requireContext());
-            com.bumptech.glide.Glide.with(this)
-                    .load(avatarUrl)
-                    .placeholder(R.drawable.ic_user2)
-                    .into(binding.ivUserAvatar);
-        } else {
-            binding.ivUserAvatar.setImageResource(R.drawable.ic_user2);
-        }
-
         binding.btnNotifications.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), com.pompom.group6.activities.NotificationActivity.class)));
+        updateUserAvatar();
+    }
+
+    /** Lấy avatar mới nhất từ backend (giống HomeFragment) thay vì dùng bản lưu tạm lúc đăng nhập,
+     * để tránh hiển thị avatar rỗng/cũ khi user đã đổi avatar sau khi đăng nhập. */
+    private void updateUserAvatar() {
+        if (binding == null) return;
+        String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
+        if (userOid == null) {
+            binding.ivUserAvatar.setImageResource(R.drawable.ic_user2);
+            return;
+        }
+        com.pompom.group6.network.ApiClient.get().getUser(userOid)
+                .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiUser>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call,
+                                           retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
+                        if (binding == null) return;
+                        String avatarUrl = resp.isSuccessful() && resp.body() != null ? resp.body().avatarUrl : null;
+                        com.bumptech.glide.Glide.with(CommunityFragment.this)
+                                .load(avatarUrl)
+                                .placeholder(R.drawable.ic_user2)
+                                .error(R.drawable.ic_user2)
+                                .into(binding.ivUserAvatar);
+                    }
+                    @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call, Throwable t) {}
+                });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Cập nhật lại avatar phòng khi user đăng nhập/đổi avatar ở tab khác.
+        updateUserAvatar();
     }
 
     // ── Tab trên cùng: Thước phim / Blog thương hiệu / Tips bác sĩ / Tin gần đây ──
@@ -424,6 +447,7 @@ public class CommunityFragment extends Fragment {
     /** Hàng Story 24h theo bán kính GPS — luôn có ô "Đăng story" đầu tiên. */
     private void setupStories() {
         binding.rvStories.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        setupLocationTag();
         if (LocationHelper.hasPermission(requireContext())) {
             fetchNearbyStories();
         } else {
@@ -438,27 +462,13 @@ public class CommunityFragment extends Fragment {
         binding.rvStories.setAdapter(new StoryAdapter(stories));
     }
 
+    /** Vị trí GPS thật của máy — dùng để xem story/bài viết quanh nơi mình đang đứng. */
     private void fetchNearbyStories() {
         LocationHelper.getCurrentLocation(requireContext(), new LocationHelper.Callback() {
             @Override
             public void onLocation(double lat, double lng) {
-                com.pompom.group6.network.ApiClient.get().getNearbyPosts(lat, lng, 100)
-                        .enqueue(new retrofit2.Callback<List<ApiNearbyPost>>() {
-                            @Override
-                            public void onResponse(retrofit2.Call<List<ApiNearbyPost>> call,
-                                                   retrofit2.Response<List<ApiNearbyPost>> resp) {
-                                if (binding == null) return;
-                                List<Story> stories = new ArrayList<>();
-                                stories.add(new Story());
-                                if (resp.isSuccessful() && resp.body() != null) {
-                                    for (ApiNearbyPost p : resp.body()) stories.add(new Story(p));
-                                }
-                                binding.rvStories.setAdapter(new StoryAdapter(stories));
-                            }
-                            @Override public void onFailure(retrofit2.Call<List<ApiNearbyPost>> call, Throwable t) {
-                                showStoriesAddButtonOnly();
-                            }
-                        });
+                resolvePlaceName(lat, lng);
+                fetchNearbyStoriesAt(lat, lng);
             }
 
             @Override
@@ -466,6 +476,94 @@ public class CommunityFragment extends Fragment {
                 showStoriesAddButtonOnly();
             }
         });
+    }
+
+    private void fetchNearbyStoriesAt(double lat, double lng) {
+        com.pompom.group6.network.ApiClient.get().getNearbyPosts(lat, lng, 100)
+                .enqueue(new retrofit2.Callback<List<ApiNearbyPost>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<ApiNearbyPost>> call,
+                                           retrofit2.Response<List<ApiNearbyPost>> resp) {
+                        if (binding == null) return;
+                        List<Story> stories = new ArrayList<>();
+                        stories.add(new Story());
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            for (ApiNearbyPost p : resp.body()) stories.add(new Story(p));
+                        }
+                        binding.rvStories.setAdapter(new StoryAdapter(stories));
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<ApiNearbyPost>> call, Throwable t) {
+                        showStoriesAddButtonOnly();
+                    }
+                });
+    }
+
+    private static final String[] PRESET_CITY_NAMES = {
+            "TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Nha Trang"
+    };
+    private static final double[][] PRESET_CITY_COORDS = {
+            {10.7769, 106.7009},
+            {21.0278, 105.8342},
+            {16.0544, 108.2022},
+            {20.8449, 106.6881},
+            {10.0452, 105.7469},
+            {12.2388, 109.1967},
+    };
+    private boolean locationPickedManually = false;
+
+    /** Tag vị trí dưới tiêu đề "Cộng đồng" — bấm để chọn khu vực khác và xem story/bài viết
+     * quanh khu vực đó thay vì GPS thật của máy. */
+    private void setupLocationTag() {
+        binding.btnChangeLocation.setOnClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Chọn khu vực xem bài viết")
+                    .setItems(PRESET_CITY_NAMES, (dialog, which) -> selectCity(which))
+                    .show();
+        });
+    }
+
+    private void selectCity(int index) {
+        if (binding == null) return;
+        locationPickedManually = true;
+        binding.tvLocationTag.setText(PRESET_CITY_NAMES[index]);
+        fetchNearbyStoriesAt(PRESET_CITY_COORDS[index][0], PRESET_CITY_COORDS[index][1]);
+    }
+
+    /** Dịch toạ độ GPS thật ra tên khu vực để hiển thị lên tag — chạy nền vì Geocoder gọi mạng;
+     * bỏ qua nếu người dùng đã tự chọn khu vực khác trong lúc chờ kết quả. */
+    private void resolvePlaceName(double lat, double lng) {
+        android.content.Context ctx = getContext();
+        if (ctx == null) return;
+        new Thread(() -> {
+            String placeName = null;
+            try {
+                android.location.Geocoder geocoder = new android.location.Geocoder(ctx, new java.util.Locale("vi"));
+                @SuppressWarnings("deprecation")
+                List<android.location.Address> results = geocoder.getFromLocation(lat, lng, 1);
+                if (results != null && !results.isEmpty()) {
+                    placeName = formatAddress(results.get(0));
+                }
+            } catch (Exception ignored) {
+                // Không có mạng/dịch vụ geocode — giữ tag ở giá trị mặc định.
+            }
+            if (placeName == null || getActivity() == null) return;
+            String display = placeName;
+            getActivity().runOnUiThread(() -> {
+                if (binding != null && !locationPickedManually) binding.tvLocationTag.setText(display);
+            });
+        }).start();
+    }
+
+    /** Ghép quận/huyện + thành phố để ra địa điểm cụ thể (vd "Quận 1, TP. Hồ Chí Minh") thay vì
+     * chỉ tên thành phố chung chung — đúng với toạ độ GPS thật vừa lấy được. */
+    private String formatAddress(android.location.Address addr) {
+        String district = addr.getSubAdminArea();
+        String city = addr.getLocality() != null ? addr.getLocality() : addr.getAdminArea();
+        if (district != null && city != null && !district.equalsIgnoreCase(city)) {
+            return district + ", " + city;
+        }
+        if (city != null) return city;
+        return district;
     }
 
     @Override

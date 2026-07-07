@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
-            app:navigationIcon="@drawable/ic_cancel">
+            app:navigationIcon="@drawable/ic_close">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -63,8 +63,10 @@
                 android:layout_marginBottom="16dp">
 
                 <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivUserAvatar"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/ic_avatar"
                     app:shapeAppearanceOverlay="@style/CircleShape" />
 
@@ -75,10 +77,10 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvUserName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_semibold"
-                        android:text="Thảo Nguyên"
                         android:textColor="@color/text_dark"
                         android:textSize="15sp" />
 
@@ -135,8 +137,9 @@
 
                 <EditText
                     android:id="@+id/etHashtags"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:background="@null"
                     android:fontFamily="@font/poppins_semibold"

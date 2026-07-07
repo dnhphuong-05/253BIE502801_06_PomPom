@@ -312,18 +312,50 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         popup.getMenu().add("Ẩn bài viết");
         popup.getMenu().add("Báo cáo vi phạm");
         popup.getMenu().add("Sao chép liên kết");
-        
+
         popup.setOnMenuItemClickListener(item -> {
             String title = item.getTitle().toString();
             if (title.equals("Ẩn bài viết") && position != RecyclerView.NO_POSITION) {
-                posts.remove(position);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, posts.size());
-                Toast.makeText(view.getContext(), "Đã ẩn bài viết", Toast.LENGTH_SHORT).show();
+                hidePost(view.getContext(), position);
             }
             return true;
         });
         popup.show();
+    }
+
+    /** Ẩn bài viết khỏi feed của riêng người xem — lưu thật qua API để không hiện lại
+     * khi tải lại feed (trước đây chỉ xoá tạm khỏi danh sách trong bộ nhớ nên mở lại là mất tác dụng). */
+    private void hidePost(android.content.Context context, int position) {
+        String viewerId = com.pompom.group6.network.Session.getUserOid(context);
+        if (viewerId == null) {
+            Toast.makeText(context, "Bạn cần đăng nhập để ẩn bài viết", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        CommunityPost post = posts.get(position);
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("user_id", viewerId);
+        com.pompom.group6.network.ApiClient.get().hidePost(post.getPostId(), body)
+                .enqueue(new retrofit2.Callback<java.util.Map<String, Boolean>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<java.util.Map<String, Boolean>> call,
+                                           retrofit2.Response<java.util.Map<String, Boolean>> resp) {
+                        if (!resp.isSuccessful()) {
+                            Toast.makeText(context, "Ẩn bài viết thất bại, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        int idx = posts.indexOf(post);
+                        if (idx != -1) {
+                            posts.remove(idx);
+                            notifyItemRemoved(idx);
+                            notifyItemRangeChanged(idx, posts.size());
+                        }
+                        Toast.makeText(context, "Đã ẩn bài viết", Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {
+                        Toast.makeText(context, "Không kết nối được máy chủ", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void showImagePreview(android.content.Context context, String imageUrl) {

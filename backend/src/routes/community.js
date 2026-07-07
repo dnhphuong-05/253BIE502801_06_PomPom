@@ -1,6 +1,6 @@
 const express = require("express");
 const { Types } = require("mongoose");
-const { CommunityPost, Comment, User, Product, Like, SavedPost, Notification } = require("../models");
+const { CommunityPost, Comment, User, Product, Like, SavedPost, HiddenPost, Notification } = require("../models");
 const { serialize } = require("../serialize");
 
 const router = express.Router();
@@ -71,6 +71,20 @@ router.get("/posts", async (req, res) => {
       if (!savedBy) return res.status(400).json({ error: "saved_by không hợp lệ" });
       const savedIds = await SavedPost.find({ user_id: savedBy }).distinct("post_id");
       filter._id = { $in: savedIds };
+    }
+
+    // Bài đã bị người xem hiện tại tự ẩn khỏi feed của họ (không ảnh hưởng người khác).
+    const viewerId = oid(req.query.viewer_id);
+    if (viewerId) {
+      const hiddenIds = await HiddenPost.find({ user_id: viewerId }).distinct("post_id");
+      if (hiddenIds.length) {
+        const hiddenSet = new Set(hiddenIds.map(String));
+        if (filter._id && filter._id.$in) {
+          filter._id.$in = filter._id.$in.filter((id) => !hiddenSet.has(String(id)));
+        } else {
+          filter._id = { $nin: hiddenIds };
+        }
+      }
     }
 
     let query = CommunityPost.find(filter).sort({ created_at: -1 });
@@ -244,6 +258,24 @@ router.post("/posts/:id/save", async (req, res) => {
       await SavedPost.create({ user_id: uid, post_id: postId, created_at: new Date() });
       res.json({ saved: true });
     }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/community/posts/:id/hide  { user_id }  -> ẩn bài viết khỏi feed của riêng người
+// dùng đó (không xoá bài, không ảnh hưởng người khác) — dùng cho menu "Ẩn bài viết".
+router.post("/posts/:id/hide", async (req, res) => {
+  try {
+    const uid = oid(req.body?.user_id);
+    const postId = oid(req.params.id);
+    if (!uid || !postId) return res.status(400).json({ error: "Thiếu user_id" });
+
+    const existing = await HiddenPost.findOne({ user_id: uid, post_id: postId }).lean();
+    if (!existing) {
+      await HiddenPost.create({ user_id: uid, post_id: postId, created_at: new Date() });
+    }
+    res.json({ hidden: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
