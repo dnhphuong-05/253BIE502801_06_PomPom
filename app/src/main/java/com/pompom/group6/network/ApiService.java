@@ -225,6 +225,11 @@ public interface ApiService {
     Call<java.util.Map<String, Boolean>> toggleSavePost(@Path("id") String postId,
                                                         @Body java.util.Map<String, String> body);
 
+    /** Ẩn bài viết khỏi feed của riêng người dùng hiện tại (không xoá bài, không ảnh hưởng người khác). */
+    @POST("api/community/posts/{id}/hide")
+    Call<java.util.Map<String, Boolean>> hidePost(@Path("id") String postId,
+                                                  @Body java.util.Map<String, String> body);
+
     @GET("api/community/highlights")
     Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityHighlights(@Query("limit") Integer limit);
 

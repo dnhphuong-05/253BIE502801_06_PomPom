@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
                 android:paddingTop="18dp"
-                android:paddingBottom="6dp">
+                android:paddingBottom="0dp">
 
                 <TextView
                     android:id="@+id/tvTitle"
@@ -43,26 +43,13 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivUserAvatar"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="16dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_user2"
-                    app:shapeAppearanceOverlay="@style/CircleShape"
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="1dp"
-                    app:layout_constraintBottom_toBottomOf="@id/tvTitle"
-                    app:layout_constraintEnd_toStartOf="@id/btnNotifications"
-                    app:layout_constraintTop_toTopOf="@id/tvTitle" />
-
                 <FrameLayout
                     android:id="@+id/btnNotifications"
                     android:layout_width="26dp"
                     android:layout_height="26dp"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintBottom_toBottomOf="@id/tvTitle"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/ivUserAvatar"
                     app:layout_constraintTop_toTopOf="@id/tvTitle">
 
                     <ImageView
@@ -85,7 +72,80 @@
                         tools:ignore="SmallSp" />
                 </FrameLayout>
 
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivUserAvatar"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user2"
+                    app:shapeAppearanceOverlay="@style/CircleShape"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="1dp"
+                    app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tvTitle" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- ══ Tag vị trí: bấm để đổi nơi xem bài viết/story theo bán kính ══ -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:paddingHorizontal="16dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/btnChangeLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="0dp">
+
+                    <TextView
+                        android:id="@+id/tvLocationTag"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Vị trí hiện tại"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_arrow"
+                        app:tint="@color/white" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="Hiển thị bài viết trong bán kính 100km"
+                        android:textColor="@color/brand_pink_light"
+                        android:textSize="11sp" />
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_help_circle"
+                        app:tint="@color/brand_pink_light" />
+                </LinearLayout>
+            </LinearLayout>
 
             <!-- ══ 4 tab nội dung chính ══ -->
             <androidx.constraintlayout.widget.ConstraintLayout

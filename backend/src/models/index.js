@@ -46,6 +46,7 @@ module.exports = {
   Promotion: model("Promotion", "promotions"),
   PromotionDetail: model("PromotionDetail", "promotiondetails"),
   SavedPost: model("SavedPost", "savedposts"),
+  HiddenPost: model("HiddenPost", "hiddenposts"),
   Reel: model("Reel", "reels"),
   Blog: model("Blog", "blogs"),
   ExpertArticle: model("ExpertArticle", "expertarticles"),
