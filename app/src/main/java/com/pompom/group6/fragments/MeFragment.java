@@ -63,6 +63,17 @@ public class MeFragment extends Fragment {
             Intent intent = new Intent(getContext(), RegisterActivity.class);
             startActivity(intent);
         });
+
+        // Đăng nhập mạng xã hội chưa tích hợp OAuth thật -> phản hồi rõ ràng thay vì nút chết.
+        binding.btnGoogle.setOnClickListener(v -> socialSoon("Google"));
+        binding.btnApple.setOnClickListener(v -> socialSoon("Apple"));
+        binding.btnFacebook.setOnClickListener(v -> socialSoon("Facebook"));
+    }
+
+    private void socialSoon(String provider) {
+        Toast.makeText(getContext(),
+                "Đăng nhập bằng " + provider + " sẽ sớm ra mắt",
+                Toast.LENGTH_SHORT).show();
     }
 
     @Override

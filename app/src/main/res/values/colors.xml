@@ -71,4 +71,12 @@
     <!-- Neutral divider used by settings/profile rows -->
     <color name="divider_light">#F2F2F7</color>
 
+    <!-- Trạng thái đơn hàng: xanh lá cho badge + bước timeline đã hoàn thành -->
+    <color name="status_green">#2E9E5B</color>
+    <color name="status_green_light">#E3F5EA</color>
+    <color name="status_grey">#C4C0C2</color>
+    <!-- Đỏ: đơn bị trả hàng/hoàn, tách biệt với đơn thành công -->
+    <color name="status_red">#E5484D</color>
+    <color name="status_red_light">#FCE9EA</color>
+
 </resources>

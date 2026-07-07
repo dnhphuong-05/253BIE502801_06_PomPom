@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 言語画面 -->
+    <string name="lang_title">言語</string>
+    <string name="lang_subtitle">アプリの表示言語を選択してください</string>
+    <string name="lang_default_tag">デフォルト</string>
+    <string name="lang_note">翻訳作業が完了するまで、一部のコンテンツはベトナム語で表示される場合があります。</string>
+    <string name="lang_applied">新しい言語が適用されました</string>
+
+    <!-- ポリシーとヘルプ画面 -->
+    <string name="policy_title">ポリシーとヘルプ</string>
+    <string name="policy_intro">PomPom のポリシーとよくある質問をまとめています。各項目をタップすると詳細が表示されます。</string>
+
+    <string name="policy_about_title">PomPom について</string>
+    <string name="policy_about_body">PomPom は、パーソナライズされたショッピングと美容体験を提供する化粧品アプリです。商品のおすすめ、共有コミュニティ、AI ツールを組み合わせて、あなたに最適な商品選びをお手伝いします。</string>
+
+    <string name="policy_privacy_title">プライバシーポリシー</string>
+    <string name="policy_privacy_body">お客様の個人情報の保護をお約束します。データはサービスの提供と改善のみに使用され、お客様の同意なく第三者と共有されることはありません。データの閲覧や削除はいつでもご請求いただけます。</string>
+
+    <string name="policy_returns_title">返品・返金について</string>
+    <string name="policy_returns_body">商品が未使用で封が開いていない場合、お受け取りから7日以内であれば交換または返品をご依頼いただけます。返金は、PomPom が返品商品を受け取ってから3〜5営業日以内に処理されます。</string>
+
+    <string name="policy_shipping_title">配送について</string>
+    <string name="policy_shipping_body">ご注文は地域により2〜5営業日以内にお届けします。500,000₫ 以上のご注文は送料無料です。注文の進捗は「マイオーダー」で確認できます。</string>
+
+    <string name="policy_faq_title">よくある質問</string>
+    <string name="policy_faq_body">• 注文状況の確認方法は？ プロフィール →「マイオーダー」から注文状況を選択してください。\n• パスワードを忘れた場合は？ 設定のパスワード変更機能をご利用いただくか、サポートにお問い合わせください。\n• クーポンが使えない場合は？ クーポン画面で利用条件と有効期限をご確認ください。</string>
+
+    <string name="policy_contact_title">サポートへのお問い合わせ</string>
+    <string name="policy_contact_body">さらにサポートが必要ですか？ お問い合わせ先：\n• メール：support@pompom.vn\n• ホットライン：1900 1234（毎日 8:00〜22:00）</string>
+</resources>

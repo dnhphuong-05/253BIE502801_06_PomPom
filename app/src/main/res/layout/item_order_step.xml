@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Một mốc trong timeline theo dõi đơn: đường nối trên/dưới + chấm + tiêu đề + thời gian. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="28dp"
+        android:layout_height="match_parent">
+
+        <View
+            android:id="@+id/lineTop"
+            android:layout_width="2dp"
+            android:layout_height="32dp"
+            android:layout_gravity="top|center_horizontal"
+            android:background="@color/status_grey" />
+
+        <View
+            android:id="@+id/lineBottom"
+            android:layout_width="2dp"
+            android:layout_height="32dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:background="@color/status_grey" />
+
+        <View
+            android:id="@+id/dot"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_circle_green" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvStepTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Chờ xác nhận"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvStepTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="10/07 14:20"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+</LinearLayout>

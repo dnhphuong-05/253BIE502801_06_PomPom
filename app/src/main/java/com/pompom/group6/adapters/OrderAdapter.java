@@ -12,16 +12,27 @@ import com.pompom.group6.databinding.ItemOrderBinding;
 import com.pompom.group6.models.Order;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.VH> {
 
-    private final List<Order> orders;
+    private final List<Order> orders = new ArrayList<>();
+
+    public OrderAdapter() {
+    }
 
     public OrderAdapter(List<Order> orders) {
-        this.orders = orders;
+        if (orders != null) this.orders.addAll(orders);
+    }
+
+    /** Thay toàn bộ dữ liệu và vẽ lại danh sách. */
+    public void setOrders(List<Order> newOrders) {
+        orders.clear();
+        if (newOrders != null) orders.addAll(newOrders);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -46,6 +57,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.VH> {
                 .load(o.getFirstItemImage())
                 .placeholder(R.drawable.logo_pompom)
                 .into(holder.b.ivOrderProduct);
+
+        // Bấm vào đơn -> mở màn chi tiết + theo dõi tiến độ (chỉ khi có id từ backend).
+        holder.itemView.setOnClickListener(v -> {
+            if (o.getOid() == null) return;
+            com.pompom.group6.activities.OrderDetailActivity.start(v.getContext(), o.getOid());
+        });
     }
 
     private String formatDate(String raw) {

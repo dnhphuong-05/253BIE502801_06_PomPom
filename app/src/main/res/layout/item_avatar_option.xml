@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Một ô chọn avatar mặc định / khung / nút ADD trong popup đổi avatar. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="6dp"
+    android:paddingVertical="8dp">
+
+    <FrameLayout
+        android:layout_width="66dp"
+        android:layout_height="66dp">
+
+        <!-- Ảnh avatar (hoặc avatar mẫu khi xem khung) -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivOption"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_avatar"
+            app:shapeAppearanceOverlay="@style/CircleShape"
+            tools:ignore="ContentDescription" />
+
+        <!-- Khung phủ lên (chỉ ở chế độ chọn khung) -->
+        <ImageView
+            android:id="@+id/ivFrameOverlay"
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
+
+        <!-- Icon dấu cộng cho ô ADD -->
+        <ImageView
+            android:id="@+id/ivAdd"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_plus"
+            android:visibility="gone"
+            app:tint="@color/brand_pink"
+            tools:ignore="ContentDescription" />
+
+        <!-- Vòng chọn -->
+        <ImageView
+            android:id="@+id/ivSelectedRing"
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_gravity="center"
+            android:src="@drawable/bg_avatar_selected_ring"
+            android:visibility="gone"
+            tools:ignore="ContentDescription"
+            tools:visibility="visible" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvOptionLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:visibility="gone"
+        tools:text="Cổ điển"
+        tools:visibility="visible" />
+</LinearLayout>

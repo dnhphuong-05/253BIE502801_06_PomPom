@@ -116,11 +116,13 @@ public class HomeFragment extends Fragment {
                         @Override
                         public void onResponse(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call,
                                                retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
-                            if (binding == null) return;
-                            String avatarUrl = resp.isSuccessful() && resp.body() != null ? resp.body().avatarUrl : null;
-                            Glide.with(HomeFragment.this).load(avatarUrl)
-                                    .placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar)
-                                    .into(binding.ivProfileAvatar);
+                            if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                            com.pompom.group6.network.dto.ApiUser u = resp.body();
+                            // Đồng bộ cả ảnh đại diện lẫn khung theo lựa chọn của user.
+                            com.pompom.group6.utils.AvatarUtils.loadAvatar(
+                                    requireContext(), u.avatarUrl, binding.ivProfileAvatar);
+                            com.pompom.group6.utils.AvatarUtils.applyFrame(
+                                    binding.ivProfileFrame, u.avatarFrame);
                         }
                         @Override public void onFailure(retrofit2.Call<com.pompom.group6.network.dto.ApiUser> call, Throwable t) {}
                     });

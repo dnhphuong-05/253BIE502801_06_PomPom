@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chip trạng thái trung tính (đơn đã hủy). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#EDECEC" />
+    <corners android:radius="6dp" />
+</shape>

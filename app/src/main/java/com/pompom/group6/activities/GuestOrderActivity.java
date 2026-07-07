@@ -125,7 +125,7 @@ public class GuestOrderActivity extends SwipeBackActivity {
                         List<Order> orders = new java.util.ArrayList<>();
                         if (resp.isSuccessful() && resp.body() != null) {
                             for (com.pompom.group6.network.dto.ApiOrder o : resp.body()) {
-                                orders.add(new Order(0, o.orderNumber, o.finalAmount, o.status, o.paymentMethod,
+                                orders.add(new Order(0, o.id, o.orderNumber, o.finalAmount, o.status, o.paymentMethod,
                                         o.createdAt, o.itemCount, o.firstItemName, o.firstItemImage));
                             }
                         }

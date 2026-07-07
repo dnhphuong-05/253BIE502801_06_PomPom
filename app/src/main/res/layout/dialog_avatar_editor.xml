@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bottom_sheet_rounded"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="20dp">
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_pill_grey" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Ảnh đại diện"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp" />
+
+        <!-- Preview avatar + khung -->
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:id="@+id/ivPreviewFrame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/khung_avatar"
+                tools:ignore="ContentDescription" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivPreviewAvatar"
+                android:layout_width="102dp"
+                android:layout_height="102dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_avatar"
+                app:shapeAppearanceOverlay="@style/CircleShape"
+                tools:ignore="ContentDescription" />
+        </FrameLayout>
+
+        <!-- 2 nút chức năng: đổi avatar / đổi khung -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnModeAvatar"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Đổi ảnh"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_pink"
+                android:textSize="13sp"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_images"
+                app:iconGravity="textStart"
+                app:iconSize="16dp"
+                app:iconTint="@color/brand_pink"
+                app:strokeColor="@color/brand_pink" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnModeFrame"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Đổi khung"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_pink"
+                android:textSize="13sp"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_crown_gold"
+                app:iconGravity="textStart"
+                app:iconSize="16dp"
+                app:iconTint="@color/brand_pink"
+                app:strokeColor="@color/brand_pink" />
+        </LinearLayout>
+
+        <!-- Khung lựa chọn xổ xuống -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:overScrollMode="never"
+            android:visibility="gone"
+            tools:itemCount="8"
+            tools:listitem="@layout/item_avatar_option"
+            tools:visibility="visible" />
+
+        <!-- 2 nút Lưu / Hủy -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Hủy"
+                android:textAllCaps="false"
+                android:textColor="@color/text_secondary"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/text_secondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/brand_pink"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Lưu"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Overlay khi đang lưu/upload -->
+    <FrameLayout
+        android:id="@+id/savingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#88FFFFFF"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/brand_pink" />
+    </FrameLayout>
+</FrameLayout>

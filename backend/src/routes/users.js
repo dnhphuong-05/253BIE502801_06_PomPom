@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { Types } = require("mongoose");
-const { User, UserAddress, Wishlist, Product, ProductImage, UserVoucher, Voucher, PointsTransaction, Follow, Notification } = require("../models");
+const { User, UserAddress, Wishlist, Product, ProductImage, UserVoucher, Voucher, PointsTransaction, Follow, Notification, ProductReview, Like, SavedPost, Comment, CommunityPost } = require("../models");
 const { toUserDto, serialize } = require("../dto");
 
 const router = express.Router();
@@ -21,7 +21,7 @@ router.get("/:id", async (req, res) => {
 // PUT /api/users/:id  -> update editable profile fields
 router.put("/:id", async (req, res) => {
   try {
-    const allowed = ["full_name", "phone_number", "bio", "gender", "birth_date", "skin_type"];
+    const allowed = ["full_name", "phone_number", "bio", "gender", "birth_date", "skin_type", "skin_tone", "avatar_url", "avatar_frame"];
     const update = { updated_at: new Date() };
     for (const k of allowed) if (k in req.body) update[k] = req.body[k];
     const user = await User.findByIdAndUpdate(oid(req.params.id), update, { new: true });
@@ -84,6 +84,76 @@ router.get("/:id/wishlist", async (req, res) => {
 router.get("/:id/points", async (req, res) => {
   const tx = await PointsTransaction.find({ user_id: oid(req.params.id) }).sort({ created_at: -1 }).lean();
   res.json(tx.map(serialize));
+});
+
+// GET /api/users/:id/skin-concerns-analysis
+// Đánh giá khách quan "vấn đề da quan tâm" dựa trên các bài Community user đã TƯƠNG TÁC
+// (thích + lưu + bình luận), quét nội dung theo từ khóa để nhóm thành các vấn đề da.
+router.get("/:id/skin-concerns-analysis", async (req, res) => {
+  try {
+    const uid = oid(req.params.id);
+    const [liked, saved, commented] = await Promise.all([
+      Like.find({ user_id: uid }).distinct("post_id"),
+      SavedPost.find({ user_id: uid }).distinct("post_id"),
+      Comment.find({ user_id: uid }).distinct("post_id"),
+    ]);
+    const byId = new Map();
+    [...liked, ...saved, ...commented].forEach((id) => byId.set(String(id), id));
+    const postIds = [...byId.values()];
+    const posts = postIds.length
+      ? await CommunityPost.find({ _id: { $in: postIds } }).lean()
+      : [];
+
+    const dict = [
+      { key: "acne", label: "Mụn", kw: ["mụn", "acne", "mụn ẩn", "mụn bọc", "đầu đen"] },
+      { key: "dark_spot", label: "Thâm & Nám", kw: ["thâm", "nám", "đốm nâu", "melasma", "tàn nhang", "sạm"] },
+      { key: "aging", label: "Lão hóa", kw: ["lão hóa", "nhăn", "chảy xệ", "anti-aging", "aging", "collagen"] },
+      { key: "dryness", label: "Khô & Thiếu ẩm", kw: ["khô", "cấp ẩm", "dưỡng ẩm", "thiếu ẩm", "bong tróc", "hydrat"] },
+      { key: "oil", label: "Dầu & Nhờn", kw: ["dầu", "nhờn", "bóng nhờn", "oily", "kiềm dầu"] },
+      { key: "pores", label: "Lỗ chân lông", kw: ["lỗ chân lông", "pore"] },
+      { key: "sensitive", label: "Nhạy cảm & Kích ứng", kw: ["nhạy cảm", "kích ứng", "mẩn đỏ", "sensitive", "dị ứng"] },
+      { key: "dull", label: "Xỉn màu & Sáng da", kw: ["xỉn màu", "sáng da", "trắng da", "brighten", "dưỡng trắng"] },
+    ];
+
+    const counts = {};
+    for (const p of posts) {
+      const text = (p.content || "").toLowerCase();
+      for (const c of dict) {
+        if (c.kw.some((k) => text.includes(k.toLowerCase()))) {
+          counts[c.key] = (counts[c.key] || 0) + 1;
+        }
+      }
+    }
+    const concerns = dict
+      .filter((c) => counts[c.key])
+      .map((c) => ({ key: c.key, label: c.label, count: counts[c.key] }))
+      .sort((a, b) => b.count - a.count);
+
+    res.json({ interacted_posts: posts.length, concerns });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/users/:id/reviews -> đánh giá user đã viết, kèm tên & ảnh sản phẩm.
+router.get("/:id/reviews", async (req, res) => {
+  try {
+    const reviews = await ProductReview.find({ user_id: oid(req.params.id) })
+      .sort({ created_at: -1 })
+      .lean();
+    for (const r of reviews) {
+      const p = await Product.findById(r.product_id).lean();
+      r.product_name = p?.name || null;
+      r.product_thumbnail = p?.thumbnail_url || null;
+      if (p && !r.product_thumbnail) {
+        const img = await ProductImage.findOne({ product_id: p._id }).sort({ sort_order: 1 }).lean();
+        r.product_thumbnail = img?.image_url || null;
+      }
+    }
+    res.json(reviews.map(serialize));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ---------------------------------------------------------------- write ops

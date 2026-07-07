@@ -62,6 +62,7 @@ public class OrderDAO {
             while (c.moveToNext()) {
                 orders.add(new Order(
                         c.getInt(c.getColumnIndex("order_id")),
+                        null,
                         c.getString(c.getColumnIndex("order_number")),
                         c.getDouble(c.getColumnIndex("final_amount")),
                         c.getString(c.getColumnIndex("status")),
@@ -104,6 +105,7 @@ public class OrderDAO {
             while (c.moveToNext()) {
                 orders.add(new Order(
                         c.getInt(c.getColumnIndex("order_id")),
+                        null,
                         c.getString(c.getColumnIndex("order_number")),
                         c.getDouble(c.getColumnIndex("final_amount")),
                         c.getString(c.getColumnIndex("status")),

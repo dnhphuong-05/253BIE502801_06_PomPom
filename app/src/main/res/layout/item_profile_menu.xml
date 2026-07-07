@@ -20,14 +20,19 @@
 
     <TextView
         android:id="@+id/tvMenuTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
         android:fontFamily="@font/poppins_regular"
+        android:maxLines="1"
         android:text="Menu Title"
         android:textColor="@color/text_primary"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tvMenuValue"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/ivMenuIcon"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -36,7 +41,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
+        android:ellipsize="end"
         android:fontFamily="@font/poppins_regular"
+        android:maxLines="1"
         android:textColor="@color/brand_pink"
         android:textSize="13sp"
         android:visibility="gone"

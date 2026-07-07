@@ -60,6 +60,7 @@ async function toUserDto(userDoc) {
     email: user.email,
     phone_number: user.phone_number,
     avatar_url: user.avatar_url,
+    avatar_frame: user.avatar_frame ?? null,
     bio: user.bio,
     voucher_count: voucherCount,
     membership_level: latest?.level || "Bronze Member",

@@ -70,8 +70,19 @@ router.get("/:id", async (req, res) => {
       const p = await Product.findById(it.product_id).lean();
       it.product_name = p?.name || null;
       it.product_thumbnail = p?.thumbnail_url || null;
+      if (p && !it.product_thumbnail) {
+        const img = await ProductImage.findOne({ product_id: p._id }).sort({ sort_order: 1 }).lean();
+        it.product_thumbnail = img?.image_url || null;
+      }
     }
     order.items = items;
+
+    // Lịch sử trạng thái để dựng timeline theo dõi đơn (cũ -> mới).
+    order.status_history = await OrderStatusHistory
+      .find({ order_id: order._id })
+      .sort({ created_at: 1 })
+      .lean();
+
     res.json(serialize(order));
   } catch (e) {
     res.status(500).json({ error: e.message });
