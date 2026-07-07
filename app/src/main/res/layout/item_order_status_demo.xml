@@ -22,14 +22,14 @@
 
         <TextView
             android:id="@+id/tvBadge"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:layout_gravity="top|end"
-            android:background="@drawable/bg_circle_pink"
+            android:background="@drawable/bg_circle_green"
             android:gravity="center"
             android:text="2"
             android:textColor="@color/white"
-            android:textSize="9sp"
+            android:textSize="10sp"
             android:textStyle="bold"
             android:visibility="gone"
             tools:ignore="SmallSp"

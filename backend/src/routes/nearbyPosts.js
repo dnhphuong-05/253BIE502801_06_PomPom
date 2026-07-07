@@ -7,9 +7,23 @@ const router = express.Router();
 const oid = (v) => (Types.ObjectId.isValid(v) ? new Types.ObjectId(v) : null);
 const STORY_TTL_MS = 24 * 60 * 60 * 1000;
 
+// GET /api/nearby-posts?user_id=  -> tất cả story của một user (mới nhất trước), cho màn "Story đã đăng".
 // GET /api/nearby-posts?lat=&lng=&radius_km=  -> story còn hạn trong bán kính (mặc định 100km)
 router.get("/", async (req, res) => {
   try {
+    // Nhánh "story của tôi": lọc theo user_id, bỏ qua GPS.
+    if (req.query.user_id) {
+      const uid = oid(req.query.user_id);
+      if (!uid) return res.status(400).json({ error: "user_id không hợp lệ" });
+      const mine = await NearbyPost.find({ user_id: uid }).sort({ created_at: -1 }).lean();
+      const u = await User.findById(uid).lean();
+      for (const p of mine) {
+        p.user_name = u?.full_name || "Người dùng";
+        p.user_avatar = u?.avatar_url || null;
+      }
+      return res.json(mine.map(serialize));
+    }
+
     const lat = parseFloat(req.query.lat);
     const lng = parseFloat(req.query.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {

@@ -166,6 +166,47 @@
             android:theme="@style/Theme.Group6" />
 
         <activity
+            android:name=".activities.OrderDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.MyStoriesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.PolicyHelpActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.LanguageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <!-- Cho AppCompat tự lưu ngôn ngữ per-app (AppCompatDelegate.setApplicationLocales)
+             và tự áp dụng lại sau khi mở lại app. -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
+        <activity
+            android:name=".activities.MyReviewsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.SavedPostsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
             android:name=".activities.PaymentActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6" />
@@ -212,6 +253,17 @@
             android:exported="false"
             android:theme="@style/Theme.Group6"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- FileProvider: chia sẻ ảnh chụp từ camera (đổi avatar). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

@@ -183,14 +183,14 @@ public class MainActivity extends AppCompatActivity {
         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         
         if (controller != null) {
-            // Dynamic Status Bar Icon Color based on Fragment background
-            if (index == 0 || index == 1 || index == 3 || index == 4) { // Home (0), Shop (1), Community (3), Me (4) have pink headers
-                // Pink background -> White icons (disable light status bar)
-                controller.setAppearanceLightStatusBars(false);
-            } else {
-                // White background -> Dark icons
-                controller.setAppearanceLightStatusBars(true);
-            }
+            // Dynamic Status Bar Icon Color based on Fragment background.
+            // Me (4) chỉ có header hồng khi ĐÃ đăng nhập (PremiumProfileFragment); khi chưa
+            // đăng nhập là màn guest nền sáng -> phải để icon tối cho dễ nhìn.
+            boolean meLoggedIn = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                    .getBoolean("is_logged_in", false);
+            boolean pinkHeader = index == 0 || index == 1 || index == 3 || (index == 4 && meLoggedIn);
+            // Pink background -> white icons (light status bar = false); light background -> dark icons.
+            controller.setAppearanceLightStatusBars(!pinkHeader);
             
             // Always keep light navigation bar as bottom nav is light-colored
             controller.setAppearanceLightNavigationBars(true);

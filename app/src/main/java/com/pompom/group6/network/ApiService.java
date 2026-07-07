@@ -102,12 +102,20 @@ public interface ApiService {
     @GET("api/users/{id}/points")
     Call<List<ApiPointsTransaction>> getUserPoints(@Path("id") String userId);
 
+    /** Đánh giá do user đã viết (kèm tên & ảnh sản phẩm). */
+    @GET("api/users/{id}/reviews")
+    Call<List<com.pompom.group6.network.dto.ApiMyReview>> getUserReviews(@Path("id") String userId);
+
+    /** Phân tích "vấn đề da quan tâm" từ bài Community user đã tương tác. */
+    @GET("api/users/{id}/skin-concerns-analysis")
+    Call<com.pompom.group6.network.dto.ApiSkinAnalysis> getSkinConcernAnalysis(@Path("id") String userId);
+
     // ---- Orders ----
     @GET("api/orders")
     Call<List<ApiOrder>> getOrders(@Query("user_id") String userId);
 
     @GET("api/orders/{id}")
-    Call<ApiOrder> getOrder(@Path("id") String orderId);
+    Call<com.pompom.group6.network.dto.ApiOrderDetail> getOrder(@Path("id") String orderId);
 
     @POST("api/orders")
     Call<ApiOrder> createOrder(@Body com.pompom.group6.network.dto.OrderRequest body);
@@ -201,6 +209,10 @@ public interface ApiService {
     Call<List<com.pompom.group6.network.dto.ApiNearbyPost>> getNearbyPosts(@Query("lat") double lat,
                                                                             @Query("lng") double lng,
                                                                             @Query("radius_km") Integer radiusKm);
+
+    /** Story (nearby-post 24h) do một user đã đăng — cho màn "Story đã đăng". */
+    @GET("api/nearby-posts")
+    Call<List<com.pompom.group6.network.dto.ApiNearbyPost>> getUserStories(@Query("user_id") String userId);
 
     @POST("api/nearby-posts")
     Call<com.pompom.group6.network.dto.ApiNearbyPost> createNearbyPost(@Body com.pompom.group6.network.dto.NearbyPostRequest body);

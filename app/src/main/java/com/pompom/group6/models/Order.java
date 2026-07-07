@@ -2,6 +2,8 @@ package com.pompom.group6.models;
 
 public class Order {
     private int orderId;
+    /** Id chuỗi của đơn trong MongoDB — dùng để mở màn chi tiết/theo dõi. */
+    private String oid;
     private String orderNumber;
     private double finalAmount;
     private String status;
@@ -11,10 +13,11 @@ public class Order {
     private String firstItemName;
     private String firstItemImage;
 
-    public Order(int orderId, String orderNumber, double finalAmount, String status,
+    public Order(int orderId, String oid, String orderNumber, double finalAmount, String status,
                  String paymentMethod, String createdAt, int itemCount,
                  String firstItemName, String firstItemImage) {
         this.orderId = orderId;
+        this.oid = oid;
         this.orderNumber = orderNumber;
         this.finalAmount = finalAmount;
         this.status = status;
@@ -26,6 +29,7 @@ public class Order {
     }
 
     public int getOrderId() { return orderId; }
+    public String getOid() { return oid; }
     public String getOrderNumber() { return orderNumber; }
     public double getFinalAmount() { return finalAmount; }
     public String getStatus() { return status; }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Chuỗi cho 2 màn mới: "Chính sách & trợ giúp" và "Ngôn ngữ".
+  Đây là bản MẶC ĐỊNH (tiếng Việt). Bản dịch nằm ở values-en / values-ja / values-zh.
+  Tên ngôn ngữ trong danh sách chọn được để nguyên bản ngữ (endonym) trong code, không dịch.
+-->
+<resources>
+    <!-- Màn Ngôn ngữ -->
+    <string name="lang_title">Ngôn ngữ</string>
+    <string name="lang_subtitle">Chọn ngôn ngữ hiển thị của ứng dụng</string>
+    <string name="lang_default_tag">Mặc định</string>
+    <string name="lang_note">Một số nội dung có thể vẫn hiển thị tiếng Việt trong khi bản dịch đang được hoàn thiện.</string>
+    <string name="lang_applied">Đã áp dụng ngôn ngữ mới</string>
+
+    <!-- Màn Chính sách & trợ giúp -->
+    <string name="policy_title">Chính sách &amp; trợ giúp</string>
+    <string name="policy_intro">Tổng hợp các chính sách và câu hỏi thường gặp khi mua sắm tại PomPom. Chạm vào từng mục để xem chi tiết.</string>
+
+    <string name="policy_about_title">Về PomPom</string>
+    <string name="policy_about_body">PomPom là ứng dụng mỹ phẩm mang trải nghiệm mua sắm và làm đẹp cá nhân hóa. Chúng tôi kết hợp gợi ý sản phẩm, cộng đồng chia sẻ và công cụ AI để giúp bạn chọn được sản phẩm phù hợp nhất.</string>
+
+    <string name="policy_privacy_title">Chính sách bảo mật</string>
+    <string name="policy_privacy_body">Chúng tôi cam kết bảo mật thông tin cá nhân của bạn. Dữ liệu chỉ được dùng để cung cấp và cải thiện dịch vụ, không chia sẻ cho bên thứ ba khi chưa có sự đồng ý của bạn. Bạn có thể yêu cầu xem hoặc xóa dữ liệu bất kỳ lúc nào.</string>
+
+    <string name="policy_returns_title">Chính sách đổi trả &amp; hoàn tiền</string>
+    <string name="policy_returns_body">Bạn có thể yêu cầu đổi hoặc trả sản phẩm trong vòng 7 ngày kể từ khi nhận hàng nếu sản phẩm còn nguyên tem, chưa qua sử dụng. Tiền hoàn sẽ được xử lý trong 3–5 ngày làm việc sau khi PomPom nhận lại hàng.</string>
+
+    <string name="policy_shipping_title">Chính sách vận chuyển</string>
+    <string name="policy_shipping_body">Đơn hàng được giao trong 2–5 ngày làm việc tùy khu vực. Miễn phí vận chuyển cho đơn từ 500.000đ. Bạn có thể theo dõi tiến độ đơn hàng trong mục "Đơn hàng của tôi".</string>
+
+    <string name="policy_faq_title">Câu hỏi thường gặp</string>
+    <string name="policy_faq_body">• Làm sao để theo dõi đơn hàng? Vào Hồ sơ → Đơn hàng của tôi và chọn trạng thái đơn.\n• Tôi quên mật khẩu thì sao? Dùng chức năng đổi mật khẩu trong Cài đặt, hoặc liên hệ hỗ trợ.\n• Voucher không dùng được? Kiểm tra điều kiện và hạn sử dụng của voucher trong mục Voucher.</string>
+
+    <string name="policy_contact_title">Liên hệ hỗ trợ</string>
+    <string name="policy_contact_body">Cần trợ giúp thêm? Liên hệ chúng tôi:\n• Email: support@pompom.vn\n• Hotline: 1900 1234 (8:00–22:00 hằng ngày)</string>
+</resources>

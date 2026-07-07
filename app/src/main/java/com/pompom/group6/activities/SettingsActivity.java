@@ -128,62 +128,79 @@ public class SettingsActivity extends SwipeBackActivity {
             return;
         }
 
-        int pad = (int) (20 * getResources().getDisplayMetrics().density);
-        LinearLayout container = new LinearLayout(this);
-        container.setOrientation(LinearLayout.VERTICAL);
-        container.setPadding(pad, pad / 2, pad, 0);
+        View content = getLayoutInflater().inflate(com.pompom.group6.R.layout.dialog_change_password, null);
+        final EditText etOld = content.findViewById(com.pompom.group6.R.id.etOldPassword);
+        final EditText etNew = content.findViewById(com.pompom.group6.R.id.etNewPassword);
+        final EditText etConfirm = content.findViewById(com.pompom.group6.R.id.etConfirmPassword);
 
-        final EditText etOld = passwordField("Mật khẩu hiện tại");
-        final EditText etNew = passwordField("Mật khẩu mới");
-        final EditText etConfirm = passwordField("Nhập lại mật khẩu mới");
-        container.addView(etOld);
-        container.addView(etNew);
-        container.addView(etConfirm);
+        bindPasswordToggle(content.findViewById(com.pompom.group6.R.id.ivToggleOld), etOld);
+        bindPasswordToggle(content.findViewById(com.pompom.group6.R.id.ivToggleNew), etNew);
+        bindPasswordToggle(content.findViewById(com.pompom.group6.R.id.ivToggleConfirm), etConfirm);
 
-        new AlertDialog.Builder(this)
-                .setTitle("Đổi mật khẩu")
-                .setView(container)
-                .setPositiveButton("Lưu", (dialog, which) -> {
-                    String oldPw = etOld.getText().toString();
-                    String newPw = etNew.getText().toString();
-                    String confirmPw = etConfirm.getText().toString();
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(content).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
 
-                    if (oldPw.isEmpty() || newPw.isEmpty()) {
-                        toast("Vui lòng nhập đầy đủ");
-                        return;
-                    }
-                    if (newPw.length() < 6) {
-                        toast("Mật khẩu mới phải có ít nhất 6 ký tự");
-                        return;
-                    }
-                    if (!newPw.equals(confirmPw)) {
-                        toast("Mật khẩu mới không khớp");
-                        return;
-                    }
-                    com.pompom.group6.network.ApiClient.get()
-                            .changePassword(userOid, new com.pompom.group6.network.dto.ChangePasswordRequest(oldPw, newPw))
-                            .enqueue(new retrofit2.Callback<Void>() {
-                                @Override
-                                public void onResponse(retrofit2.Call<Void> call, retrofit2.Response<Void> resp) {
-                                    if (resp.isSuccessful()) toast("Đổi mật khẩu thành công");
-                                    else if (resp.code() == 400) toast("Mật khẩu hiện tại không đúng");
-                                    else toast("Đổi mật khẩu thất bại");
-                                }
-                                @Override
-                                public void onFailure(retrofit2.Call<Void> call, Throwable t) {
-                                    toast("Không kết nối được máy chủ");
-                                }
-                            });
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
+        content.findViewById(com.pompom.group6.R.id.btnCancelPw).setOnClickListener(v -> dialog.dismiss());
+        content.findViewById(com.pompom.group6.R.id.btnSavePw).setOnClickListener(v -> {
+            String oldPw = etOld.getText().toString();
+            String newPw = etNew.getText().toString();
+            String confirmPw = etConfirm.getText().toString();
+
+            if (oldPw.isEmpty() || newPw.isEmpty()) {
+                toast("Vui lòng nhập đầy đủ");
+                return;
+            }
+            if (newPw.length() < 6) {
+                toast("Mật khẩu mới phải có ít nhất 6 ký tự");
+                return;
+            }
+            if (!newPw.equals(confirmPw)) {
+                toast("Mật khẩu mới không khớp");
+                return;
+            }
+            com.pompom.group6.network.ApiClient.get()
+                    .changePassword(userOid, new com.pompom.group6.network.dto.ChangePasswordRequest(oldPw, newPw))
+                    .enqueue(new retrofit2.Callback<Void>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<Void> call, retrofit2.Response<Void> resp) {
+                            if (resp.isSuccessful()) {
+                                toast("Đổi mật khẩu thành công");
+                                dialog.dismiss();
+                            } else if (resp.code() == 400) {
+                                toast("Mật khẩu hiện tại không đúng");
+                            } else {
+                                toast("Đổi mật khẩu thất bại");
+                            }
+                        }
+                        @Override
+                        public void onFailure(retrofit2.Call<Void> call, Throwable t) {
+                            toast("Không kết nối được máy chủ");
+                        }
+                    });
+        });
+
+        dialog.show();
     }
 
-    private EditText passwordField(String hint) {
-        EditText et = new EditText(this);
-        et.setHint(hint);
-        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        return et;
+    /** Nút con mắt: bật/tắt hiển thị mật khẩu, giữ nguyên font và vị trí con trỏ. */
+    private void bindPasswordToggle(android.widget.ImageView toggle, EditText field) {
+        final android.graphics.Typeface tf = field.getTypeface();
+        final boolean[] shown = {false};
+        toggle.setOnClickListener(v -> {
+            shown[0] = !shown[0];
+            int sel = field.getSelectionEnd();
+            field.setInputType(InputType.TYPE_CLASS_TEXT | (shown[0]
+                    ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    : InputType.TYPE_TEXT_VARIATION_PASSWORD));
+            field.setTypeface(tf);
+            field.setSelection(sel);
+            toggle.setImageResource(shown[0]
+                    ? com.pompom.group6.R.drawable.ic_view
+                    : com.pompom.group6.R.drawable.ic_hidden);
+        });
     }
 
     // ---------------------------------------------------------------------
@@ -191,24 +208,33 @@ public class SettingsActivity extends SwipeBackActivity {
     // ---------------------------------------------------------------------
 
     private void confirmLogout() {
-        new AlertDialog.Builder(this)
-                .setTitle("Đăng xuất")
-                .setMessage("Bạn có chắc muốn đăng xuất khỏi tài khoản?")
-                .setPositiveButton("Đăng xuất", (dialog, which) -> {
-                    prefs.edit().clear().apply();
-                    toast("Đã đăng xuất");
-                    finish(); // MainActivity.onResume() will swap back to the guest (Me) screen
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
+        View content = getLayoutInflater().inflate(com.pompom.group6.R.layout.dialog_logout, null);
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(content).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+        content.findViewById(com.pompom.group6.R.id.btnStay).setOnClickListener(v -> dialog.dismiss());
+        content.findViewById(com.pompom.group6.R.id.btnConfirmLogout).setOnClickListener(v -> {
+            dialog.dismiss();
+            prefs.edit().clear().apply();
+            toast("Đã đăng xuất");
+            finish(); // MainActivity.onResume() will swap back to the guest (Me) screen
+        });
+        dialog.show();
     }
 
     private void showInfoDialog(String title, String message) {
-        new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("Đóng", null)
-                .show();
+        View content = getLayoutInflater().inflate(com.pompom.group6.R.layout.dialog_info, null);
+        ((android.widget.TextView) content.findViewById(com.pompom.group6.R.id.tvInfoTitle)).setText(title);
+        ((android.widget.TextView) content.findViewById(com.pompom.group6.R.id.tvInfoMsg)).setText(message);
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(content).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+        content.findViewById(com.pompom.group6.R.id.btnInfoClose).setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
     private void toast(String message) {

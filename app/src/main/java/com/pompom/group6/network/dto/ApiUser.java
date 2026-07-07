@@ -9,6 +9,7 @@ public class ApiUser {
     @SerializedName("email") public String email;
     @SerializedName("phone_number") public String phoneNumber;
     @SerializedName("avatar_url") public String avatarUrl;
+    @SerializedName("avatar_frame") public String avatarFrame;
     @SerializedName("bio") public String bio;
     @SerializedName("voucher_count") public int voucherCount;
     @SerializedName("membership_level") public String membershipLevel;

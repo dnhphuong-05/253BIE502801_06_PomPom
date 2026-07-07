@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Language screen -->
+    <string name="lang_title">Language</string>
+    <string name="lang_subtitle">Choose the app display language</string>
+    <string name="lang_default_tag">Default</string>
+    <string name="lang_note">Some content may still appear in Vietnamese while translations are being completed.</string>
+    <string name="lang_applied">New language applied</string>
+
+    <!-- Policy &amp; help screen -->
+    <string name="policy_title">Policies &amp; Help</string>
+    <string name="policy_intro">An overview of PomPom\'s policies and frequently asked questions. Tap each section to see details.</string>
+
+    <string name="policy_about_title">About PomPom</string>
+    <string name="policy_about_body">PomPom is a cosmetics app that brings a personalized shopping and beauty experience. We combine product recommendations, a sharing community and AI tools to help you find the products that suit you best.</string>
+
+    <string name="policy_privacy_title">Privacy Policy</string>
+    <string name="policy_privacy_body">We are committed to protecting your personal information. Your data is used only to provide and improve our services, and is never shared with third parties without your consent. You may request to view or delete your data at any time.</string>
+
+    <string name="policy_returns_title">Returns &amp; Refunds</string>
+    <string name="policy_returns_body">You may request an exchange or return within 7 days of receiving your order if the product is unused with its seal intact. Refunds are processed within 3–5 business days after PomPom receives the returned item.</string>
+
+    <string name="policy_shipping_title">Shipping Policy</string>
+    <string name="policy_shipping_body">Orders are delivered within 2–5 business days depending on your area. Free shipping for orders from 500,000₫. You can track your order progress in "My Orders".</string>
+
+    <string name="policy_faq_title">Frequently Asked Questions</string>
+    <string name="policy_faq_body">• How do I track my order? Go to Profile → My Orders and select the order status.\n• What if I forgot my password? Use the change-password feature in Settings, or contact support.\n• My voucher doesn\'t work? Check the voucher\'s conditions and expiry date in the Voucher section.</string>
+
+    <string name="policy_contact_title">Contact Support</string>
+    <string name="policy_contact_body">Need more help? Reach us at:\n• Email: support@pompom.vn\n• Hotline: 1900 1234 (8:00–22:00 daily)</string>
+</resources>

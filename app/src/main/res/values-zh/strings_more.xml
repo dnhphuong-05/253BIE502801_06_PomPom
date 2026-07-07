@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 语言界面 -->
+    <string name="lang_title">语言</string>
+    <string name="lang_subtitle">选择应用的显示语言</string>
+    <string name="lang_default_tag">默认</string>
+    <string name="lang_note">在翻译完善之前，部分内容可能仍以越南语显示。</string>
+    <string name="lang_applied">已应用新语言</string>
+
+    <!-- 政策与帮助界面 -->
+    <string name="policy_title">政策与帮助</string>
+    <string name="policy_intro">汇总了在 PomPom 购物的相关政策与常见问题。点击每个栏目查看详情。</string>
+
+    <string name="policy_about_title">关于 PomPom</string>
+    <string name="policy_about_body">PomPom 是一款为您带来个性化购物与美妆体验的化妆品应用。我们结合商品推荐、分享社区与 AI 工具，帮助您找到最适合自己的产品。</string>
+
+    <string name="policy_privacy_title">隐私政策</string>
+    <string name="policy_privacy_body">我们承诺保护您的个人信息。您的数据仅用于提供和改进服务，未经您的同意绝不会分享给第三方。您可以随时申请查看或删除您的数据。</string>
+
+    <string name="policy_returns_title">退换货与退款</string>
+    <string name="policy_returns_body">若产品未使用且封条完好，您可在收货后 7 天内申请退换货。退款将在 PomPom 收到退回商品后的 3–5 个工作日内处理。</string>
+
+    <string name="policy_shipping_title">配送政策</string>
+    <string name="policy_shipping_body">订单将根据地区在 2–5 个工作日内送达。满 500,000₫ 免运费。您可以在“我的订单”中跟踪订单进度。</string>
+
+    <string name="policy_faq_title">常见问题</string>
+    <string name="policy_faq_body">• 如何跟踪订单？ 进入 个人 →“我的订单”并选择订单状态。\n• 忘记密码怎么办？ 使用设置中的修改密码功能，或联系客服。\n• 优惠券无法使用？ 请在优惠券栏目中查看使用条件和有效期。</string>
+
+    <string name="policy_contact_title">联系客服</string>
+    <string name="policy_contact_body">需要更多帮助？请联系我们：\n• 邮箱：support@pompom.vn\n• 热线：1900 1234（每日 8:00–22:00）</string>
+</resources>
