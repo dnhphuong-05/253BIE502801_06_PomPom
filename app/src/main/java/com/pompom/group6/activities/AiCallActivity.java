@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognitionListener;
@@ -18,31 +17,27 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.ai.client.generativeai.GenerativeModel;
-import com.google.ai.client.generativeai.java.GenerativeModelFutures;
-import com.google.ai.client.generativeai.type.Content;
-import com.google.ai.client.generativeai.type.GenerateContentResponse;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.pompom.group6.R;
+import com.pompom.group6.database.AiSessionDAO;
 import com.pompom.group6.databinding.ActivityAiCallBinding;
+import com.pompom.group6.utils.MockAiResponder;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
+/**
+ * AI Dermatologist — cuộc gọi video demo với "bác sĩ da liễu AI". Chỉ số da và câu trả lời
+ * đều được mô phỏng local ({@link MockAiResponder}) — KHÔNG gọi API Gemini (key hiện có chỉ là
+ * placeholder, luôn lỗi thật khi gọi mạng) để demo luôn chạy ổn định, không phụ thuộc mạng.
+ */
 public class AiCallActivity extends SwipeBackActivity {
 
     private ActivityAiCallBinding binding;
@@ -53,23 +48,16 @@ public class AiCallActivity extends SwipeBackActivity {
     private boolean isAiSpeaking = false;
     private boolean isMicOn = true;
     private boolean isCameraOn = true;
-    
-    private GenerativeModelFutures model;
-    private static final String API_KEY = "AQ.Ab8RN6LN4v_DI8ZuUsFKNxFgbZJb3ijeByaxDW6vFMdh9M_Yuw"; // Placeholder - Need real key for vision
-    
+
     private static final int CAMERA_PERMISSION_CODE = 101;
-    private static final int RECORD_AUDIO_PERMISSION_CODE = 102;
     private final Random random = new Random();
     private final Handler handler = new Handler();
     private ObjectAnimator avatarAnimator;
-    private Executor analysisExecutor = Executors.newSingleThreadExecutor();
-    private long lastAnalysisTime = 0;
-    private static final long ANALYSIS_INTERVAL = 5000; // 5 seconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
@@ -77,11 +65,10 @@ public class AiCallActivity extends SwipeBackActivity {
         binding = ActivityAiCallBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        initGemini();
         setupListeners();
         setupTTS();
         setupSpeechRecognizer();
-        
+
         if (checkPermissions()) {
             startCamera();
         } else {
@@ -92,33 +79,44 @@ public class AiCallActivity extends SwipeBackActivity {
         startSimulatedAnalysis();
     }
 
-    private void initGemini() {
-        // Use Gemini 1.5 Flash for current stability
-        // IMPORTANT: Replace with a valid API Key starting with AIza...
-        if (API_KEY.startsWith("AQ.")) {
-            Log.w("Gemini", "Using placeholder API key. AI features will likely fail.");
-        }
-        GenerativeModel gm = new GenerativeModel("gemini-1.5-flash", API_KEY);
-        model = GenerativeModelFutures.from(gm);
-    }
-
     private void setupListeners() {
         binding.btnBack.setOnClickListener(v -> finish());
-        binding.btnEndCall.setOnClickListener(v -> finish());
+        binding.btnEndCall.setOnClickListener(v -> endCall());
         binding.cardDialogue.setOnClickListener(v -> startListening());
-        
+
         binding.btnToggleMic.setOnClickListener(v -> toggleMic());
         binding.btnToggleCamera.setOnClickListener(v -> toggleCamera());
+    }
+
+    /** Lưu kết quả khám da của cuộc gọi vào lịch sử AI rồi mở màn Kết quả phân tích. */
+    private void endCall() {
+        int oil = binding.pbOil.getProgress();
+        int acne = binding.pbAcne.getProgress();
+        int pores = binding.pbPores.getProgress();
+        int wrinkles = binding.pbWrinkles.getProgress();
+        int tone = binding.pbTone.getProgress();
+
+        String skinAnalysis = String.format(Locale.ROOT, "Oil:%d,Acne:%d,Pores:%d,Wrinkles:%d,Tone:%d",
+                oil, acne, pores, wrinkles, tone);
+        String recommendation = MockAiResponder.skincareRecommendation(oil, acne, pores, wrinkles, tone);
+        float confidence = 0.85f + random.nextFloat() * 0.1f;
+
+        long sessionId = new AiSessionDAO(this)
+                .saveDermatologistSession(recommendation, skinAnalysis, recommendation, confidence);
+        if (sessionId != -1) {
+            AiResultActivity.start(this, sessionId);
+        }
+        finish();
     }
 
     private void toggleMic() {
         isMicOn = !isMicOn;
         if (isMicOn) {
-            binding.ivMicStatus.setImageResource(android.R.drawable.stat_notify_call_mute);
+            binding.ivMicStatus.setImageResource(R.drawable.ic_mic);
             binding.tvMicStatus.setText("Tắt mic");
             binding.btnToggleMic.setCardBackgroundColor(android.graphics.Color.parseColor("#40FFFFFF"));
         } else {
-            binding.ivMicStatus.setImageResource(android.R.drawable.stat_notify_call_mute);
+            binding.ivMicStatus.setImageResource(R.drawable.ic_mic_off);
             binding.tvMicStatus.setText("Bật mic");
             binding.btnToggleMic.setCardBackgroundColor(android.graphics.Color.parseColor("#FF5252"));
         }
@@ -129,17 +127,21 @@ public class AiCallActivity extends SwipeBackActivity {
         isCameraOn = !isCameraOn;
         if (isCameraOn) {
             binding.cameraPreview.setVisibility(View.VISIBLE);
+            binding.ivCameraStatus.setImageResource(R.drawable.ic_videocam);
             binding.tvCameraStatus.setText("Tắt Camera");
             binding.btnToggleCamera.setCardBackgroundColor(android.graphics.Color.parseColor("#40FFFFFF"));
             startCamera();
         } else {
             binding.cameraPreview.setVisibility(View.INVISIBLE);
+            binding.ivCameraStatus.setImageResource(R.drawable.ic_videocam_off);
             binding.tvCameraStatus.setText("Bật Camera");
             binding.btnToggleCamera.setCardBackgroundColor(android.graphics.Color.parseColor("#FF5252"));
             ProcessCameraProvider.getInstance(this).addListener(() -> {
                 try {
                     ProcessCameraProvider.getInstance(this).get().unbindAll();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    // Best-effort teardown only.
+                }
             }, ContextCompat.getMainExecutor(this));
         }
     }
@@ -154,7 +156,7 @@ public class AiCallActivity extends SwipeBackActivity {
                 }
                 tts.setPitch(1.1f);
                 tts.setSpeechRate(0.9f);
-                
+
                 tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                     @Override
                     public void onStart(String utteranceId) {
@@ -197,6 +199,7 @@ public class AiCallActivity extends SwipeBackActivity {
     }
 
     private void setupSpeechRecognizer() {
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) return;
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -213,8 +216,7 @@ public class AiCallActivity extends SwipeBackActivity {
             public void onResults(Bundle results) {
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
-                    String userText = matches.get(0);
-                    getGeminiResponse(userText);
+                    respondTo(matches.get(0));
                 }
                 isListening = false;
             }
@@ -234,6 +236,10 @@ public class AiCallActivity extends SwipeBackActivity {
     }
 
     private void startListening() {
+        if (speechRecognizer == null) {
+            Toast.makeText(this, "Máy không hỗ trợ nhận diện giọng nói", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!isListening && !isAiSpeaking && isMicOn) {
             speechRecognizer.startListening(speechIntent);
         } else if (!isMicOn) {
@@ -241,36 +247,22 @@ public class AiCallActivity extends SwipeBackActivity {
         }
     }
 
-    private void getGeminiResponse(String userText) {
+    /** Trả lời câu hỏi của người dùng bằng MockAiResponder — có một nhịp "đang suy nghĩ" ngắn
+     * cho giống thật, thay vì trả lời tức thì. */
+    private void respondTo(String userText) {
         binding.tvAiSpeech.setText("Bác sĩ đang suy nghĩ...");
-        
-        Content content = new Content.Builder()
-                .addText("Bạn là một bác sĩ da liễu AI tên PomPom. Bạn có quyền truy cập camera để xem da bệnh nhân. Trả lời ngắn gọn (dưới 2 câu) bằng tiếng Việt cho: " + userText)
-                .build();
-
-        ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
-        Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
-            @Override
-            public void onSuccess(GenerateContentResponse result) {
-                String aiText = result.getText();
-                runOnUiThread(() -> {
-                    binding.tvAiSpeech.setText(aiText);
-                    tts.speak(aiText, TextToSpeech.QUEUE_FLUSH, null, "GEMINI_RESP");
-                });
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                runOnUiThread(() -> binding.tvAiSpeech.setText("Kết nối gặp trục trặc."));
-            }
-        }, ContextCompat.getMainExecutor(this));
+        handler.postDelayed(() -> {
+            String reply = MockAiResponder.reply(userText);
+            binding.tvAiSpeech.setText(reply);
+            tts.speak(reply, TextToSpeech.QUEUE_FLUSH, null, "MOCK_RESP");
+        }, 700);
     }
 
     private void startAiIntro() {
         String text = "Xin chào! Tôi là bác sĩ da liễu AI của bạn. Tôi có thể giúp gì cho làn da của bạn hôm nay?";
         binding.tvAiSpeech.setText(text);
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "Intro");
-        
+
         binding.cardDialogue.setAlpha(0f);
         binding.cardDialogue.setVisibility(View.VISIBLE);
         binding.cardDialogue.animate().alpha(1f).setDuration(500).start();
@@ -292,111 +284,28 @@ public class AiCallActivity extends SwipeBackActivity {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 Preview preview = new Preview.Builder().build();
                 preview.setSurfaceProvider(binding.cameraPreview.getSurfaceProvider());
-                
-                ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-                        .build();
-                
-                imageAnalysis.setAnalyzer(analysisExecutor, image -> {
-                    long currentTime = System.currentTimeMillis();
-                    if (isCameraOn && currentTime - lastAnalysisTime > ANALYSIS_INTERVAL) {
-                        lastAnalysisTime = currentTime;
-                        
-                        // Convert ImageProxy to Bitmap
-                        Bitmap bitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
-                        bitmap.copyPixelsFromBuffer(image.getPlanes()[0].getBuffer());
-                        
-                        // Rotate bitmap if necessary (CameraX front camera is usually rotated)
-                        android.graphics.Matrix matrix = new android.graphics.Matrix();
-                        matrix.postRotate(image.getImageInfo().getRotationDegrees());
-                        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-
-                        runOnUiThread(() -> performRealAnalysis(rotatedBitmap));
-                    }
-                    image.close();
-                });
 
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
                 cameraProvider.unbindAll();
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview);
             } catch (Exception e) {
                 Log.e("Camera", "Error starting camera", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
 
-    private void performRealAnalysis(Bitmap bitmap) {
-        binding.tvAnalysisStatus.setText("AI đang phân tích da thật...");
-        
-        Content content = new Content.Builder()
-                .addImage(bitmap)
-                .addText("Hãy đóng vai bác sĩ da liễu. Phân tích hình ảnh khuôn mặt này và đưa ra các chỉ số về tình trạng da. " +
-                        "Chỉ trả về các con số (từ 0-100) theo định dạng chính xác như sau, không thêm lời giải thích: " +
-                        "Oil:x, Acne:x, Pores:x, Wrinkles:x, Tone:x")
-                .build();
-
-        ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
-        Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
-            @Override
-            public void onSuccess(GenerateContentResponse result) {
-                String text = result.getText();
-                runOnUiThread(() -> {
-                    parseAndUpdateMetrics(text);
-                    binding.tvAnalysisStatus.setText("Đã cập nhật từ hình ảnh thật");
-                });
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e("Analysis", "Gemini Vision failed: " + t.getMessage(), t);
-                runOnUiThread(() -> {
-                    String errorMsg = "Lỗi phân tích: " + (t.getMessage() != null ? t.getMessage() : "Unknown error");
-                    binding.tvAnalysisStatus.setText("Lỗi: " + errorMsg);
-                    Toast.makeText(AiCallActivity.this, errorMsg, Toast.LENGTH_LONG).show();
-                });
-            }
-        }, ContextCompat.getMainExecutor(this));
-    }
-
-    private void parseAndUpdateMetrics(String text) {
-        try {
-            // Expected format: Oil:85, Acne:62, Pores:72, Wrinkles:30, Tone:66
-            String[] parts = text.split(",");
-            for (String part : parts) {
-                String[] kv = part.trim().split(":");
-                if (kv.length == 2) {
-                    String key = kv[0].trim().toLowerCase();
-                    int value = Integer.parseInt(kv[1].trim());
-                    
-                    if (key.contains("oil")) updateProgressDirect(binding.pbOil, binding.tvOilVal, value);
-                    else if (key.contains("acne")) updateProgressDirect(binding.pbAcne, binding.tvAcneVal, value);
-                    else if (key.contains("pores")) updateProgressDirect(binding.pbPores, binding.tvPoresVal, value);
-                    else if (key.contains("wrinkles")) updateProgressDirect(binding.pbWrinkles, binding.tvWrinklesVal, value);
-                    else if (key.contains("tone")) updateProgressDirect(binding.pbTone, binding.tvToneVal, value);
-                }
-            }
-        } catch (Exception e) {
-            Log.e("Parse", "Error parsing AI response: " + text);
-        }
-    }
-
-    private void updateProgressDirect(android.widget.ProgressBar pb, android.widget.TextView tv, int value) {
-        pb.setProgress(value);
-        tv.setText(value + "%");
-    }
-
+    /** Số liệu da mô phỏng — dao động nhẹ dần đều, không cần phân tích ảnh thật. */
     private void startSimulatedAnalysis() {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Only simulate if real analysis hasn't happened recently or as a minor fluctuation
-                if (isCameraOn && System.currentTimeMillis() - lastAnalysisTime > 10000) {
+                if (isCameraOn) {
                     updateProgress(binding.pbOil, binding.tvOilVal);
                     updateProgress(binding.pbAcne, binding.tvAcneVal);
                     updateProgress(binding.pbPores, binding.tvPoresVal);
                     updateProgress(binding.pbWrinkles, binding.tvWrinklesVal);
                     updateProgress(binding.pbTone, binding.tvToneVal);
+                    binding.tvAnalysisStatus.setText("Đang phân tích...");
                 }
                 handler.postDelayed(this, 2000);
             }

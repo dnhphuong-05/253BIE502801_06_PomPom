@@ -4,482 +4,81 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA"
+    android:background="@color/md_theme_light_background"
     android:fitsSystemWindows="true">
 
-    <!-- Header -->
+    <!-- Header hồng đồng nhất với Home/Cộng đồng -->
     <LinearLayout
         android:id="@+id/chat_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:elevation="2dp"
-        android:weightSum="10"
-        android:padding="10dp"
-        android:gravity="center_vertical">
+        android:background="@color/brand_pink"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="12dp">
 
         <ImageView
             android:id="@+id/btn_back"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
+            android:padding="9dp"
             android:src="@drawable/ic_left_chevron"
-            android:layout_weight="0.5"
-            />
+            app:tint="@color/white" />
 
-        <TextView
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="2dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/mascot_pompom"
+            app:shapeAppearanceOverlay="@style/CircleShape"
+            app:strokeColor="@color/white"
+            app:strokeWidth="1.5dp" />
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_semibold"
-            android:text="Trợ lý ảo PomPom"
-            android:textColor="@color/text_secondary"
-            android:textSize="18sp"
-            android:layout_weight="9"
-            android:gravity="center"/>
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="0.5" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Trợ lý ảo PomPom"
+                android:textColor="@color/white"
+                android:textSize="17sp" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="🌸 Luôn sẵn sàng tư vấn cho bạn"
+                android:textColor="@color/brand_pink_light"
+                android:textSize="11sp" />
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Chat Content -->
+    <!-- Chat Content: layout_messages bắt đầu trống, AiChatActivity thêm bong bóng chat thật
+         vào đây khi gõ chữ hoặc nói (bấm mic). -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_chat"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/layout_input_container"
         app:layout_constraintTop_toBottomOf="@id/chat_header">
 
         <LinearLayout
+            android:id="@+id/layout_messages"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- User Message -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginStart="64dp"
-                android:layout_marginBottom="8dp"
-                android:orientation="vertical"
-                android:gravity="end">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_chat_user"
-                    android:padding="14dp"
-                    android:text="Mình cần serum trị mụn và phục hồi da, da mình hỗn hợp thiên dầu"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/poppins_regular" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="10:30"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
-
-            <!-- AI Message -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/mascot_pompom"
-                    android:scaleType="centerCrop"
-                    app:shapeAppearanceOverlay="@style/CircleShape" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="64dp"
-                        android:background="@drawable/bg_chat_ai"
-                        android:padding="14dp"
-                        android:text="Dựa trên tình trạng da của bạn, mình gợi ý 3 sản phẩm phù hợp nhé!"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/poppins_regular" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="10:31"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Product Recommendations -->
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:clipToPadding="false"
-                android:paddingBottom="8dp">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <!-- Product Item 1 -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="160dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp"
-                        app:strokeWidth="0dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="120dp"
-                                android:scaleType="centerInside"
-                                android:src="@drawable/voucher" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="PomPom"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:fontFamily="@font/poppins_medium"
-                                android:maxLines="1"
-                                android:text="Niacinamide Serum"
-                                android:textColor="@color/text_primary"
-                                android:textSize="13sp" />
-
-                            <androidx.constraintlayout.widget.ConstraintLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
-                                    android:text="490.000đ"
-                                    android:textColor="#00695C"
-                                    android:textSize="13sp"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center_vertical"
-                                    android:orientation="horizontal"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent">
-
-                                    <ImageView
-                                        android:layout_width="12dp"
-                                        android:layout_height="12dp"
-                                        android:src="@drawable/ic_star_magic"
-                                        app:tint="#FFC107" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="2dp"
-                                        android:text="4.9"
-                                        android:textColor="#FFC107"
-                                        android:textSize="11sp"
-                                        android:fontFamily="@font/poppins_medium"/>
-                                </LinearLayout>
-                            </androidx.constraintlayout.widget.ConstraintLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Product Item 2 -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="160dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp"
-                        app:strokeWidth="0dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="120dp"
-                                android:scaleType="centerInside"
-                                android:src="@drawable/ai_makeup" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="PomPom"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:fontFamily="@font/poppins_medium"
-                                android:maxLines="1"
-                                android:text="Tea Tree Serum"
-                                android:textColor="@color/text_primary"
-                                android:textSize="13sp" />
-
-                            <androidx.constraintlayout.widget.ConstraintLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
-                                    android:text="420.000đ"
-                                    android:textColor="#00695C"
-                                    android:textSize="13sp"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center_vertical"
-                                    android:orientation="horizontal"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent">
-
-                                    <ImageView
-                                        android:layout_width="12dp"
-                                        android:layout_height="12dp"
-                                        android:src="@drawable/ic_star_magic"
-                                        app:tint="#FFC107" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="2dp"
-                                        android:fontFamily="@font/poppins_medium"
-                                        android:text="4.8"
-                                        android:textColor="#FFC107"
-                                        android:textSize="11sp" />
-                                </LinearLayout>
-                            </androidx.constraintlayout.widget.ConstraintLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Product Item 3 -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="160dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp"
-                        app:strokeWidth="0dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="120dp"
-                                android:scaleType="centerInside"
-                                android:src="@drawable/voucher" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="PomPom"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:fontFamily="@font/poppins_medium"
-                                android:maxLines="1"
-                                android:text="Centella Serum"
-                                android:textColor="@color/text_primary"
-                                android:textSize="13sp" />
-
-                            <androidx.constraintlayout.widget.ConstraintLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
-                                    android:text="450.000đ"
-                                    android:textColor="#00695C"
-                                    android:textSize="13sp"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center_vertical"
-                                    android:orientation="horizontal"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent">
-
-                                    <ImageView
-                                        android:layout_width="12dp"
-                                        android:layout_height="12dp"
-                                        android:src="@drawable/ic_star_magic"
-                                        app:tint="#FFC107" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="2dp"
-                                        android:text="4.8"
-                                        android:textColor="#FFC107"
-                                        android:textSize="11sp"
-                                        android:fontFamily="@font/poppins_medium"/>
-                                </LinearLayout>
-                            </androidx.constraintlayout.widget.ConstraintLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-                </LinearLayout>
-            </HorizontalScrollView>
-
-            <!-- Quick Action Pills -->
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingBottom="8dp">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chat_pill"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp"
-                        android:layout_marginEnd="8dp">
-
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/ic_star_magic"
-                            app:tint="@color/brand_pink" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:text="So sánh sản phẩm"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_primary"
-                            android:fontFamily="@font/poppins_medium"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chat_pill"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp"
-                        android:layout_marginEnd="8dp">
-
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/ic_comment"
-                            app:tint="@color/brand_pink" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:text="Xem đánh giá"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_primary"
-                            android:fontFamily="@font/poppins_medium"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chat_pill"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp">
-
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/ic_cart_pink"
-                            app:tint="@color/brand_pink" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:text="Thêm vào giỏ"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_primary"
-                            android:fontFamily="@font/poppins_medium"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </HorizontalScrollView>
-
-        </LinearLayout>
+            android:padding="16dp" />
     </androidx.core.widget.NestedScrollView>
 
     <!-- Bottom Input -->
@@ -488,20 +87,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="16dp"
         android:layout_marginTop="8dp"
-        app:cardCornerRadius="333dp"
-        app:strokeColor="@color/pink_brand"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="3dp"
+        app:strokeColor="@color/brand_pink_light"
         app:strokeWidth="1dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_chat_input"
+            android:layout_height="52dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingHorizontal="16dp">
+            android:paddingStart="18dp"
+            android:paddingEnd="6dp">
 
             <EditText
                 android:id="@+id/et_message"
@@ -509,37 +110,38 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:hint="Nhắn tin cho AI..."
                 android:fontFamily="@font/poppins_regular"
+                android:hint="Nhắn tin cho PomPom..."
+                android:imeOptions="actionSend"
+                android:inputType="text"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
                 android:textSize="14sp" />
 
             <ImageView
-                android:id="@+id/btn_send"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="12dp"
-                android:src="@drawable/ic_message"
-                app:tint="@color/brand_pink"
+                android:id="@+id/btn_mic"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
+                android:contentDescription="@null"
                 android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="20dp"
-                android:layout_marginStart="12dp"
-                android:background="#D1D1D6" />
+                android:padding="9dp"
+                android:src="@drawable/ic_mic"
+                app:tint="@color/brand_pink" />
 
             <ImageView
-                android:id="@+id/btn_mic"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="12dp"
-                android:src="@drawable/ic_mic"
-                app:tint="@color/brand_pink"
+                android:id="@+id/btn_send"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_circle_pink_solid"
                 android:clickable="true"
+                android:contentDescription="@null"
                 android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
+                android:padding="9dp"
+                android:src="@drawable/ic_message"
+                app:tint="@color/white" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

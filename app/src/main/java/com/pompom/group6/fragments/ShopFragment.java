@@ -358,6 +358,8 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
     private void setupPagination() {
         binding.nestedScrollView.setOnScrollChangeListener(
                 (NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+                    com.pompom.group6.utils.BottomNavScrollHelper.onScrollDelta(this, scrollY - oldScrollY);
+
                     View child = v.getChildAt(0);
                     if (child != null
                             && scrollY == child.getMeasuredHeight() - v.getMeasuredHeight()
