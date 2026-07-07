@@ -39,6 +39,7 @@ public class MeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupListeners();
+        com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.nestedScrollView, this);
     }
 
     @Override

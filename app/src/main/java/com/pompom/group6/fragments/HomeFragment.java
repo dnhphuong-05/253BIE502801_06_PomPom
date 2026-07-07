@@ -84,6 +84,7 @@ public class HomeFragment extends Fragment {
         setupMarquee();
         setupHeaderAndFeatures();
         updateProfileIcon();
+        com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.nestedScrollView, this);
     }
 
     @Override

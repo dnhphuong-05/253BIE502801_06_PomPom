@@ -4,76 +4,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/md_theme_light_background"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/brand_pink"
         android:fitsSystemWindows="true"
         app:elevation="0dp"
         app:liftOnScroll="false"
-        app:statusBarForeground="@color/white">
+        app:statusBarForeground="@color/brand_pink">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="24dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="12dp">
+            android:paddingTop="18dp"
+            android:paddingBottom="16dp">
 
             <ImageView
                 android:id="@+id/iv_hub_logo"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="@null"
                 android:src="@drawable/ic_star_magic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@null" />
+                app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/tv_hub_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="10dp"
                 android:fontFamily="@font/poppins_semibold"
                 android:text="AI Beauty Hub"
-                android:textColor="@color/text_primary"
-                android:textSize="22sp"
+                android:textColor="@color/white"
+                android:textSize="21sp"
                 app:layout_constraintBottom_toBottomOf="@id/iv_hub_logo"
                 app:layout_constraintStart_toEndOf="@id/iv_hub_logo"
                 app:layout_constraintTop_toTopOf="@id/iv_hub_logo" />
 
-            <LinearLayout
-                android:id="@+id/layout_pro_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_white_pill_button"
-                android:backgroundTint="@color/ai_hub_pro_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_user_avatar"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user2"
+                app:shapeAppearanceOverlay="@style/CircleShape"
+                app:strokeColor="@color/white"
+                app:strokeWidth="1.2dp"
                 app:layout_constraintBottom_toBottomOf="@id/tv_hub_title"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tv_hub_title">
-
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/ic_crown_gold"
-                    android:contentDescription="@null" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Pro"
-                    android:textColor="@color/ai_hub_pro_text"
-                    android:textSize="12sp" />
-            </LinearLayout>
+                app:layout_constraintTop_toTopOf="@id/tv_hub_title" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -81,8 +65,8 @@
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"
                 android:text="Trợ lý AI cá nhân của bạn 24/7"
-                android:textColor="@color/ai_hub_text_desc"
-                android:textSize="14sp"
+                android:textColor="@color/brand_pink_light"
+                android:textSize="13.5sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/iv_hub_logo" />
 
@@ -90,6 +74,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -101,19 +86,24 @@
             android:paddingHorizontal="16dp"
             android:paddingBottom="40dp">
 
-            <!-- AI Dermatologist Card -->
+            <!-- AI Dermatologist — hero card: hình minh hoạ + nút "Gọi ngay" -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_dermatologist"
                 android:layout_width="match_parent"
-                android:layout_height="210dp"
-                android:layout_marginTop="12dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
                 app:strokeWidth="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/ai_hub_dermatologist_bg">
+                    android:layout_height="wrap_content"
+                    android:background="@color/ai_hub_dermatologist_bg"
+                    android:minHeight="176dp">
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardIconDerm"
@@ -142,7 +132,7 @@
                         android:fontFamily="@font/poppins_semibold"
                         android:text="AI Dermatologist"
                         android:textColor="@color/text_primary"
-                        android:textSize="18sp"
+                        android:textSize="17sp"
                         app:layout_constraintStart_toEndOf="@id/cardIconDerm"
                         app:layout_constraintTop_toTopOf="@id/cardIconDerm" />
 
@@ -153,7 +143,7 @@
                         android:fontFamily="@font/poppins_regular"
                         android:text="@string/ai_dermatologist_title"
                         android:textColor="@color/ai_hub_text_desc"
-                        android:textSize="13sp"
+                        android:textSize="12.5sp"
                         app:layout_constraintStart_toStartOf="@id/tvTitleDerm"
                         app:layout_constraintTop_toBottomOf="@id/tvTitleDerm" />
 
@@ -161,14 +151,14 @@
                         android:id="@+id/tvDescDerm"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
+                        android:layout_marginTop="12dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/poppins_regular"
-                        android:maxLines="3"
+                        android:minLines="2"
+                        android:maxLines="2"
                         android:text="@string/ai_dermatologist_desc"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:textSize="12.5sp"
                         app:layout_constraintEnd_toStartOf="@+id/iv_doctor"
                         app:layout_constraintStart_toStartOf="@id/cardIconDerm"
                         app:layout_constraintTop_toBottomOf="@id/tvSubtitleDerm" />
@@ -176,53 +166,61 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCallDermatologist"
                         android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:layout_marginTop="12dp"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="18dp"
                         android:backgroundTint="@color/ai_hub_dermatologist_btn"
                         android:fontFamily="@font/poppins_medium"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        android:paddingHorizontal="24dp"
-                        android:text="@string/call_now"
+                        android:paddingHorizontal="22dp"
+                        android:text="Gọi ngay"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
-                        android:textSize="14sp"
-                        app:cornerRadius="22dp"
+                        android:textSize="13.5sp"
+                        app:cornerRadius="21dp"
                         app:icon="@drawable/ic_phone"
                         app:iconGravity="textEnd"
                         app:iconPadding="8dp"
                         app:iconSize="16dp"
                         app:iconTint="@color/white"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="@id/cardIconDerm"
                         app:layout_constraintTop_toBottomOf="@id/tvDescDerm" />
 
                     <ImageView
                         android:id="@+id/iv_doctor"
                         android:layout_width="0dp"
-                        android:layout_height="240dp"
+                        android:layout_height="152dp"
                         android:scaleType="centerInside"
                         android:src="@drawable/ai_dermatologist"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintWidth_percent="0.45"
+                        app:layout_constraintWidth_percent="0.34"
                         android:contentDescription="@null" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- AI Makeup Artist Card -->
+            <!-- AI Makeup Artist — hero card: hình minh hoạ + nút "Gọi ngay" -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_makeup"
                 android:layout_width="match_parent"
-                android:layout_height="210dp"
-                android:layout_marginTop="16dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
                 app:strokeWidth="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/ai_hub_makeup_bg">
+                    android:layout_height="wrap_content"
+                    android:background="@color/ai_hub_makeup_bg"
+                    android:minHeight="176dp">
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardIconArtist"
@@ -251,7 +249,7 @@
                         android:fontFamily="@font/poppins_semibold"
                         android:text="AI Makeup Artist"
                         android:textColor="@color/text_primary"
-                        android:textSize="18sp"
+                        android:textSize="17sp"
                         app:layout_constraintStart_toEndOf="@id/cardIconArtist"
                         app:layout_constraintTop_toTopOf="@id/cardIconArtist" />
 
@@ -262,7 +260,7 @@
                         android:fontFamily="@font/poppins_regular"
                         android:text="@string/ai_makeup_artist_title"
                         android:textColor="@color/ai_hub_text_desc"
-                        android:textSize="13sp"
+                        android:textSize="12.5sp"
                         app:layout_constraintStart_toStartOf="@id/tvTitleArtist"
                         app:layout_constraintTop_toBottomOf="@id/tvTitleArtist" />
 
@@ -270,14 +268,14 @@
                         android:id="@+id/tvDescArtist"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
+                        android:layout_marginTop="12dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/poppins_regular"
-                        android:maxLines="3"
+                        android:minLines="2"
+                        android:maxLines="2"
                         android:text="@string/ai_makeup_artist_desc"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:textSize="12.5sp"
                         app:layout_constraintEnd_toStartOf="@+id/iv_makeup"
                         app:layout_constraintStart_toStartOf="@id/cardIconArtist"
                         app:layout_constraintTop_toBottomOf="@id/tvSubtitleArtist" />
@@ -285,244 +283,39 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_call_makeup"
                         android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:layout_marginTop="12dp"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="18dp"
                         android:backgroundTint="@color/ai_hub_makeup_btn"
                         android:fontFamily="@font/poppins_medium"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        android:paddingHorizontal="24dp"
-                        android:text="@string/call_now"
+                        android:paddingHorizontal="22dp"
+                        android:text="Gọi ngay"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
-                        android:textSize="14sp"
-                        app:cornerRadius="22dp"
+                        android:textSize="13.5sp"
+                        app:cornerRadius="21dp"
                         app:icon="@drawable/ic_phone"
                         app:iconGravity="textEnd"
                         app:iconPadding="8dp"
                         app:iconSize="16dp"
                         app:iconTint="@color/white"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="@id/cardIconArtist"
                         app:layout_constraintTop_toBottomOf="@id/tvDescArtist" />
 
                     <ImageView
                         android:id="@+id/iv_makeup"
                         android:layout_width="0dp"
-                        android:layout_height="240dp"
+                        android:layout_height="152dp"
                         android:scaleType="centerInside"
                         android:src="@drawable/ai_makeup_artis"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintWidth_percent="0.45"
-                        android:contentDescription="@null" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- AI Client Advisor Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="210dp"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/ai_hub_advisor_bg">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardIconAdvisor"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="20dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_bag"
-                            app:tint="@color/ai_hub_advisor_btn"
-                            android:contentDescription="@null" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/tvTitleAdvisor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:text="AI Client Advisor"
-                        android:textColor="@color/text_primary"
-                        android:textSize="18sp"
-                        app:layout_constraintStart_toEndOf="@id/cardIconAdvisor"
-                        app:layout_constraintTop_toTopOf="@id/cardIconAdvisor" />
-
-                    <TextView
-                        android:id="@+id/tvSubtitleAdvisor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_regular"
-                        android:text="@string/ai_client_advisor_title"
-                        android:textColor="@color/ai_hub_text_desc"
-                        android:textSize="13sp"
-                        app:layout_constraintStart_toStartOf="@id/tvTitleAdvisor"
-                        app:layout_constraintTop_toBottomOf="@id/tvTitleAdvisor" />
-
-                    <TextView
-                        android:id="@+id/tvDescAdvisor"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:ellipsize="end"
-                        android:fontFamily="@font/poppins_regular"
-                        android:maxLines="3"
-                        android:text="@string/ai_client_advisor_desc"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        app:layout_constraintEnd_toStartOf="@+id/iv_advisor"
-                        app:layout_constraintStart_toStartOf="@id/cardIconAdvisor"
-                        app:layout_constraintTop_toBottomOf="@id/tvSubtitleAdvisor" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_chat_advisor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:layout_marginTop="12dp"
-                        android:backgroundTint="@color/ai_hub_advisor_btn"
-                        android:fontFamily="@font/poppins_medium"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:paddingHorizontal="24dp"
-                        android:text="@string/chat_now"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        app:cornerRadius="22dp"
-                        app:icon="@drawable/ic_chat"
-                        app:iconGravity="textEnd"
-                        app:iconPadding="8dp"
-                        app:iconSize="16dp"
-                        app:iconTint="@color/white"
-                        app:layout_constraintStart_toStartOf="@id/cardIconAdvisor"
-                        app:layout_constraintTop_toBottomOf="@id/tvDescAdvisor" />
-
-                    <ImageView
-                        android:id="@+id/iv_advisor"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/bg_mascot"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintWidth_percent="0.45"
+                        app:layout_constraintWidth_percent="0.34"
                         android:contentDescription="@null" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- AR Try-On Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="210dp"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/ai_hub_dermatologist_bg">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardIconTryOn"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="20dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_makeup_brush"
-                            app:tint="@color/brand_pink"
-                            android:contentDescription="@null" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/tvTitleTryOn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:text="@string/ar_tryon_title"
-                        android:textColor="@color/text_primary"
-                        android:textSize="18sp"
-                        app:layout_constraintStart_toEndOf="@id/cardIconTryOn"
-                        app:layout_constraintTop_toTopOf="@id/cardIconTryOn" />
-
-                    <TextView
-                        android:id="@+id/tvSubtitleTryOn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_regular"
-                        android:text="@string/ar_tryon_subtitle"
-                        android:textColor="@color/ai_hub_text_desc"
-                        android:textSize="13sp"
-                        app:layout_constraintStart_toStartOf="@id/tvTitleTryOn"
-                        app:layout_constraintTop_toBottomOf="@id/tvTitleTryOn" />
-
-                    <TextView
-                        android:id="@+id/tvDescTryOn"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:ellipsize="end"
-                        android:fontFamily="@font/poppins_regular"
-                        android:maxLines="3"
-                        android:text="@string/ar_tryon_desc"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="@id/cardIconTryOn"
-                        app:layout_constraintTop_toBottomOf="@id/tvSubtitleTryOn" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_open_tryon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:layout_marginTop="12dp"
-                        android:backgroundTint="@color/brand_pink"
-                        android:fontFamily="@font/poppins_medium"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:paddingHorizontal="24dp"
-                        android:text="@string/ar_tryon_open"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        app:cornerRadius="22dp"
-                        app:icon="@drawable/ic_makeup_brush"
-                        app:iconGravity="textEnd"
-                        app:iconPadding="8dp"
-                        app:iconSize="16dp"
-                        app:iconTint="@color/white"
-                        app:layout_constraintStart_toStartOf="@id/cardIconTryOn"
-                        app:layout_constraintTop_toBottomOf="@id/tvDescTryOn" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -530,111 +323,237 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Khám phá thêm"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp" />
+
+            <!-- AI Client Advisor / AR Try-On — kiểu giới thiệu tính năng, gọn nhẹ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_advisor"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/ai_hub_advisor_bg"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            app:cardBackgroundColor="@color/white"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="0dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@null"
+                                android:padding="10dp"
+                                android:src="@drawable/ic_chat"
+                                app:tint="@color/ai_hub_advisor_btn" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="AI Client Advisor"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14.5sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Tư vấn 24/7 qua chat"
+                            android:textColor="@color/ai_hub_text_desc"
+                            android:textSize="11.5sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_tryon"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/brand_gold_light"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            app:cardBackgroundColor="@color/white"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="0dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@null"
+                                android:padding="10dp"
+                                android:src="@drawable/ic_bag"
+                                app:tint="@color/brand_gold" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="@string/ar_tryon_title"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14.5sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Soi thử màu bằng camera"
+                            android:textColor="@color/ai_hub_text_desc"
+                            android:textSize="11.5sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
                 android:fontFamily="@font/poppins_semibold"
                 android:text="Tính năng khác"
                 android:textColor="@color/text_primary"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal"
-                android:weightSum="4">
+                android:weightSum="3">
 
                 <LinearLayout
+                    android:id="@+id/btn_history"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingVertical="6dp">
+
                     <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:contentDescription="@null"
                         android:src="@drawable/ic_history"
-                        app:tint="@color/text_secondary"
-                        android:contentDescription="@null" />
+                        app:tint="@color/brand_pink" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:gravity="center"
                         android:text="@string/history"
-                        android:textSize="12sp"
                         android:textColor="@color/text_secondary"
-                        android:gravity="center"
-                        android:fontFamily="@font/poppins_regular"/>
+                        android:textSize="11.5sp" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/btn_beauty_report"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_bookmark"
-                        app:tint="@color/text_secondary"
-                        android:contentDescription="@null" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Kết quả đã lưu"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
-                        android:gravity="center"
-                        android:fontFamily="@font/poppins_regular"/>
-                </LinearLayout>
+                    android:orientation="vertical"
+                    android:paddingVertical="6dp">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
                     <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:contentDescription="@null"
                         android:src="@drawable/ic_report"
-                        app:tint="@color/text_secondary"
-                        android:contentDescription="@null" />
+                        app:tint="@color/brand_pink" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/beauty_report"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/poppins_regular"
                         android:gravity="center"
-                        android:fontFamily="@font/poppins_regular"/>
+                        android:text="@string/beauty_report"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11.5sp" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/btn_ai_settings"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingVertical="6dp">
+
                     <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:contentDescription="@null"
                         android:src="@drawable/ic_settings"
-                        app:tint="@color/text_secondary"
-                        android:contentDescription="@null" />
+                        app:tint="@color/brand_pink" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Cài đặt AI"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/poppins_regular"
                         android:gravity="center"
-                        android:fontFamily="@font/poppins_regular"/>
+                        android:text="Cài đặt AI"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11.5sp" />
                 </LinearLayout>
-
             </LinearLayout>
 
         </LinearLayout>

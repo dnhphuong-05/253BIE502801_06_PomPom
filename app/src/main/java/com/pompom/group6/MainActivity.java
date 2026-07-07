@@ -3,9 +3,13 @@ package com.pompom.group6;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import com.pompom.group6.activities.AiChatActivity;
 import android.content.Intent;
@@ -13,6 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -35,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private MainViewPagerAdapter adapter;
+    private com.pompom.group6.utils.MascotVoiceAssistant mascotVoiceAssistant;
+    private boolean isBottomNavVisible = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +61,15 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Handle navigation bar insets for bottom nav
-        // We apply padding to the inner LinearLayout so the background of the ConstraintLayout (parent)
-        // can bleed into the system navigation bar area.
+        // Bottom nav giờ là pill nổi (không còn chạm đáy màn hình) — cộng thêm inset của
+        // thanh điều hướng hệ thống vào MARGIN đáy (chứ không phải padding bên trong nữa) để
+        // cả pill trôi lên trên thanh gesture, giữ đúng khoảng cách nổi cố định (4dp) phía trên nó.
+        int floatingGapPx = (int) (4 * getResources().getDisplayMetrics().density);
         ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavContainer, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            if (v instanceof ViewGroup && ((ViewGroup) v).getChildCount() > 0) {
-                View innerLayout = ((ViewGroup) v).getChildAt(0);
-                // Simple bottom padding to lift icons above the system navigation bar
-                innerLayout.setPadding(0, innerLayout.getPaddingTop(),
-                        0, systemBars.bottom);
-            }
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            params.bottomMargin = floatingGapPx + systemBars.bottom;
+            v.setLayoutParams(params);
             return insets;
         });
 
@@ -79,9 +84,24 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager();
         setupNavigation();
         setupFloatingMascot();
+        mascotVoiceAssistant = new com.pompom.group6.utils.MascotVoiceAssistant(
+                this, binding.ivFloatingMascot, (ViewGroup) binding.getRoot());
 
         // Initial state
         updateNavUI(0);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (mascotVoiceAssistant != null) mascotVoiceAssistant.onPermissionResult(requestCode, grantResults);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mascotVoiceAssistant != null) mascotVoiceAssistant.destroy();
     }
 
     @Override
@@ -112,6 +132,27 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(index);
     }
 
+    /** Cuộn xuống → ẩn bottom nav (và mascot nổi cùng lúc, vì nó neo ngay trên nav bar);
+     * cuộn lên → hiện lại. Gọi từ các fragment tab qua {@link com.pompom.group6.utils.BottomNavScrollHelper}. */
+    public void hideBottomNav() {
+        if (!isBottomNavVisible) return;
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.bottomNavContainer.getLayoutParams();
+        // Cộng thêm margin đáy (khoảng nổi + inset hệ thống) để pill trôi hẳn ra khỏi màn hình,
+        // không chỉ vừa khít mép dưới.
+        float distance = binding.bottomNavContainer.getHeight() + params.bottomMargin;
+        if (distance <= 0) return;
+        isBottomNavVisible = false;
+        binding.bottomNavContainer.animate().translationY(distance).setDuration(200).start();
+        binding.ivFloatingMascot.animate().translationY(distance).setDuration(200).start();
+    }
+
+    public void showBottomNav() {
+        if (isBottomNavVisible) return;
+        isBottomNavVisible = true;
+        binding.bottomNavContainer.animate().translationY(0).setDuration(200).start();
+        binding.ivFloatingMascot.animate().translationY(0).setDuration(200).start();
+    }
+
     private void setupNavigation() {
         binding.navHome.setOnClickListener(v -> binding.viewPager.setCurrentItem(0));
         binding.navShop.setOnClickListener(v -> binding.viewPager.setCurrentItem(1));
@@ -130,6 +171,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupFloatingMascot() {
+        // OnTouchListener bên dưới tự xử lý kéo-thả và trả về true cho mọi sự kiện, nên
+        // setOnLongClickListener chuẩn của Android KHÔNG BAO GIỜ được gọi (nó chỉ chạy trong
+        // onTouchEvent(), mà onTouchEvent() không chạy nữa khi onTouch() đã trả về true).
+        // Vì vậy phải tự đếm giờ long-press bằng Handler ở đây.
+        final Handler longPressHandler = new Handler();
+        final boolean[] longPressTriggered = {false};
+        final Runnable longPressRunnable = () -> {
+            longPressTriggered[0] = true;
+            onMascotLongPress();
+        };
+
         binding.ivFloatingMascot.setOnTouchListener(new View.OnTouchListener() {
             private float dX, dY;
             private float startX, startY;
@@ -143,9 +195,14 @@ public class MainActivity extends AppCompatActivity {
                         dY = view.getY() - event.getRawY();
                         startX = event.getRawX();
                         startY = event.getRawY();
+                        longPressTriggered[0] = false;
+                        longPressHandler.postDelayed(longPressRunnable, ViewConfiguration.getLongPressTimeout());
                         break;
 
                     case MotionEvent.ACTION_MOVE:
+                        if (!isAClick(startX, event.getRawX(), startY, event.getRawY())) {
+                            longPressHandler.removeCallbacks(longPressRunnable);
+                        }
                         view.animate()
                                 .x(event.getRawX() + dX)
                                 .y(event.getRawY() + dY)
@@ -154,12 +211,18 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case MotionEvent.ACTION_UP:
+                        longPressHandler.removeCallbacks(longPressRunnable);
                         float endX = event.getRawX();
                         float endY = event.getRawY();
-                        if (isAClick(startX, endX, startY, endY)) {
+                        if (!longPressTriggered[0] && isAClick(startX, endX, startY, endY)) {
                             view.performClick();
                         }
                         break;
+
+                    case MotionEvent.ACTION_CANCEL:
+                        longPressHandler.removeCallbacks(longPressRunnable);
+                        break;
+
                     default:
                         return false;
                 }
@@ -177,6 +240,23 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, AiChatActivity.class);
             startActivity(intent);
         });
+    }
+
+    /** Long-press mascot: phát âm thanh rồi mascot tự "lắng nghe" và trả lời ngay tại chỗ —
+     * không mở màn hình chat. */
+    private void onMascotLongPress() {
+        playMascotSound();
+        if (mascotVoiceAssistant != null) mascotVoiceAssistant.startListening();
+    }
+
+    private void playMascotSound() {
+        if (!com.pompom.group6.utils.AiSettings.isMascotSoundEnabled(this)) return;
+        try {
+            ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80);
+            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
+        } catch (Exception ignored) {
+            // Best-effort feedback only.
+        }
     }
 
     private void updateNavUI(int index) {

@@ -125,6 +125,11 @@ public class CommunityFragment extends Fragment {
         super.onResume();
         // Cập nhật lại avatar phòng khi user đăng nhập/đổi avatar ở tab khác.
         updateUserAvatar();
+        // AddStoryActivity chỉ finish() sau khi đăng xong, không báo kết quả về —
+        // tải lại hàng story mỗi khi quay lại màn để story mới đăng hiện ra ngay.
+        if (LocationHelper.hasPermission(requireContext())) {
+            fetchNearbyStories();
+        }
     }
 
     // ── Tab trên cùng: Thước phim / Blog thương hiệu / Tips bác sĩ / Tin gần đây ──
@@ -219,6 +224,7 @@ public class CommunityFragment extends Fragment {
 
     private void loadReels() {
         binding.rvReels.setLayoutManager(new LinearLayoutManager(requireContext()));
+        com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.rvReels, this);
         com.pompom.group6.network.ApiClient.get().getReels(20)
                 .enqueue(new retrofit2.Callback<List<ApiReel>>() {
                     @Override
@@ -268,6 +274,7 @@ public class CommunityFragment extends Fragment {
 
     private void loadBlogs() {
         binding.rvBlogFull.setLayoutManager(new LinearLayoutManager(requireContext()));
+        com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.rvBlogFull, this);
         com.pompom.group6.network.ApiClient.get().getBlogs(50)
                 .enqueue(new retrofit2.Callback<List<ApiBlog>>() {
                     @Override
@@ -283,6 +290,7 @@ public class CommunityFragment extends Fragment {
 
     private void loadTips() {
         binding.rvTipsFull.setLayoutManager(new LinearLayoutManager(requireContext()));
+        com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.rvTipsFull, this);
         com.pompom.group6.network.ApiClient.get().getExpertArticles(50)
                 .enqueue(new retrofit2.Callback<List<ApiExpertArticle>>() {
                     @Override
@@ -442,6 +450,7 @@ public class CommunityFragment extends Fragment {
         postAdapter = new CommunityPostAdapter();
         binding.rvFeed.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvFeed.setAdapter(postAdapter);
+        com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.rvFeed, this);
     }
 
     /** Hàng Story 24h theo bán kính GPS — luôn có ô "Đăng story" đầu tiên. */

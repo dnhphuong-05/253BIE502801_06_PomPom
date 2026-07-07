@@ -276,6 +276,15 @@ public class ProductDetailActivity extends AppCompatActivity
                     Toast.LENGTH_SHORT).show();
         });
 
+        // "Thử ngay" → AR Try-on (demo camera + tông màu), gắn đúng tên/giá sản phẩm đang xem.
+        View.OnClickListener tryOnListener = v -> {
+            String name = currentProduct != null ? currentProduct.getTitle() : null;
+            String price = currentProduct != null ? formatPricePlain(currentProduct.getPrice()) : null;
+            ArTryOnActivity.start(this, name, price);
+        };
+        binding.cardTryOn.setOnClickListener(tryOnListener);
+        binding.btnTryOn.setOnClickListener(tryOnListener);
+
         // Chat button → ProductConsultationChatActivity
         if (binding.btnChat != null) {
             binding.btnChat.setOnClickListener(v -> {
@@ -544,6 +553,14 @@ public class ProductDetailActivity extends AppCompatActivity
                         if (binding != null) binding.rvVouchers.setVisibility(View.GONE);
                     }
                 });
+    }
+
+    /** Giá dạng chữ thường "125.000đ" (không HTML) — dùng cho màn không cần font nhỏ ký tự "đ". */
+    private String formatPricePlain(String priceStr) {
+        if (priceStr == null) return null;
+        String clean = priceStr.replaceAll("[^\\d]", "");
+        if (clean.isEmpty()) return priceStr;
+        return String.format(java.util.Locale.GERMANY, "%,.0f", Double.parseDouble(clean)) + "đ";
     }
 
     /** Đặt giá dạng HTML "125.000<small>đ</small>" từ chuỗi giá đã format. */

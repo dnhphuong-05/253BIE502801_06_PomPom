@@ -64,6 +64,8 @@ public class PremiumProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.nestedScrollView, this);
+
         // Status bar liền màu header: đẩy header xuống dưới status bar (Bước 1).
         ViewCompat.setOnApplyWindowInsetsListener(binding.profileHeader, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

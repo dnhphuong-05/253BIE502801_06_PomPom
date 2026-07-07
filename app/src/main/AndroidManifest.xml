@@ -90,6 +90,26 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".activities.AiResultActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.AiHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.BeautyReportActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
+            android:name=".activities.AiSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
             android:name=".activities.SearchActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6"

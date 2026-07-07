@@ -5,20 +5,23 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <!-- Front camera preview (user's face) -->
-    <androidx.camera.view.PreviewView
-        android:id="@+id/preview_view"
+    <!-- Chuyên gia AI — "màn hình chính" của cuộc gọi, giống gọi video qua Messenger -->
+    <ImageView
+        android:id="@+id/iv_ai_avatar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ai_makeup_artis"
+        android:contentDescription="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Beauty filter overlay (tint changes with selected look) -->
     <View
-        android:id="@+id/v_filter_overlay"
+        android:id="@+id/v_avatar_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/beauty_filter_natural"
+        android:alpha="0.35"
+        android:background="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -82,7 +85,159 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Bottom panel: guide + looks + controls -->
+    <!-- "Bạn" — camera của người dùng thu nhỏ nổi trên góc, đúng kiểu video call —
+         beauty filter áp ngay trên khung này để vẫn thấy rõ lớp trang điểm ảo. -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_self_view"
+        android:layout_width="140dp"
+        android:layout_height="188dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="#40FFFFFF"
+        app:strokeWidth="1dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.camera.view.PreviewView
+                android:id="@+id/preview_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:implementationMode="compatible" />
+
+            <!-- Beauty filter overlay (tint changes with selected look) -->
+            <View
+                android:id="@+id/v_filter_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/beauty_filter_natural" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="8dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Bạn"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:shadowColor="@color/black"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2" />
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Mic / Kết thúc / Camera — cùng kiểu với AI Dermatologist -->
+    <LinearLayout
+        android:id="@+id/call_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/bottom_panel">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_toggle_mic"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardBackgroundColor="#40FFFFFF"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp">
+                <ImageView
+                    android:id="@+id/iv_mic_status"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_mic"
+                    app:tint="@color/white"/>
+            </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/tv_mic_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Tắt mic"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="40dp"
+            android:gravity="center"
+            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_end_call"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:cardBackgroundColor="#FF5252"
+                app:cardCornerRadius="40dp"
+                app:cardElevation="8dp">
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_telephone"
+                    app:tint="@color/white"/>
+            </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Kết thúc"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_toggle_camera"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:cardBackgroundColor="#40FFFFFF"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp">
+                <ImageView
+                    android:id="@+id/iv_camera_status"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_videocam"
+                    app:tint="@color/white"/>
+            </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/tv_camera_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Camera"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom panel: guide + looks -->
     <LinearLayout
         android:id="@+id/bottom_panel"
         android:layout_width="match_parent"
@@ -95,10 +250,14 @@
         android:paddingBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Scripted guide card -->
+        <!-- Bong bóng thoại của chuyên gia AI — bấm để hỏi bằng giọng nói -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_dialogue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
             app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="18dp"
             app:cardElevation="0dp">
@@ -129,6 +288,15 @@
                     android:text="@string/makeup_artist_name"
                     android:textColor="@color/text_primary"
                     android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/iv_mic_hint"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_mic"
+                    app:tint="@color/ai_hub_makeup_btn" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -150,46 +318,20 @@
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-        <LinearLayout
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_next_step"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginTop="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_next_step"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:backgroundTint="@color/ai_hub_makeup_btn"
-                android:fontFamily="@font/poppins_medium"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="@string/makeup_next_step"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:cornerRadius="24dp" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_end_call"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="12dp"
-                app:cardBackgroundColor="#FF5252"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="0dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_telephone"
-                    app:tint="@color/white" />
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
+            android:backgroundTint="@color/ai_hub_makeup_btn"
+            android:fontFamily="@font/poppins_medium"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/makeup_next_step"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:cornerRadius="24dp" />
 
         <TextView
             android:layout_width="wrap_content"
