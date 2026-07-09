@@ -1,6 +1,7 @@
 package com.pompom.group6.adapters;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -19,9 +20,19 @@ import java.util.Locale;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.VH> {
 
+    /** Callback khi người dùng bấm "Hủy đơn" trên một đơn (chỉ đơn "pending"). */
+    public interface OnOrderCancel {
+        void onCancel(Order order);
+    }
+
     private final List<Order> orders = new ArrayList<>();
+    private OnOrderCancel cancelListener;
 
     public OrderAdapter() {
+    }
+
+    public void setOnOrderCancel(OnOrderCancel listener) {
+        this.cancelListener = listener;
     }
 
     public OrderAdapter(List<Order> orders) {
@@ -63,6 +74,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.VH> {
             if (o.getOid() == null) return;
             com.pompom.group6.activities.OrderDetailActivity.start(v.getContext(), o.getOid());
         });
+
+        // Nút "Hủy đơn": chỉ đơn còn "pending" (shop chưa xác nhận) mới được hủy.
+        boolean cancellable = "pending".equals(o.getStatus()) && o.getOid() != null;
+        holder.b.btnCancelOrder.setVisibility(cancellable ? View.VISIBLE : View.GONE);
+        holder.b.btnCancelOrder.setOnClickListener(cancellable
+                ? v -> { if (cancelListener != null) cancelListener.onCancel(o); }
+                : null);
     }
 
     private String formatDate(String raw) {

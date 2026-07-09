@@ -25,9 +25,13 @@ async function notifyPostOwner(postId, actorId, type, message) {
   });
 }
 
+// Gắn tên/avatar tác giả cho danh sách bài — nạp tất cả user trong MỘT query $in (tránh N+1).
 async function withAuthors(posts) {
+  const ids = posts.map((p) => p.user_id).filter(Boolean);
+  const users = ids.length ? await User.find({ _id: { $in: ids } }).lean() : [];
+  const byId = new Map(users.map((u) => [String(u._id), u]));
   for (const p of posts) {
-    const u = await User.findById(p.user_id).lean();
+    const u = byId.get(String(p.user_id));
     p.author_name = u?.full_name || "Người dùng";
     p.author_avatar = u?.avatar_url || null;
   }
@@ -164,8 +168,12 @@ router.get("/posts/:id/comments", async (req, res) => {
     const comments = await Comment.find({ post_id: oid(req.params.id) })
       .sort({ created_at: 1 })
       .lean();
+    // Nạp tác giả các bình luận trong MỘT query $in (tránh N+1).
+    const ids = comments.map((c) => c.user_id).filter(Boolean);
+    const users = ids.length ? await User.find({ _id: { $in: ids } }).lean() : [];
+    const byId = new Map(users.map((u) => [String(u._id), u]));
     for (const c of comments) {
-      const u = await User.findById(c.user_id).lean();
+      const u = byId.get(String(c.user_id));
       c.author_name = u?.full_name || null;
       c.author_avatar = u?.avatar_url || null;
     }

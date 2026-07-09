@@ -115,7 +115,8 @@ public class CartActivity extends SwipeBackActivity implements CartManager.CartC
         String userOid = com.pompom.group6.network.Session.getUserOid(this);
         if (userOid == null || item.getProductOid() == null) return;
         com.pompom.group6.network.ApiClient.get()
-                .setCartQuantity(new com.pompom.group6.network.dto.CartItemRequest(userOid, item.getProductOid(), newQty))
+                .setCartQuantity(new com.pompom.group6.network.dto.CartItemRequest(
+                        userOid, item.getProductOid(), item.getVariantId(), newQty))
                 .enqueue(new retrofit2.Callback<Void>() {
                     @Override public void onResponse(retrofit2.Call<Void> c, retrofit2.Response<Void> r) {}
                     @Override public void onFailure(retrofit2.Call<Void> c, Throwable t) {}
@@ -126,7 +127,8 @@ public class CartActivity extends SwipeBackActivity implements CartManager.CartC
     private void syncRemoveToServer(CartItem item) {
         String userOid = com.pompom.group6.network.Session.getUserOid(this);
         if (userOid == null || item.getProductOid() == null) return;
-        com.pompom.group6.network.ApiClient.get().removeCartByProduct(userOid, item.getProductOid())
+        com.pompom.group6.network.ApiClient.get()
+                .removeCartByProduct(userOid, item.getProductOid(), item.getVariantId())
                 .enqueue(new retrofit2.Callback<Void>() {
                     @Override public void onResponse(retrofit2.Call<Void> c, retrofit2.Response<Void> r) {}
                     @Override public void onFailure(retrofit2.Call<Void> c, Throwable t) {}
@@ -138,13 +140,13 @@ public class CartActivity extends SwipeBackActivity implements CartManager.CartC
         adapter = new CartItemAdapter(items, new CartItemAdapter.CartItemListener() {
             @Override
             public void onQuantityChanged(CartItem item, int newQty) {
-                cartManager.updateQuantity(item.getProductId(), newQty);
+                cartManager.updateQuantity(item, newQty);
                 syncQuantityToServer(item, newQty);
             }
 
             @Override
             public void onRemove(CartItem item) {
-                cartManager.removeItem(item.getProductId());
+                cartManager.removeItem(item);
                 syncRemoveToServer(item);
             }
         });
@@ -223,7 +225,7 @@ public class CartActivity extends SwipeBackActivity implements CartManager.CartC
                     // Không hoàn tác → xoá vĩnh viễn khỏi CartManager
                     suppressSync = true;
                     for (CartItemAdapter.RemovedEntry e : removed) {
-                        cartManager.removeItem(e.item.getProductId());
+                        cartManager.removeItem(e.item);
                         syncRemoveToServer(e.item);
                     }
                     suppressSync = false;

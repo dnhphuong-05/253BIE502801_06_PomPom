@@ -55,11 +55,12 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
 
     private final List<CartItem> items;
     private final CartItemListener listener;
-    private final Set<Integer> expandedIds = new HashSet<>();
-    private final Map<Integer, String> selectedVariant = new HashMap<>();
+    // Định danh theo DÒNG (sản phẩm + biến thể) để 2 biến thể cùng sản phẩm không lẫn nhau.
+    private final Set<String> expandedKeys = new HashSet<>();
+    private final Map<String, String> selectedVariant = new HashMap<>();
 
     private boolean selectionEnabled = false;
-    private final Set<Integer> selectedIds = new HashSet<>();
+    private final Set<String> selectedKeys = new HashSet<>();
     private SelectionListener selectionListener;
 
     public CartItemAdapter(List<CartItem> items, CartItemListener listener) {
@@ -71,8 +72,8 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
     public void setItems(List<CartItem> newItems) {
         items.clear();
         if (newItems != null) items.addAll(newItems);
-        // bỏ chọn những id không còn tồn tại
-        selectedIds.retainAll(collectIds());
+        // bỏ chọn những dòng không còn tồn tại
+        selectedKeys.retainAll(collectKeys());
         notifyDataSetChanged();
     }
 
@@ -87,46 +88,46 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
 
     // ── Selection helpers ─────────────────────────────────────────────────────────
 
-    private Set<Integer> collectIds() {
-        Set<Integer> ids = new HashSet<>();
-        for (CartItem it : items) ids.add(it.getProductId());
-        return ids;
+    private Set<String> collectKeys() {
+        Set<String> keys = new HashSet<>();
+        for (CartItem it : items) keys.add(it.getLineKey());
+        return keys;
     }
 
-    private void toggleSelection(int productId) {
-        if (selectedIds.contains(productId)) selectedIds.remove(productId);
-        else selectedIds.add(productId);
+    private void toggleSelection(String key) {
+        if (selectedKeys.contains(key)) selectedKeys.remove(key);
+        else selectedKeys.add(key);
         notifyDataSetChanged();
-        if (selectionListener != null) selectionListener.onSelectionChanged(selectedIds.size());
+        if (selectionListener != null) selectionListener.onSelectionChanged(selectedKeys.size());
     }
 
     public void selectAll() {
-        selectedIds.clear();
-        selectedIds.addAll(collectIds());
+        selectedKeys.clear();
+        selectedKeys.addAll(collectKeys());
         notifyDataSetChanged();
-        if (selectionListener != null) selectionListener.onSelectionChanged(selectedIds.size());
+        if (selectionListener != null) selectionListener.onSelectionChanged(selectedKeys.size());
     }
 
     public void clearSelection() {
-        selectedIds.clear();
+        selectedKeys.clear();
         notifyDataSetChanged();
         if (selectionListener != null) selectionListener.onSelectionChanged(0);
     }
 
-    public int getSelectedCount() { return selectedIds.size(); }
-    public boolean isAllSelected() { return !items.isEmpty() && selectedIds.size() == items.size(); }
+    public int getSelectedCount() { return selectedKeys.size(); }
+    public boolean isAllSelected() { return !items.isEmpty() && selectedKeys.size() == items.size(); }
 
     /** Xoá tạm các sản phẩm đang chọn khỏi danh sách, trả về entries để hoàn tác. */
     public List<RemovedEntry> removeSelected() {
         java.util.List<RemovedEntry> removed = new java.util.ArrayList<>();
         for (int i = items.size() - 1; i >= 0; i--) {
-            if (selectedIds.contains(items.get(i).getProductId())) {
+            if (selectedKeys.contains(items.get(i).getLineKey())) {
                 removed.add(new RemovedEntry(i, items.get(i)));
                 items.remove(i);
                 notifyItemRemoved(i);
             }
         }
-        selectedIds.clear();
+        selectedKeys.clear();
         if (selectionListener != null) selectionListener.onSelectionChanged(0);
         return removed;
     }
@@ -156,6 +157,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
         CartItem item = items.get(position);
         Context ctx = holder.itemView.getContext();
+        final String key = item.getLineKey();
 
         // ── Image ────────────────────────────────────────────────────────────────
         Glide.with(ctx)
@@ -170,8 +172,8 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
         // ── Variant label ────────────────────────────────────────────────────────
         // Ưu tiên lựa chọn tạm trong phiên (đổi màu ở ô xổ ra); nếu chưa đổi thì
         // dùng màu đã chọn lúc thêm vào giỏ (item.getVariantName()).
-        String vname = selectedVariant.containsKey(item.getProductId())
-                ? selectedVariant.get(item.getProductId())
+        String vname = selectedVariant.containsKey(key)
+                ? selectedVariant.get(key)
                 : item.getVariantName();
         holder.binding.tvCartVariant.setText("Màu sắc: " + (vname != null ? vname : "Mặc định"));
 
@@ -202,11 +204,11 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
 
         // ── Chọn nhiều (checkbox + long-click) + highlight ──
         // Checkbox CHỈ hiện khi line được chọn (long-click để chọn, bỏ tick để ẩn).
-        boolean selected = selectedIds.contains(item.getProductId());
+        boolean selected = selectedKeys.contains(key);
         holder.binding.cbSelect.setVisibility(selected ? View.VISIBLE : View.GONE);
         holder.binding.cbSelect.setOnCheckedChangeListener(null);
         holder.binding.cbSelect.setChecked(selected);
-        holder.binding.cbSelect.setOnClickListener(v -> toggleSelection(item.getProductId()));
+        holder.binding.cbSelect.setOnClickListener(v -> toggleSelection(key));
 
         MaterialCardView card = (MaterialCardView) holder.itemView;
         if (selected) {
@@ -218,21 +220,20 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
         }
 
         holder.binding.mainContent.setOnLongClickListener(selectionEnabled ? v -> {
-            toggleSelection(item.getProductId());
+            toggleSelection(key);
             return true;
         } : null);
 
         // ── Ô thông tin xổ ra khi click line (đẩy line khác xuống) ──
-        boolean expanded = expandedIds.contains(item.getProductId());
+        boolean expanded = expandedKeys.contains(key);
         holder.binding.expandBox.setVisibility(expanded ? View.VISIBLE : View.GONE);
         if (expanded) populateExpand(holder, item, ctx);
 
         holder.binding.mainContent.setOnClickListener(v -> {
             int pos = holder.getAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
-            int pid = item.getProductId();
-            if (expandedIds.contains(pid)) expandedIds.remove(pid);
-            else expandedIds.add(pid);
+            if (expandedKeys.contains(key)) expandedKeys.remove(key);
+            else expandedKeys.add(key);
             notifyItemChanged(pos);
         });
     }
@@ -288,7 +289,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
         if (variants != null && !variants.isEmpty()) {
             holder.binding.rvExpandVariants.setVisibility(View.VISIBLE);
             VariantAdapter va = new VariantAdapter(variants, variant -> {
-                selectedVariant.put(item.getProductId(), variant.getName());
+                selectedVariant.put(item.getLineKey(), variant.getName());
                 holder.binding.tvCartVariant.setText("Màu sắc: " + variant.getName());
             });
             holder.binding.rvExpandVariants.setLayoutManager(
@@ -315,7 +316,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
         if (!variants.isEmpty()) {
             holder.binding.rvExpandVariants.setVisibility(View.VISIBLE);
             VariantAdapter va = new VariantAdapter(variants, variant -> {
-                selectedVariant.put(item.getProductId(), variant.getName());
+                selectedVariant.put(item.getLineKey(), variant.getName());
                 item.setVariantId(variant.getOid());
                 item.setVariantName(variant.getName());
                 holder.binding.tvCartVariant.setText("Màu sắc: " + variant.getName());

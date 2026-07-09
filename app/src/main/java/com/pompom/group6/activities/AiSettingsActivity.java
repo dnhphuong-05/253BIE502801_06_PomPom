@@ -37,14 +37,11 @@ public class AiSettingsActivity extends SwipeBackActivity {
     }
 
     private void confirmClearHistory() {
-        new AlertDialog.Builder(this)
-                .setTitle("Xoá lịch sử AI?")
-                .setMessage("Toàn bộ kết quả khám da và trang điểm đã lưu sẽ bị xoá vĩnh viễn. Bạn có chắc chắn không?")
-                .setPositiveButton("Xoá", (dialog, which) -> {
+        com.pompom.group6.utils.PomPomDialog.confirm(this, "🗑️", "Xoá lịch sử AI?",
+                "Toàn bộ kết quả khám da và trang điểm đã lưu sẽ bị xoá vĩnh viễn. Bạn có chắc chắn không?",
+                "Xoá", "Huỷ", () -> {
                     new AiSessionDAO(this).deleteAllHistory();
                     Toast.makeText(this, "Đã xoá lịch sử AI", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Huỷ", null)
-                .show();
+                });
     }
 }

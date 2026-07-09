@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popup thêm địa chỉ theo concept PomPom (nền bo góc, ô nhập viền hồng, nút hồng). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_pompom"
+    android:orientation="vertical"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="18dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center_horizontal"
+        app:cardBackgroundColor="@color/brand_background"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="0dp">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_pin"
+            android:contentDescription="@null"
+            app:tint="@color/brand_pink" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="14dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Thêm địa chỉ"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        tools:ignore="HardcodedText" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:maxHeight="320dp"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/PomPomInputCard">
+
+                <EditText
+                    android:id="@+id/etAddrLabel"
+                    style="@style/PomPomInputField"
+                    android:hint="Nhãn (Nhà, Công ty...)"
+                    android:inputType="text"
+                    tools:ignore="HardcodedText" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/PomPomInputCard">
+
+                <EditText
+                    android:id="@+id/etAddrName"
+                    style="@style/PomPomInputField"
+                    android:hint="Tên người nhận"
+                    android:inputType="textPersonName"
+                    tools:ignore="HardcodedText" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/PomPomInputCard">
+
+                <EditText
+                    android:id="@+id/etAddrPhone"
+                    style="@style/PomPomInputField"
+                    android:hint="Số điện thoại"
+                    android:inputType="phone"
+                    tools:ignore="HardcodedText" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/PomPomInputCard">
+
+                <EditText
+                    android:id="@+id/etAddrLine"
+                    style="@style/PomPomInputField"
+                    android:hint="Địa chỉ (số nhà, đường)"
+                    android:inputType="textPostalAddress"
+                    tools:ignore="HardcodedText" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/PomPomInputCard">
+
+                <EditText
+                    android:id="@+id/etAddrWard"
+                    style="@style/PomPomInputField"
+                    android:hint="Phường/Xã"
+                    android:inputType="text"
+                    tools:ignore="HardcodedText" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/PomPomInputCard">
+
+                <EditText
+                    android:id="@+id/etAddrDistrict"
+                    style="@style/PomPomInputField"
+                    android:hint="Quận/Huyện"
+                    android:inputType="text"
+                    tools:ignore="HardcodedText" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/PomPomInputCard">
+
+                <EditText
+                    android:id="@+id/etAddrCity"
+                    style="@style/PomPomInputField"
+                    android:hint="Tỉnh/Thành phố"
+                    android:inputType="text"
+                    tools:ignore="HardcodedText" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddrCancel"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_medium"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Hủy"
+            android:textAllCaps="false"
+            android:textColor="@color/brand_pink"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/brand_pink"
+            tools:ignore="HardcodedText" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddrSave"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_semibold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Lưu"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/brand_pink"
+            app:cornerRadius="12dp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+</LinearLayout>

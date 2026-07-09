@@ -64,6 +64,8 @@ router.post("/items", async (req, res) => {
     const cart = await getOrCreateCart(uid);
     const unitPrice = product.sale_price && product.sale_price < product.price ? product.sale_price : product.price;
 
+    // Giỏ hàng theo cấp DÒNG (sản phẩm + biến thể): cùng sản phẩm khác biến thể = 2 dòng riêng.
+    // Chỉ gộp số lượng khi TRÙNG cả product_id lẫn variant_id.
     let item = await CartItem.findOne({ cart_id: cart._id, product_id: pid, variant_id: vid });
     if (item) {
       // Loose (strict:false) schemas don't persist `.save()` field edits reliably; use updateOne.
@@ -85,20 +87,23 @@ router.post("/items", async (req, res) => {
   }
 });
 
-// PUT /api/carts/set  { user_id, product_id, quantity }  -> đặt số lượng chính xác (0 = xoá)
+// PUT /api/carts/set  { user_id, product_id, variant_id?, quantity }  -> đặt số lượng đúng DÒNG (0 = xoá)
+// variant_id để nhắm đúng biến thể; bỏ trống -> nhắm dòng không có biến thể (variant_id null).
 router.put("/set", async (req, res) => {
   try {
     const uid = oid(req.body?.user_id);
     const pid = oid(req.body?.product_id);
+    const vid = req.body?.variant_id ? oid(req.body.variant_id) : null;
     const qty = parseInt(req.body?.quantity, 10);
     if (!uid || !pid || !Number.isFinite(qty)) return res.status(400).json({ error: "Tham số không hợp lệ" });
 
     const cart = await Cart.findOne({ user_id: uid });
     if (!cart) return res.json({ ok: true });
+    const lineFilter = { cart_id: cart._id, product_id: pid, variant_id: vid };
     if (qty <= 0) {
-      await CartItem.deleteOne({ cart_id: cart._id, product_id: pid });
+      await CartItem.deleteOne(lineFilter);
     } else {
-      await CartItem.updateOne({ cart_id: cart._id, product_id: pid }, { quantity: qty });
+      await CartItem.updateOne(lineFilter, { quantity: qty });
     }
     res.json({ ok: true });
   } catch (e) {
@@ -106,14 +111,15 @@ router.put("/set", async (req, res) => {
   }
 });
 
-// DELETE /api/carts/by-product?user_id=&product_id=  -> xoá 1 sản phẩm khỏi giỏ
+// DELETE /api/carts/by-product?user_id=&product_id=&variant_id=  -> xoá đúng 1 DÒNG (sản phẩm + biến thể)
 router.delete("/by-product", async (req, res) => {
   try {
     const uid = oid(req.query.user_id);
     const pid = oid(req.query.product_id);
+    const vid = req.query.variant_id ? oid(req.query.variant_id) : null;
     if (!uid || !pid) return res.status(400).json({ error: "Tham số không hợp lệ" });
     const cart = await Cart.findOne({ user_id: uid });
-    if (cart) await CartItem.deleteOne({ cart_id: cart._id, product_id: pid });
+    if (cart) await CartItem.deleteOne({ cart_id: cart._id, product_id: pid, variant_id: vid });
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });

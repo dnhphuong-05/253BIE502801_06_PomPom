@@ -21,6 +21,18 @@ public class CartItem {
 
     public int getProductId() { return productId; }
 
+    /**
+     * Khóa định danh một DÒNG giỏ hàng. Cùng sản phẩm nhưng khác biến thể (màu/tone…)
+     * là HAI dòng khác nhau. Dùng cho gộp/xoá/chọn để không lẫn giữa các biến thể.
+     */
+    public String getLineKey() {
+        String base = productOid != null ? productOid : String.valueOf(productId);
+        // Ưu tiên id biến thể (sản phẩm cloud); nếu không có thì dùng tên biến thể
+        // (sản phẩm local không có id biến thể) để 2 biến thể vẫn tách dòng.
+        String variantPart = variantId != null ? variantId : (variantName != null ? variantName : "");
+        return base + "#" + variantPart;
+    }
+
     public String getProductOid() { return productOid; }
     public void setProductOid(String productOid) { this.productOid = productOid; }
 
