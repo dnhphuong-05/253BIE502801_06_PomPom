@@ -44,18 +44,6 @@
                 app:layout_constraintStart_toEndOf="@id/ivUserAvatar"
                 app:layout_constraintTop_toTopOf="@id/ivUserAvatar" />
 
-            <ImageView
-                android:id="@+id/ivVerified"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_marginStart="4dp"
-                android:src="@drawable/ic_pin"
-                app:layout_constraintBottom_toBottomOf="@id/tvUserName"
-                app:layout_constraintStart_toEndOf="@id/tvUserName"
-                app:layout_constraintTop_toTopOf="@id/tvUserName"
-                app:tint="@color/brand_pink"
-                android:contentDescription="@null" />
-
             <TextView
                 android:id="@+id/tvPostTime"
                 android:layout_width="wrap_content"
@@ -149,49 +137,6 @@
                 app:tabPaddingEnd="4dp"
                 app:tabPaddingStart="4dp" />
         </FrameLayout>
-
-        <!-- Content: Hashtags -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_label_pink"
-                android:backgroundTint="#FFF0F2"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="#Skincare"
-                android:textColor="@color/brand_pink"
-                android:textSize="12sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_label_pink"
-                android:backgroundTint="#FFF0F2"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="#Routine"
-                android:textColor="@color/brand_pink"
-                android:textSize="12sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_label_pink"
-                android:backgroundTint="#FFF0F2"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="#PomPomBeauty"
-                android:textColor="@color/brand_pink"
-                android:textSize="12sp" />
-        </LinearLayout>
 
         <!-- Footer: Social Actions -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -291,6 +236,49 @@
                 android:contentDescription="@null" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Preview vài bình luận mới nhất (server trả sẵn trong feed) -->
+        <LinearLayout
+            android:id="@+id/layoutCommentPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvPreviewComment1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_regular"
+                android:maxLines="2"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                tools:text="Linh Ngọc Rất hợp da dầu nha mọi người!" />
+
+            <TextView
+                android:id="@+id/tvPreviewComment2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_regular"
+                android:maxLines="2"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                tools:text="Mai Anh Mình dùng 1 tháng thấy ổn áp" />
+
+            <TextView
+                android:id="@+id/tvViewAllComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="@color/text_secondary"
+                android:textSize="12.5sp"
+                tools:text="Xem tất cả 86 bình luận" />
+        </LinearLayout>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

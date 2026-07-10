@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,6 +93,7 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
 
         bindLikeState(holder, post);
         bindBookmarkState(holder, post);
+        bindCommentPreview(holder, post);
         setupLikeLogic(holder, post, originalLiked);
         setupFollowLogic(holder, post);
         setupSocialActions(holder, post);
@@ -116,30 +116,51 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
                 post.isSaved() ? R.color.brand_pink : R.color.text_secondary));
     }
 
+    /** Hiển thị tối đa 2 bình luận mới nhất (server trả sẵn trong feed) + link "Xem tất cả N". */
+    private void bindCommentPreview(PostViewHolder holder, CommunityPost post) {
+        List<CommunityPost.PreviewComment> preview = post.getPreviewComments();
+        if (preview == null || preview.isEmpty()) {
+            holder.layoutCommentPreview.setVisibility(View.GONE);
+            return;
+        }
+        holder.layoutCommentPreview.setVisibility(View.VISIBLE);
+        bindPreviewLine(holder.tvPreviewComment1, preview.size() > 0 ? preview.get(0) : null, post);
+        bindPreviewLine(holder.tvPreviewComment2, preview.size() > 1 ? preview.get(1) : null, post);
+
+        int count = post.getCommentCount();
+        if (count > preview.size()) {
+            holder.tvViewAllComments.setVisibility(View.VISIBLE);
+            holder.tvViewAllComments.setText("Xem tất cả " + count + " bình luận");
+            holder.tvViewAllComments.setOnClickListener(v -> openPostDetail(v, post.getPostId()));
+        } else {
+            holder.tvViewAllComments.setVisibility(View.GONE);
+        }
+    }
+
+    /** Một dòng preview: tên tác giả in đậm + nội dung; chạm mở chi tiết bài viết. */
+    private void bindPreviewLine(TextView tv, CommunityPost.PreviewComment c, CommunityPost post) {
+        if (c == null) {
+            tv.setVisibility(View.GONE);
+            return;
+        }
+        tv.setVisibility(View.VISIBLE);
+        String name = c.authorName != null ? c.authorName : "Người dùng";
+        String content = c.content != null ? c.content : "";
+        android.text.SpannableString s = new android.text.SpannableString(name + "  " + content);
+        s.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                0, name.length(), android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tv.setText(s);
+        tv.setOnClickListener(v -> openPostDetail(v, post.getPostId()));
+    }
+
     private void setupSocialActions(PostViewHolder holder, CommunityPost post) {
         // Comment Button Click
         holder.layoutComment.setOnClickListener(v -> openPostDetail(v, post.getPostId()));
 
-        // Share Button Click — tăng lượt chia sẻ thật trên server rồi mở hộp thoại chia sẻ hệ thống
-        holder.layoutShare.setOnClickListener(v -> {
-            com.pompom.group6.network.ApiClient.get().sharePost(post.getPostId())
-                    .enqueue(new retrofit2.Callback<java.util.Map<String, Integer>>() {
-                        @Override
-                        public void onResponse(retrofit2.Call<java.util.Map<String, Integer>> call,
-                                               retrofit2.Response<java.util.Map<String, Integer>> resp) {
-                            if (resp.isSuccessful() && resp.body() != null && resp.body().get("share_count") != null) {
-                                post.setShareCount(resp.body().get("share_count"));
-                                holder.tvShareCount.setText(formatCount(post.getShareCount()));
-                            }
-                        }
-                        @Override public void onFailure(retrofit2.Call<java.util.Map<String, Integer>> call, Throwable t) {}
-                    });
-
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Xem bài viết hay này trên PomPom: " + post.getContent());
-            v.getContext().startActivity(Intent.createChooser(shareIntent, "Chia sẻ bài viết qua"));
-        });
+        // Share Button Click — chỉ tăng lượt chia sẻ khi user THẬT SỰ chọn một nơi để chia sẻ
+        // (bắt qua IntentSender callback của chooser), tránh thổi phồng share_count khi user chỉ
+        // bấm rồi huỷ hộp thoại. Trước đây tăng ngay lúc bấm nên số bị ảo.
+        holder.layoutShare.setOnClickListener(v -> shareWithResultCallback(holder, post));
 
         // Bookmark Button Click — lưu/bỏ lưu thật trên server (cho tab "Đã lưu")
         holder.btnBookmark.setOnClickListener(v -> {
@@ -189,6 +210,55 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
         intent.putExtra("post_id", postId);
         v.getContext().startActivity(intent);
+    }
+
+    private static long shareRequestSeq = 0;
+
+    /** Mở chooser hệ thống; chỉ khi user CHỌN một app để chia sẻ (chooser bắn EXTRA_CHOSEN_COMPONENT
+     * qua PendingIntent) mới gọi API tăng share_count. Nếu user huỷ chooser thì không tính. */
+    private void shareWithResultCallback(PostViewHolder holder, CommunityPost post) {
+        android.content.Context ctx = holder.itemView.getContext().getApplicationContext();
+        String action = ctx.getPackageName() + ".COMMUNITY_SHARE_RESULT." + (shareRequestSeq++);
+
+        android.content.BroadcastReceiver receiver = new android.content.BroadcastReceiver() {
+            @Override public void onReceive(android.content.Context c, Intent intent) {
+                c.unregisterReceiver(this);
+                com.pompom.group6.network.ApiClient.get().sharePost(post.getPostId())
+                        .enqueue(new retrofit2.Callback<java.util.Map<String, Integer>>() {
+                            @Override
+                            public void onResponse(retrofit2.Call<java.util.Map<String, Integer>> call,
+                                                   retrofit2.Response<java.util.Map<String, Integer>> resp) {
+                                if (resp.isSuccessful() && resp.body() != null && resp.body().get("share_count") != null) {
+                                    post.setShareCount(resp.body().get("share_count"));
+                                    holder.tvShareCount.setText(formatCount(post.getShareCount()));
+                                }
+                            }
+                            @Override public void onFailure(retrofit2.Call<java.util.Map<String, Integer>> call, Throwable t) {}
+                        });
+            }
+        };
+
+        android.content.IntentFilter filter = new android.content.IntentFilter(action);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            ctx.registerReceiver(receiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            ctx.registerReceiver(receiver, filter);
+        }
+
+        int piFlags = android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_ONE_SHOT;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            piFlags |= android.app.PendingIntent.FLAG_MUTABLE;
+        }
+        android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(
+                ctx, 0, new Intent(action).setPackage(ctx.getPackageName()), piFlags);
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Xem bài viết hay này trên PomPom: " + post.getContent());
+
+        Intent chooser = Intent.createChooser(shareIntent, "Chia sẻ bài viết qua", pi.getIntentSender());
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        ctx.startActivity(chooser);
     }
 
     /** originalLiked = trạng thái is_liked lúc bind (cố định) — mốc để like_count luôn tính đúng dù bấm nhiều lần. */
@@ -247,18 +317,10 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         holder.btnFollow.setVisibility(canFollow ? View.VISIBLE : View.GONE);
         if (!canFollow) return;
 
-        renderFollowButton(holder.btnFollow, false);
-        com.pompom.group6.network.ApiClient.get().getFollowStatus(authorId, viewerId)
-                .enqueue(new retrofit2.Callback<java.util.Map<String, Boolean>>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<java.util.Map<String, Boolean>> call,
-                                           retrofit2.Response<java.util.Map<String, Boolean>> resp) {
-                        if (resp.isSuccessful() && resp.body() != null) {
-                            renderFollowButton(holder.btnFollow, Boolean.TRUE.equals(resp.body().get("following")));
-                        }
-                    }
-                    @Override public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {}
-                });
+        // Trạng thái theo dõi do server trả sẵn trong feed (is_following) — không còn gọi
+        // getFollowStatus riêng cho từng card (trước đây mỗi bài = 1 request, nút bị nhấp nháy).
+        Boolean following = post.getFollowing();
+        renderFollowButton(holder.btnFollow, following != null && following);
 
         holder.btnFollow.setOnClickListener(v -> {
             boolean isFollowed = v.getTag() != null && (boolean) v.getTag();
@@ -307,25 +369,59 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         }
     }
 
+    /** Menu "..." dạng sheet PomPom (thay cho PopupMenu mặc định của Android để đồng nhất concept). */
     private void showPostMenu(View view, int position) {
-        PopupMenu popup = new PopupMenu(view.getContext(), view);
-        popup.getMenu().add("Ẩn bài viết");
-        popup.getMenu().add("Báo cáo vi phạm");
-        popup.getMenu().add("Sao chép liên kết");
-
-        popup.setOnMenuItemClickListener(item -> {
-            String title = item.getTitle().toString();
-            if (title.equals("Ẩn bài viết") && position != RecyclerView.NO_POSITION) {
-                hidePost(view.getContext(), position);
+        if (position == RecyclerView.NO_POSITION) return;
+        android.content.Context ctx = view.getContext();
+        String[] options = {"Sao chép nội dung", "Ẩn bài viết", "Báo cáo vi phạm"};
+        com.pompom.group6.utils.PomPomDialog.pickList(ctx, "Tuỳ chọn bài viết", options, -1, index -> {
+            if (position == RecyclerView.NO_POSITION || position >= posts.size()) return;
+            switch (index) {
+                case 0: copyPostContent(ctx, position); break;
+                case 1: hidePost(ctx, position, "Đã ẩn bài viết"); break;
+                case 2: reportPost(ctx, position); break;
             }
-            return true;
         });
-        popup.show();
+    }
+
+    /** Sao chép nội dung bài viết vào clipboard (trước đây menu này không làm gì). */
+    private void copyPostContent(android.content.Context context, int position) {
+        CommunityPost post = posts.get(position);
+        android.content.ClipboardManager clipboard =
+                (android.content.ClipboardManager) context.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+        if (clipboard == null) return;
+        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("PomPom", post.getContent()));
+        Toast.makeText(context, "Đã sao chép nội dung bài viết", Toast.LENGTH_SHORT).show();
+    }
+
+    /** Báo cáo vi phạm: xác nhận rồi ẩn bài khỏi bảng tin của người báo cáo (dùng endpoint hide
+     * sẵn có) — trước đây menu này không làm gì. Kiểm duyệt thật ở phía admin sẽ bổ sung sau. */
+    private void reportPost(android.content.Context context, int position) {
+        com.pompom.group6.utils.PomPomDialog.confirm(context, "🚩", "Báo cáo bài viết?",
+                "Bài viết sẽ được ẩn khỏi bảng tin của bạn và gửi tới đội ngũ kiểm duyệt xem xét.",
+                "Báo cáo", "Huỷ",
+                () -> {
+                    CommunityPost post = posts.get(position);
+                    String viewerId = com.pompom.group6.network.Session.getUserOid(context);
+                    // Lưu báo cáo vào hàng đợi kiểm duyệt (best-effort); dù mạng lỗi vẫn ẩn khỏi feed.
+                    if (viewerId != null) {
+                        java.util.Map<String, String> body = new java.util.HashMap<>();
+                        body.put("user_id", viewerId);
+                        com.pompom.group6.network.ApiClient.get().reportPost(post.getPostId(), body)
+                                .enqueue(new retrofit2.Callback<java.util.Map<String, Boolean>>() {
+                                    @Override public void onResponse(retrofit2.Call<java.util.Map<String, Boolean>> call,
+                                                                     retrofit2.Response<java.util.Map<String, Boolean>> resp) {}
+                                    @Override public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {}
+                                });
+                    }
+                    int idx = posts.indexOf(post);
+                    if (idx != -1) hidePost(context, idx, "Đã tiếp nhận báo cáo, cảm ơn bạn");
+                });
     }
 
     /** Ẩn bài viết khỏi feed của riêng người xem — lưu thật qua API để không hiện lại
      * khi tải lại feed (trước đây chỉ xoá tạm khỏi danh sách trong bộ nhớ nên mở lại là mất tác dụng). */
-    private void hidePost(android.content.Context context, int position) {
+    private void hidePost(android.content.Context context, int position, String successMessage) {
         String viewerId = com.pompom.group6.network.Session.getUserOid(context);
         if (viewerId == null) {
             Toast.makeText(context, "Bạn cần đăng nhập để ẩn bài viết", Toast.LENGTH_SHORT).show();
@@ -349,7 +445,7 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
                             notifyItemRemoved(idx);
                             notifyItemRangeChanged(idx, posts.size());
                         }
-                        Toast.makeText(context, "Đã ẩn bài viết", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show();
                     }
                     @Override
                     public void onFailure(retrofit2.Call<java.util.Map<String, Boolean>> call, Throwable t) {
@@ -400,7 +496,8 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
         TextView tvUserName, tvPostTime, tvPostTitle, tvLikeCount, tvCommentCount, tvShareCount;
         ViewPager2 vpPostImages;
         TabLayout tabIndicator;
-        View layoutPostImages, layoutLike, layoutComment, layoutShare;
+        View layoutPostImages, layoutLike, layoutComment, layoutShare, layoutCommentPreview;
+        TextView tvPreviewComment1, tvPreviewComment2, tvViewAllComments;
         MaterialButton btnFollow;
 
         public PostViewHolder(@NonNull View itemView) {
@@ -423,6 +520,11 @@ public class CommunityPostAdapter extends RecyclerView.Adapter<CommunityPostAdap
             tvLikeCount = itemView.findViewById(R.id.tvLikeCount);
             tvCommentCount = itemView.findViewById(R.id.tvCommentCount);
             tvShareCount = itemView.findViewById(R.id.tvShareCount);
+
+            layoutCommentPreview = itemView.findViewById(R.id.layoutCommentPreview);
+            tvPreviewComment1 = itemView.findViewById(R.id.tvPreviewComment1);
+            tvPreviewComment2 = itemView.findViewById(R.id.tvPreviewComment2);
+            tvViewAllComments = itemView.findViewById(R.id.tvViewAllComments);
         }
     }
 }

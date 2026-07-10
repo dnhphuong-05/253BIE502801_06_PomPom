@@ -55,6 +55,8 @@ module.exports = {
   PromotionDetail: model("PromotionDetail", "promotiondetails"),
   SavedPost: model("SavedPost", "savedposts", [{ user_id: 1 }]),
   HiddenPost: model("HiddenPost", "hiddenposts"),
+  // reports: bài viết bị người dùng báo cáo vi phạm — lưu để đội ngũ kiểm duyệt xem xét.
+  Report: model("Report", "reports", [{ post_id: 1 }]),
   Reel: model("Reel", "reels"),
   Blog: model("Blog", "blogs"),
   ExpertArticle: model("ExpertArticle", "expertarticles"),
