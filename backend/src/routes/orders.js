@@ -5,6 +5,8 @@ const { serialize } = require("../serialize");
 
 const router = express.Router();
 const oid = (v) => (Types.ObjectId.isValid(v) ? new Types.ObjectId(v) : null);
+// Thuế VAT áp cho đơn hàng (8%). Đặt một chỗ để Checkout (client) và đơn (server) dùng chung một mức.
+const TAX_RATE = 0.08;
 
 // GET /api/orders?user_id=&status=&phone=  -> orders enriched with item_count + first item preview
 router.get("/", async (req, res) => {
@@ -18,19 +20,52 @@ router.get("/", async (req, res) => {
       filter.user_id = { $in: users.map((u) => u._id) };
     }
     const orders = await Order.find(filter).sort({ created_at: -1 }).lean();
+    if (!orders.length) return res.json([]);
+
+    // Tránh N+1: thay vì mỗi đơn 1 loạt query, gộp bằng $in cho toàn bộ danh sách.
+    // 1) Lấy toàn bộ order items của các đơn trong MỘT query, nhóm theo order_id.
+    const orderIds = orders.map((o) => o._id);
+    const allItems = await OrderItem.find({ order_id: { $in: orderIds } }).lean();
+    const itemsByOrder = new Map();
+    for (const it of allItems) {
+      const key = String(it.order_id);
+      if (!itemsByOrder.has(key)) itemsByOrder.set(key, []);
+      itemsByOrder.get(key).push(it);
+    }
+
+    // 2) Nạp tất cả sản phẩm "đầu đơn" (để preview) trong MỘT query.
+    const firstProductIds = [];
+    for (const o of orders) {
+      const its = itemsByOrder.get(String(o._id));
+      if (its && its.length) firstProductIds.push(its[0].product_id);
+    }
+    const products = await Product.find({ _id: { $in: firstProductIds } }).lean();
+    const productById = new Map(products.map((p) => [String(p._id), p]));
+
+    // 3) Ảnh fallback cho sản phẩm chưa có thumbnail_url — cũng gộp MỘT query.
+    //    Sort theo sort_order tăng dần: lần gặp đầu tiên của mỗi product = ảnh ưu tiên nhất.
+    const missingThumbIds = products.filter((p) => !p.thumbnail_url).map((p) => p._id);
+    const imgByProduct = new Map();
+    if (missingThumbIds.length) {
+      const imgs = await ProductImage.find({ product_id: { $in: missingThumbIds } })
+        .sort({ sort_order: 1 })
+        .lean();
+      for (const img of imgs) {
+        const key = String(img.product_id);
+        if (!imgByProduct.has(key)) imgByProduct.set(key, img.image_url);
+      }
+    }
 
     for (const o of orders) {
-      const items = await OrderItem.find({ order_id: o._id }).lean();
-      o.item_count = items.length;
+      const its = itemsByOrder.get(String(o._id)) || [];
+      o.item_count = its.length;
       o.first_item_name = null;
       o.first_item_image = null;
-      if (items.length) {
-        const p = await Product.findById(items[0].product_id).lean();
-        o.first_item_name = p?.name || null;
-        o.first_item_image = p?.thumbnail_url || null;
-        if (!o.first_item_image && p) {
-          const img = await ProductImage.findOne({ product_id: p._id }).sort({ sort_order: 1 }).lean();
-          o.first_item_image = img?.image_url || null;
+      if (its.length) {
+        const p = productById.get(String(its[0].product_id));
+        if (p) {
+          o.first_item_name = p.name || null;
+          o.first_item_image = p.thumbnail_url || imgByProduct.get(String(p._id)) || null;
         }
       }
     }
@@ -58,6 +93,38 @@ router.get("/counts", async (req, res) => {
     { $group: { _id: "$status", count: { $sum: 1 } } },
   ]);
   res.json(Object.fromEntries(rows.map((r) => [r._id, r.count])));
+});
+
+// POST /api/orders/:id/cancel?user_id=  -> khách tự hủy đơn khi shop CHƯA xác nhận.
+// Theo logic thực tế: chỉ cho phép hủy khi đơn còn "pending". Đã confirmed/processing/... -> từ chối.
+router.post("/:id/cancel", async (req, res) => {
+  try {
+    const id = oid(req.params.id);
+    if (!id) return res.status(400).json({ error: "order id không hợp lệ" });
+
+    const order = await Order.findById(id).lean();
+    if (!order) return res.status(404).json({ error: "Không tìm thấy đơn hàng" });
+
+    // Nếu client gửi user_id thì kiểm tra quyền: chỉ chủ đơn mới được hủy.
+    const uid = oid(req.query.user_id);
+    if (uid && order.user_id && String(order.user_id) !== String(uid)) {
+      return res.status(403).json({ error: "Bạn không có quyền hủy đơn này" });
+    }
+
+    // Chỉ được hủy khi đơn CHƯA được shop xác nhận.
+    if (order.status !== "pending") {
+      return res.status(409).json({ error: "Đơn đã được xử lý, không thể hủy" });
+    }
+
+    const now = new Date();
+    // strict:false schema -> dùng updateOne thay vì .save() để chắc chắn ghi được.
+    await Order.updateOne({ _id: id }, { status: "cancelled", updated_at: now });
+    await OrderStatusHistory.create({ order_id: id, status: "cancelled", note: "Khách hủy đơn", created_at: now });
+
+    res.json({ ok: true, status: "cancelled" });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // GET /api/orders/:id  -> order + line items (with product name/thumbnail)
@@ -130,7 +197,9 @@ router.post("/", async (req, res) => {
 
     const shippingFee = Number(b.shipping_fee) || 0;
     const discount = Number(b.discount_amount) || 0;
-    const finalAmount = Math.max(0, totalAmount + shippingFee - discount);
+    // VAT 8% tính trên tạm tính (server tự tính để khớp với số hiển thị ở Checkout).
+    const taxAmount = Math.round(totalAmount * TAX_RATE);
+    const finalAmount = Math.max(0, totalAmount + taxAmount + shippingFee - discount);
     const now = new Date();
     const orderNumber = "PP-ORD-" + now.getTime().toString(36).toUpperCase();
 
@@ -140,6 +209,7 @@ router.post("/", async (req, res) => {
       session_id: null,
       address_id: b.address_id ? oid(b.address_id) : null,
       total_amount: totalAmount,
+      tax_amount: taxAmount,
       shipping_fee: shippingFee,
       discount_amount: discount,
       final_amount: finalAmount,

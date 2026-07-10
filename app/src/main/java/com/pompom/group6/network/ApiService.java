@@ -120,6 +120,10 @@ public interface ApiService {
     @POST("api/orders")
     Call<ApiOrder> createOrder(@Body com.pompom.group6.network.dto.OrderRequest body);
 
+    /** Khách hủy đơn khi shop chưa xác nhận (chỉ đơn "pending"). */
+    @POST("api/orders/{id}/cancel")
+    Call<Void> cancelOrder(@Path("id") String orderId, @Query("user_id") String userId);
+
     @GET("api/orders")
     Call<List<ApiOrder>> getOrdersByPhone(@Query("phone") String phone);
 
@@ -137,7 +141,8 @@ public interface ApiService {
     Call<Void> setCartQuantity(@Body com.pompom.group6.network.dto.CartItemRequest body);
 
     @DELETE("api/carts/by-product")
-    Call<Void> removeCartByProduct(@Query("user_id") String userId, @Query("product_id") String productId);
+    Call<Void> removeCartByProduct(@Query("user_id") String userId, @Query("product_id") String productId,
+                                   @Query("variant_id") String variantId);
 
     @DELETE("api/carts")
     Call<Void> clearCart(@Query("user_id") String userId);

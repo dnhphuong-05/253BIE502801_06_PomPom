@@ -164,12 +164,10 @@ public class ConsultationRequestActivity extends SwipeBackActivity {
             public void onResponse(Call<Void> call, Response<Void> resp) {
                 binding.btnSubmitConsultation.setEnabled(true);
                 if (resp.isSuccessful()) {
-                    new AlertDialog.Builder(ConsultationRequestActivity.this)
-                            .setTitle("Đã gửi yêu cầu")
-                            .setMessage("Đội ngũ tư vấn PomPom sẽ liên hệ với bạn sớm nhất.")
-                            .setPositiveButton("Đóng", (d, w) -> finish())
-                            .setCancelable(false)
-                            .show();
+                    com.pompom.group6.utils.PomPomDialog.info(ConsultationRequestActivity.this, "✅",
+                            "Đã gửi yêu cầu",
+                            "Đội ngũ tư vấn PomPom sẽ liên hệ với bạn sớm nhất.",
+                            "Đóng", ConsultationRequestActivity.this::finish);
                 } else {
                     Toast.makeText(ConsultationRequestActivity.this,
                             "Gửi yêu cầu thất bại, vui lòng thử lại", Toast.LENGTH_SHORT).show();

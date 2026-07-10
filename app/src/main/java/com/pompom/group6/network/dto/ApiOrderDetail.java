@@ -17,6 +17,7 @@ public class ApiOrderDetail {
     @SerializedName("created_at") public String createdAt;
 
     @SerializedName("total_amount") public double totalAmount;
+    @SerializedName("tax_amount") public double taxAmount;
     @SerializedName("shipping_fee") public double shippingFee;
     @SerializedName("discount_amount") public double discountAmount;
     @SerializedName("final_amount") public double finalAmount;

@@ -524,10 +524,14 @@ public class CommunityFragment extends Fragment {
      * quanh khu vực đó thay vì GPS thật của máy. */
     private void setupLocationTag() {
         binding.btnChangeLocation.setOnClickListener(v -> {
-            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                    .setTitle("Chọn khu vực xem bài viết")
-                    .setItems(PRESET_CITY_NAMES, (dialog, which) -> selectCity(which))
-                    .show();
+            // Tick sẵn khu vực đang xem (nếu đang khớp một thành phố trong danh sách).
+            int current = -1;
+            String shown = binding.tvLocationTag.getText() != null ? binding.tvLocationTag.getText().toString() : "";
+            for (int i = 0; i < PRESET_CITY_NAMES.length; i++) {
+                if (PRESET_CITY_NAMES[i].equals(shown)) { current = i; break; }
+            }
+            com.pompom.group6.utils.PomPomDialog.pickList(requireContext(),
+                    "Chọn khu vực xem bài viết", PRESET_CITY_NAMES, current, this::selectCity);
         });
     }
 
