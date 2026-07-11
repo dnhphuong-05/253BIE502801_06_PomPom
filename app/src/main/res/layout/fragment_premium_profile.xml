@@ -68,36 +68,24 @@
                 android:layout_marginStart="16dp"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="@id/avatarContainer"
-                app:layout_constraintEnd_toStartOf="@id/btnEditProfile"
+                app:layout_constraintEnd_toStartOf="@id/btnSettingsHeader"
                 app:layout_constraintStart_toEndOf="@id/avatarContainer"
                 app:layout_constraintTop_toTopOf="@id/avatarContainer"
                 app:layout_constraintVertical_bias="0.1">
 
-                <LinearLayout
+                <!-- Bỏ icon vương miện nhỏ cạnh tên: đã có badge vương miện trên avatar VÀ icon
+                     trong pill "Diamond Member" ngay dưới — lặp lại lần 3 là thừa, nhường chỗ
+                     cho tên đầy đủ (nhất là khi header giờ có thêm icon Cài đặt). -->
+                <TextView
+                    android:id="@+id/tvUserName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tvUserName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:maxLines="1"
-                        android:maxWidth="180dp"
-                        android:textColor="@color/text_primary"
-                        android:textSize="20sp"
-                        tools:text="Thảo Nguyên" />
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="6dp"
-                        android:src="@drawable/ic_crown_gold"
-                        tools:ignore="ContentDescription" />
-                </LinearLayout>
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:maxLines="1"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    tools:text="Thảo Nguyên" />
 
                 <LinearLayout
                     android:id="@+id/btnMembership"
@@ -145,14 +133,29 @@
 
             </LinearLayout>
 
+            <!-- Nút cài đặt: gộp toàn bộ Cài đặt & hỗ trợ + Đăng xuất vào 1 điểm vào duy nhất
+                 trên header, thay vì nút rời trôi nổi ở cuối trang (kiểu Shopee). -->
+            <ImageView
+                android:id="@+id/btnSettingsHeader"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_circle_white"
+                android:contentDescription="Cài đặt"
+                android:padding="7dp"
+                android:src="@drawable/ic_settings"
+                app:layout_constraintEnd_toStartOf="@id/btnEditProfile"
+                app:layout_constraintTop_toTopOf="@id/btnEditProfile"
+                app:tint="@color/brand_pink" />
+
             <!-- Nút sửa hồ sơ: icon bút nhỏ ở góc trên bên phải header -->
             <ImageView
                 android:id="@+id/btnEditProfile"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
                 android:background="@drawable/bg_circle_white"
                 android:contentDescription="Chỉnh sửa hồ sơ"
-                android:padding="9dp"
+                android:padding="7dp"
                 android:src="@drawable/ic_edit"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -369,43 +372,8 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Hồ sơ làn da (Bước 3) -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="20dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:strokeWidth="0dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="4dp"
-                            android:fontFamily="@font/poppins_semibold"
-                            android:text="Hồ sơ làn da"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                        <include android:id="@+id/rowSkinType" layout="@layout/item_profile_menu" />
-                        <include android:id="@+id/rowSkinConcern" layout="@layout/item_profile_menu" />
-                        <include android:id="@+id/rowSkinTone" layout="@layout/item_profile_menu" />
-                        <include android:id="@+id/rowAvoid" layout="@layout/item_profile_menu" />
-                        <include android:id="@+id/rowBirthday" layout="@layout/item_profile_menu" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Đơn hàng của tôi (Bước 4) -->
+                <!-- Đơn hàng của tôi — đôn lên ngay sau stats theo đúng ưu tiên Shopee
+                     (đơn hàng là hành động người dùng quay lại thường xuyên nhất). -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardMyOrders"
                     android:layout_width="match_parent"
@@ -442,10 +410,17 @@
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
                                 android:fontFamily="@font/poppins_regular"
-                                android:text="Xem tất cả ›"
-                                android:textColor="@color/brand_pink"
-                                android:textSize="13sp" />
+                                android:text="Xem lịch sử mua hàng ›"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12.5sp" />
                         </RelativeLayout>
+
+                        <!-- Đường kẻ mảnh tách tiêu đề khỏi dải icon, kiểu Shopee. -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="14dp"
+                            android:background="@color/divider_light" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -463,7 +438,81 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Lưới tính năng mua sắm (Bước 5) -->
+                <!-- Hồ sơ làn da — icon mỗi dòng có chip màu riêng (hồng/lavender/vàng/đỏ)
+                     lấy từ đúng bộ màu thương hiệu sẵn có. Giữ nguyên: đây là giá trị riêng
+                     của PomPom mà Shopee không có. CTA cuối card nối sang sản phẩm phù hợp thật. -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="20dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="6dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:text="Hồ sơ làn da"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="Giúp PomPom gợi ý mỹ phẩm sát với làn da của bạn hơn"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <include android:id="@+id/rowSkinType" layout="@layout/item_skin_profile_row" />
+                        <include android:id="@+id/rowSkinConcern" layout="@layout/item_skin_profile_row" />
+                        <include android:id="@+id/rowSkinTone" layout="@layout/item_skin_profile_row" />
+                        <include android:id="@+id/rowAvoid" layout="@layout/item_skin_profile_row" />
+                        <include android:id="@+id/rowBirthday" layout="@layout/item_skin_profile_row" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSkinRecommend"
+                            style="@style/Widget.Material3.Button"
+                            android:layout_width="match_parent"
+                            android:layout_height="46dp"
+                            android:layout_marginHorizontal="8dp"
+                            android:layout_marginTop="10dp"
+                            android:backgroundTint="@color/brand_pink"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="Xem sản phẩm phù hợp với da của bạn"
+                            android:textAllCaps="false"
+                            android:textColor="@color/white"
+                            android:textSize="13sp"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_shopping"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/white" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Ví mua sắm (rút gọn từ "Tiện ích mua sắm") — chỉ giữ 3 mục có dữ liệu
+                     đáng xem thường xuyên. "Địa chỉ" chuyển vào Cài đặt (giống Shopee: quản lý
+                     địa chỉ là việc làm 1 lần, không cần chiếm chỗ trang chính); "Đã xem" bỏ hẳn
+                     vì chưa có dữ liệu thật; "Đánh giá" đã có ở "Hoạt động của tôi", tránh trùng. -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -487,7 +536,7 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="4dp"
                             android:fontFamily="@font/poppins_semibold"
-                            android:text="Tiện ích mua sắm"
+                            android:text="Ví mua sắm"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 
@@ -501,21 +550,11 @@
                             <include android:id="@+id/featVoucher" layout="@layout/item_profile_feature" />
                             <include android:id="@+id/featPoints" layout="@layout/item_profile_feature" />
                         </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:weightSum="3">
-
-                            <include android:id="@+id/featAddress" layout="@layout/item_profile_feature" />
-                            <include android:id="@+id/featRecent" layout="@layout/item_profile_feature" />
-                            <include android:id="@+id/featReviews" layout="@layout/item_profile_feature" />
-                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Hoạt động cộng đồng (Bước 6) -->
+                <!-- Hoạt động của tôi (gộp từ "Hoạt động cộng đồng", giữ nguyên 4 mục —
+                     "Đánh giá" giờ chỉ xuất hiện ở đây, không còn trùng với Ví mua sắm). -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -539,7 +578,7 @@
                             android:layout_marginTop="8dp"
                             android:layout_marginBottom="4dp"
                             android:fontFamily="@font/poppins_semibold"
-                            android:text="Hoạt động cộng đồng"
+                            android:text="Hoạt động của tôi"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 
@@ -550,76 +589,9 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Cài đặt & hỗ trợ (Bước 7) -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="20dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:strokeWidth="0dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="4dp"
-                            android:fontFamily="@font/poppins_semibold"
-                            android:text="Cài đặt &amp; hỗ trợ"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                        <include android:id="@+id/rowNotifications" layout="@layout/item_profile_menu" />
-                        <include android:id="@+id/rowSupport" layout="@layout/item_profile_menu" />
-                        <include android:id="@+id/rowPolicy" layout="@layout/item_profile_menu" />
-                        <include android:id="@+id/rowLanguage" layout="@layout/item_profile_menu" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Cài đặt -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSettings"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="20dp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Cài đặt"
-                    android:textAllCaps="false"
-                    android:textColor="@color/brand_pink"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_settings"
-                    app:iconGravity="textStart"
-                    app:iconTint="@color/brand_pink"
-                    app:strokeColor="@color/brand_pink"
-                    app:strokeWidth="1.5dp" />
-
-                <!-- Đăng xuất: hành động phụ -> text button nhạt, tách khỏi "Cài đặt" để tránh bấm nhầm -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLogout"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Đăng xuất"
-                    android:textAllCaps="false"
-                    android:textColor="@color/text_secondary"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_logout"
-                    app:iconGravity="textStart"
-                    app:iconTint="@color/text_secondary" />
+                <!-- "Cài đặt & hỗ trợ" + nút Cài đặt/Đăng xuất rời đã CHUYỂN vào SettingsActivity,
+                     mở từ icon ⚙️ trên header — tránh 1 khái niệm xuất hiện 3 hình thức khác nhau
+                     trên cùng 1 trang (xem PremiumProfileFragment.setupStaticActions). -->
 
             </LinearLayout>
         </FrameLayout>

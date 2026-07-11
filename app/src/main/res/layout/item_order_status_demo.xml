@@ -17,7 +17,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_bag"
-            app:tint="@color/brand_pink"
+            app:tint="@color/text_primary"
             tools:ignore="ContentDescription" />
 
         <TextView
@@ -25,7 +25,7 @@
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:layout_gravity="top|end"
-            android:background="@drawable/bg_circle_green"
+            android:background="@drawable/bg_circle_red"
             android:gravity="center"
             android:text="2"
             android:textColor="@color/white"

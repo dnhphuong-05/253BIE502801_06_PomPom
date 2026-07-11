@@ -175,6 +175,10 @@ public interface ApiService {
     @GET("api/products/{id}/related")
     Call<List<ApiProduct>> getRelatedProducts(@Path("id") String productId);
 
+    /** Gợi ý sản phẩm theo loại da (oily/dry/combination/sensitive/normal) — có thể trả về rỗng thật. */
+    @GET("api/products/by-skin-type/{type}")
+    Call<List<ApiProduct>> getProductsBySkinType(@Path("type") String skinType);
+
     @GET("api/banners")
     Call<List<com.pompom.group6.network.dto.ApiBanner>> getBanners();
 

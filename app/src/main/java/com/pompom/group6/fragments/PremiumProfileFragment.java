@@ -10,22 +10,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
 import com.pompom.group6.activities.AccountInfoActivity;
-import com.pompom.group6.activities.AddressBookActivity;
-import com.pompom.group6.activities.ComingSoonActivity;
 import com.pompom.group6.activities.ConsultationRequestActivity;
 import com.pompom.group6.activities.MyReviewsActivity;
 import com.pompom.group6.activities.MyStoriesActivity;
-import com.pompom.group6.activities.LanguageActivity;
-import com.pompom.group6.activities.NotificationActivity;
-import com.pompom.group6.activities.PolicyHelpActivity;
 import com.pompom.group6.activities.OrdersActivity;
 import com.pompom.group6.activities.PointsActivity;
 import com.pompom.group6.activities.SavedPostsActivity;
@@ -80,13 +72,9 @@ public class PremiumProfileFragment extends Fragment {
 
         com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.nestedScrollView, this);
 
-        // Status bar liền màu header: đẩy header xuống dưới status bar (Bước 1).
-        ViewCompat.setOnApplyWindowInsetsListener(binding.profileHeader, (v, insets) -> {
-            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            int extra = (int) (16 * getResources().getDisplayMetrics().density);
-            v.setPadding(v.getPaddingLeft(), bars.top + extra, v.getPaddingRight(), v.getPaddingBottom());
-            return insets;
-        });
+        // Status bar liền màu header (Bước 1) đã được xử lý qua fitsSystemWindows +
+        // statusBarForeground trên AppBarLayout trong XML — không set padding thủ công ở đây nữa
+        // để tránh cộng dồn 2 lần inset (khiến header bị đẩy xuống quá xa).
 
         setupStaticActions();
         loadProfile();
@@ -96,8 +84,8 @@ public class PremiumProfileFragment extends Fragment {
 
     private void setupStaticActions() {
         binding.btnEditProfile.setOnClickListener(v -> open(AccountInfoActivity.class));
-        binding.btnSettings.setOnClickListener(v -> open(SettingsActivity.class));
-        binding.btnLogout.setOnClickListener(v -> confirmLogout());
+        // Cài đặt & hỗ trợ + Đăng xuất giờ sống hết trong SettingsActivity — 1 điểm vào duy nhất.
+        binding.btnSettingsHeader.setOnClickListener(v -> open(SettingsActivity.class));
         binding.btnRetry.setOnClickListener(v -> loadProfile());
         binding.cardMyOrders.setOnClickListener(v -> open(OrdersActivity.class));
         binding.avatarContainer.setOnClickListener(v -> openAvatarEditor());
@@ -105,14 +93,13 @@ public class PremiumProfileFragment extends Fragment {
         binding.swipeRefresh.setColorSchemeColors(color(R.color.brand_pink));
         binding.swipeRefresh.setOnRefreshListener(this::loadProfile);
 
-        // Bước 4 — icon trạng thái đơn hàng (bấm mở danh sách ĐÃ lọc đúng trạng thái).
+        // Bước 4 — icon trạng thái đơn hàng, kiểu Shopee: icon trung tính + badge đỏ đồng nhất
+        // cho mọi trạng thái (đỏ = "cần bạn xử lý", không phân biệt thành công/trả hàng).
         bindOrderStatus(binding.statusPending, R.drawable.ic_time, "Chờ xác nhận", "pending");
         bindOrderStatus(binding.statusPacking, R.drawable.ic_packing, "Chờ lấy hàng", "packing");
         bindOrderStatus(binding.statusShipping, R.drawable.ic_fast_delivery, "Đang giao", "shipping");
         bindOrderStatus(binding.statusDelivered, R.drawable.ic_bag, "Đã giao", "delivered");
         bindOrderStatus(binding.statusReturn, R.drawable.ic_history, "Trả hàng", "return");
-        // Trả hàng dùng badge đỏ để tách biệt với các trạng thái đơn thành công (badge xanh).
-        binding.statusReturn.tvBadge.setBackgroundResource(R.drawable.bg_circle_red);
     }
 
     // ------------------------------------------------------------------ loading
@@ -188,50 +175,68 @@ public class PremiumProfileFragment extends Fragment {
         binding.tvStatFollowing.setText(String.valueOf(u.followingCount));
         binding.tvStatStories.setText(String.valueOf(u.storyCount));
 
-        // Hồ sơ làn da (Bước 3).
-        // Điểm 1 — Loại da: bấm chọn từ danh sách -> cập nhật DB.
-        bindInfoRow(binding.rowSkinType, R.drawable.ic_droplet, "Loại da",
+        // Hồ sơ làn da (Bước 3) — mỗi dòng 1 chip màu riêng (xem bindSkinRow) để phân nhóm
+        // thông tin trong lúc vẫn hài hoà với bảng màu thương hiệu.
+        final String skinTypeCode = u.skinType;
+        final boolean hasSkinType = ProfileFormat.orNull(skinTypeCode) != null;
+
+        // Điểm 1 — Loại da: bấm chọn từ danh sách -> cập nhật DB. Đây là dữ liệu nuôi thẳng
+        // gợi ý sản phẩm thật (nút bên dưới), nên có caption giải thích tác dụng.
+        bindSkinRow(binding.rowSkinType, R.drawable.ic_droplet, R.drawable.bg_chip_pink, R.color.brand_pink,
+                "Loại da", "Dùng để gợi ý mỹ phẩm phù hợp với bạn hơn",
                 SkinData.skinTypeLabel(u.skinType),
                 v -> SkinProfileUi.showTypePicker(requireContext(), u.skinType,
                         code -> putSkin(UserUpdateRequest.ofSkinType(code))));
         // Điểm 2 — Vấn đề da: phân tích khách quan từ tương tác Community.
-        bindInfoRow(binding.rowSkinConcern, R.drawable.ic_steth, "Vấn đề da quan tâm",
-                "Xem phân tích", v -> showConcernAnalysis());
+        bindSkinRow(binding.rowSkinConcern, R.drawable.ic_steth, R.drawable.bg_chip_lavender, R.color.brand_lavender,
+                "Vấn đề da quan tâm", null, "Xem phân tích", v -> showConcernAnalysis());
         // Điểm 3 — Tông da: bấm chọn -> cập nhật DB.
-        bindInfoRow(binding.rowSkinTone, R.drawable.ic_makeup_brush, "Tông da",
-                SkinData.skinToneLabel(u.skinTone),
+        bindSkinRow(binding.rowSkinTone, R.drawable.ic_makeup_brush, R.drawable.bg_chip_gold, R.color.brand_gold,
+                "Tông da", null, SkinData.skinToneLabel(u.skinTone),
                 v -> SkinProfileUi.showTonePicker(requireContext(), u.skinTone,
                         code -> putSkin(UserUpdateRequest.ofSkinTone(code))));
-        // Điểm 4 — Thành phần cần tránh: gợi ý dựa trên loại da.
-        final String skinTypeCode = u.skinType;
-        bindInfoRow(binding.rowAvoid, R.drawable.ic_report, "Thành phần cần tránh",
-                ProfileFormat.orNull(skinTypeCode) != null ? "Xem gợi ý" : "Chọn loại da trước",
+        // Điểm 4 — Thành phần cần tránh: gợi ý dựa trên loại da (chip đỏ = cảnh báo/tránh).
+        bindSkinRow(binding.rowAvoid, R.drawable.ic_report, R.drawable.bg_chip_red, R.color.status_red,
+                "Thành phần cần tránh", null,
+                hasSkinType ? "Xem gợi ý" : "Chọn loại da trước",
                 v -> {
-                    if (ProfileFormat.orNull(skinTypeCode) == null) {
+                    if (!hasSkinType) {
                         toastMsg("Hãy chọn Loại da trước để nhận gợi ý");
                     } else {
                         SkinProfileUi.showAvoidInfo(requireContext(), skinTypeCode);
                     }
                 });
-        bindInfoRow(binding.rowBirthday, R.drawable.ic_cake, "Ngày sinh",
+        // Ngày sinh không phải dữ liệu da, để chip trung tính cho đỡ tranh trọng số với 4 dòng trên.
+        bindSkinRow(binding.rowBirthday, R.drawable.ic_cake, R.drawable.bg_chip_neutral, R.color.text_secondary,
+                "Ngày sinh", null,
                 ProfileFormat.birthDate(u.birthDate), v -> open(AccountInfoActivity.class));
 
-        // Lưới tiện ích (Bước 5).
+        // CTA cuối card: nối thẳng loại da -> sản phẩm thật phù hợp (không phải trang trí).
+        // Cố ý dùng "phù hợp" thay vì "gợi ý" — đây là lọc theo chất/finish sản phẩm hợp da
+        // (mỹ phẩm trang điểm), KHÔNG phải khám da/chẩn đoán rồi kê đơn skincare.
+        binding.btnSkinRecommend.setText(hasSkinType
+                ? "Xem sản phẩm phù hợp với " + SkinData.skinTypeLabel(skinTypeCode).toLowerCase(Locale.ROOT)
+                : "Chọn loại da để xem sản phẩm phù hợp");
+        binding.btnSkinRecommend.setOnClickListener(v -> {
+            if (!hasSkinType) {
+                SkinProfileUi.showTypePicker(requireContext(), u.skinType,
+                        code -> putSkin(UserUpdateRequest.ofSkinType(code)));
+            } else {
+                com.pompom.group6.activities.SkinRecommendationActivity.start(
+                        requireContext(), skinTypeCode, SkinData.skinTypeLabel(skinTypeCode));
+            }
+        });
+
+        // Ví mua sắm (rút gọn từ lưới tiện ích cũ — Địa chỉ chuyển vào Cài đặt, "Đã xem" bỏ vì
+        // chưa có dữ liệu thật, "Đánh giá" chỉ còn ở "Hoạt động của tôi" để tránh trùng).
         bindFeature(binding.featWishlist, R.drawable.ic_heart, "Yêu thích", u.wishlistCount,
                 v -> open(WishlistActivity.class));
         bindFeature(binding.featVoucher, R.drawable.ic_gift, "Voucher", u.voucherCount,
                 v -> open(VouchersActivity.class));
         bindFeature(binding.featPoints, R.drawable.ic_loyalty, "Xu tích lũy", u.points,
                 v -> open(PointsActivity.class));
-        bindFeature(binding.featAddress, R.drawable.ic_pin, "Địa chỉ", u.addressCount,
-                v -> open(AddressBookActivity.class));
-        // "Đã xem gần đây" chưa có nguồn dữ liệu thật -> không hiện số (empty state).
-        bindFeature(binding.featRecent, R.drawable.ic_view, "Đã xem", -1,
-                v -> ComingSoonActivity.start(requireContext(), "Đã xem gần đây"));
-        bindFeature(binding.featReviews, R.drawable.ic_star, "Đánh giá", u.reviewCount,
-                v -> open(MyReviewsActivity.class));
 
-        // Hoạt động cộng đồng (Bước 6).
+        // Hoạt động của tôi (gộp từ "Hoạt động cộng đồng").
         bindInfoRow(binding.rowStory, R.drawable.ic_images, "Story đã đăng",
                 countLabel(u.storyCount, "story"), v -> open(MyStoriesActivity.class));
         bindInfoRow(binding.rowReviews, R.drawable.ic_comment, "Bài đánh giá đã đăng",
@@ -240,16 +245,6 @@ public class PremiumProfileFragment extends Fragment {
                 countLabel(u.savedCount, "mục"), v -> open(SavedPostsActivity.class));
         bindInfoRow(binding.rowConsultation, R.drawable.ic_steth, "Lịch sử tư vấn",
                 countLabel(u.consultationCount, "lượt"), v -> open(ConsultationRequestActivity.class));
-
-        // Cài đặt & hỗ trợ (Bước 7).
-        bindInfoRow(binding.rowNotifications, R.drawable.ic_notification, "Thông báo",
-                null, v -> open(NotificationActivity.class));
-        bindInfoRow(binding.rowSupport, R.drawable.ic_support, "Liên hệ tư vấn / CSKH",
-                null, v -> open(ConsultationRequestActivity.class));
-        bindInfoRow(binding.rowPolicy, R.drawable.ic_report, "Chính sách & trợ giúp",
-                null, v -> open(PolicyHelpActivity.class));
-        bindInfoRow(binding.rowLanguage, R.drawable.ic_language, "Ngôn ngữ",
-                null, v -> open(LanguageActivity.class));
     }
 
     /** Hàng thông tin (icon + tiêu đề + giá trị/gợi ý). value==null -> "Thêm thông tin" (pink). */
@@ -271,6 +266,34 @@ public class PremiumProfileFragment extends Fragment {
         row.ivArrow.setImageResource(R.drawable.ic_left_chevron);
         row.ivArrow.setRotation(180f);
         row.ivArrow.setImageTintList(colorList(R.color.text_secondary));
+        row.getRoot().setOnClickListener(onClick);
+    }
+
+    /** Hàng trong card "Hồ sơ làn da": icon có chip màu riêng + caption tuỳ chọn giải thích
+     * tác dụng. value==null -> "Thêm thông tin" (pink), giống bindInfoRow. */
+    private void bindSkinRow(com.pompom.group6.databinding.ItemSkinProfileRowBinding row,
+                             int iconRes, int chipBgRes, int iconTintRes,
+                             String title, String caption, String value, View.OnClickListener onClick) {
+        row.ivRowIcon.setImageResource(iconRes);
+        row.ivRowIcon.setBackgroundResource(chipBgRes);
+        row.ivRowIcon.setImageTintList(colorList(iconTintRes));
+        row.tvRowTitle.setText(title);
+
+        if (caption != null) {
+            row.tvRowCaption.setVisibility(View.VISIBLE);
+            row.tvRowCaption.setText(caption);
+        } else {
+            row.tvRowCaption.setVisibility(View.GONE);
+        }
+
+        if (value != null) {
+            row.tvRowValue.setText(value);
+            row.tvRowValue.setTextColor(color(R.color.text_secondary));
+        } else {
+            row.tvRowValue.setText(ProfileFormat.HINT_ADD);
+            row.tvRowValue.setTextColor(color(R.color.brand_pink));
+        }
+
         row.getRoot().setOnClickListener(onClick);
     }
 
@@ -327,25 +350,6 @@ public class PremiumProfileFragment extends Fragment {
     }
 
     // ------------------------------------------------------------------ helpers
-
-    private void confirmLogout() {
-        View content = getLayoutInflater().inflate(R.layout.dialog_logout, null);
-        androidx.appcompat.app.AlertDialog dialog =
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                        .setView(content).create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(
-                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
-        }
-        content.findViewById(R.id.btnStay).setOnClickListener(v -> dialog.dismiss());
-        content.findViewById(R.id.btnConfirmLogout).setOnClickListener(v -> {
-            dialog.dismiss();
-            Session.logout(requireContext());
-            android.widget.Toast.makeText(getContext(), "Đã đăng xuất", android.widget.Toast.LENGTH_SHORT).show();
-            if (getActivity() != null) getActivity().recreate();
-        });
-        dialog.show();
-    }
 
     private void open(Class<?> activity) {
         startActivity(new Intent(requireContext(), activity));

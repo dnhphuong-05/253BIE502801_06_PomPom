@@ -89,6 +89,24 @@ public class MainActivity extends AppCompatActivity {
 
         // Initial state
         updateNavUI(0);
+        applyOpenTabExtra(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        applyOpenTabExtra(intent);
+    }
+
+    /** Cho phép màn con (vd gợi ý sản phẩm theo da) mở thẳng 1 tab cụ thể khi quay lại MainActivity. */
+    public static final String EXTRA_TAB = "open_tab";
+
+    private void applyOpenTabExtra(Intent intent) {
+        if (intent == null || !intent.hasExtra(EXTRA_TAB)) return;
+        int tab = intent.getIntExtra(EXTRA_TAB, -1);
+        if (tab >= 0) switchToTab(tab);
+        intent.removeExtra(EXTRA_TAB);
     }
 
     @Override
@@ -296,6 +314,10 @@ public class MainActivity extends AppCompatActivity {
                 index == 3 ? R.drawable.ic_community_pink : R.drawable.ic_community_border, index == 3);
         selectTab(binding.navMe, binding.ivMe, binding.tvMe,
                 index == 4 ? R.drawable.ic_me_pink : R.drawable.ic_me_border, index == 4);
+
+        // Mascot chỉ nổi ở tab Home — các tab khác (đặc biệt Me) có nhiều card/list dày đặc,
+        // mascot neo cố định theo màn hình nên hay đè lên nội dung thật khi ở đó.
+        binding.ivFloatingMascot.setVisibility(index == 0 ? View.VISIBLE : View.GONE);
     }
 
     private void selectTab(View container, ImageView icon, TextView label,
