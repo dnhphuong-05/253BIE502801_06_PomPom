@@ -115,10 +115,15 @@ public interface ApiService {
     Call<List<ApiOrder>> getOrders(@Query("user_id") String userId);
 
     @GET("api/orders/{id}")
-    Call<com.pompom.group6.network.dto.ApiOrderDetail> getOrder(@Path("id") String orderId);
+    Call<com.pompom.group6.network.dto.ApiOrderDetail> getOrder(@Path("id") String orderId,
+                                                                 @Query("user_id") String userId);
 
     @POST("api/orders")
     Call<ApiOrder> createOrder(@Body com.pompom.group6.network.dto.OrderRequest body);
+
+    /** Huỷ đơn — chỉ cho phép khi đơn chưa được bàn giao vận chuyển. */
+    @POST("api/orders/{id}/cancel")
+    Call<ApiOrder> cancelOrder(@Path("id") String orderId, @Body Map<String, String> body);
 
     @GET("api/orders")
     Call<List<ApiOrder>> getOrdersByPhone(@Query("phone") String phone);

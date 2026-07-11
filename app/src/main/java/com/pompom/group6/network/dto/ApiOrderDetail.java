@@ -23,13 +23,16 @@ public class ApiOrderDetail {
 
     @SerializedName("items") public List<Item> items;
     @SerializedName("status_history") public List<History> statusHistory;
+    @SerializedName("is_reviewed") public boolean isReviewed;
 
     /** Một dòng sản phẩm trong đơn. */
     public static class Item {
+        @SerializedName("product_id") public String productId;
         @SerializedName("product_name") public String productName;
         @SerializedName("product_thumbnail") public String productThumbnail;
         @SerializedName("quantity") public int quantity;
         @SerializedName("price") public double price;
+        @SerializedName("is_reviewed") public boolean isReviewed;
     }
 
     /** Một mốc trạng thái trong lịch sử đơn. */

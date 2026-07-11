@@ -296,6 +296,24 @@
                             tools:ignore="HardcodedText" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Huỷ đơn: chỉ hiện khi đơn còn ở trạng thái chưa bàn giao vận chuyển. -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelOrder"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Huỷ đơn hàng"
+                    android:textAllCaps="false"
+                    android:textColor="@color/status_red"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    app:cornerRadius="10dp"
+                    app:strokeColor="@color/status_red"
+                    tools:ignore="HardcodedText"
+                    tools:visibility="visible" />
             </LinearLayout>
         </ScrollView>
 

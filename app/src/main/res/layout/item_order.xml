@@ -136,5 +136,49 @@
                 android:textColor="@color/brand_pink"
                 android:textSize="14sp" />
         </LinearLayout>
+
+        <!-- Nút hành động theo trạng thái — nội dung/màu viền/hiển thị do OrderAdapter set động. -->
+        <LinearLayout
+            android:id="@+id/actionRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnActionSecondary"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:fontFamily="@font/poppins_medium"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="Xem chi tiết đơn huỷ"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/text_secondary"
+                android:textColor="@color/text_secondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnActionPrimary"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:fontFamily="@font/poppins_medium"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="Mua lại"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/brand_pink"
+                android:textColor="@color/brand_pink" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

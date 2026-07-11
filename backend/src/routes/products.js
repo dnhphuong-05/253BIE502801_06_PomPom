@@ -167,6 +167,7 @@ router.post("/:id/reviews", async (req, res) => {
     const review = await ProductReview.create({
       product_id: productId,
       user_id: userId,
+      order_id: b.order_id ? oid(b.order_id) : null,
       rating,
       comment: b.comment || "",
       images: Array.isArray(b.images) ? b.images : [],

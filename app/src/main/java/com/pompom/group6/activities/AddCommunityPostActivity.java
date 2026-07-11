@@ -31,6 +31,9 @@ import java.util.Map;
 
 public class AddCommunityPostActivity extends SwipeBackActivity {
 
+    /** Nội dung dựng sẵn để prefill khi mở từ luồng khác (VD: đăng đánh giá lên Cộng đồng). */
+    public static final String EXTRA_INITIAL_CONTENT = "extra_initial_content";
+
     private ActivityAddCommunityPostBinding binding;
     private CommunityDAO communityDAO;
     private final List<Uri> selectedUris = new ArrayList<>();
@@ -63,6 +66,12 @@ public class AddCommunityPostActivity extends SwipeBackActivity {
         setupHashtagAnalysis();
         setupPostActions();
         setupBackNavigation();
+
+        String initialContent = getIntent().getStringExtra(EXTRA_INITIAL_CONTENT);
+        if (!TextUtils.isEmpty(initialContent)) {
+            binding.etContent.setText(initialContent);
+            binding.etContent.setSelection(binding.etContent.getText().length());
+        }
     }
 
     /** Hiển thị đúng tên/avatar người dùng đang đăng nhập, giống HomeFragment/CommunityFragment. */

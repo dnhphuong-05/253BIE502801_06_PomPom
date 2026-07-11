@@ -1,5 +1,10 @@
 package com.pompom.group6.models;
 
+import com.pompom.group6.network.dto.ApiOrder;
+
+import java.util.Collections;
+import java.util.List;
+
 public class Order {
     private int orderId;
     /** Id chuỗi của đơn trong MongoDB — dùng để mở màn chi tiết/theo dõi. */
@@ -12,10 +17,20 @@ public class Order {
     private int itemCount;
     private String firstItemName;
     private String firstItemImage;
+    private boolean reviewed;
+    private List<ApiOrder.ReorderItem> reorderItems;
 
     public Order(int orderId, String oid, String orderNumber, double finalAmount, String status,
                  String paymentMethod, String createdAt, int itemCount,
                  String firstItemName, String firstItemImage) {
+        this(orderId, oid, orderNumber, finalAmount, status, paymentMethod, createdAt, itemCount,
+                firstItemName, firstItemImage, false, Collections.emptyList());
+    }
+
+    public Order(int orderId, String oid, String orderNumber, double finalAmount, String status,
+                 String paymentMethod, String createdAt, int itemCount,
+                 String firstItemName, String firstItemImage,
+                 boolean reviewed, List<ApiOrder.ReorderItem> reorderItems) {
         this.orderId = orderId;
         this.oid = oid;
         this.orderNumber = orderNumber;
@@ -26,6 +41,8 @@ public class Order {
         this.itemCount = itemCount;
         this.firstItemName = firstItemName;
         this.firstItemImage = firstItemImage;
+        this.reviewed = reviewed;
+        this.reorderItems = reorderItems != null ? reorderItems : Collections.emptyList();
     }
 
     public int getOrderId() { return orderId; }
@@ -38,6 +55,8 @@ public class Order {
     public int getItemCount() { return itemCount; }
     public String getFirstItemName() { return firstItemName; }
     public String getFirstItemImage() { return firstItemImage; }
+    public boolean isReviewed() { return reviewed; }
+    public List<ApiOrder.ReorderItem> getReorderItems() { return reorderItems; }
 
     /** Vietnamese label for the raw status string. */
     public String getStatusLabel() {
