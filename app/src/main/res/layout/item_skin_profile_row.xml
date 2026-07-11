@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="68dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="10dp">
+
+    <ImageView
+        android:id="@+id/ivRowIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_chip_pink"
+        android:padding="9dp"
+        android:src="@drawable/ic_pin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/brand_pink"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tvRowTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_medium"
+        android:maxLines="2"
+        android:text="Loại da"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@id/tvRowValue"
+        app:layout_constraintStart_toEndOf="@id/ivRowIcon"
+        app:layout_constraintTop_toTopOf="@id/ivRowIcon" />
+
+    <TextView
+        android:id="@+id/tvRowCaption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_regular"
+        android:maxLines="2"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@id/tvRowValue"
+        app:layout_constraintStart_toEndOf="@id/ivRowIcon"
+        app:layout_constraintTop_toBottomOf="@id/tvRowTitle"
+        tools:text="Dùng để gợi ý mỹ phẩm phù hợp hơn cho bạn"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/tvRowValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_regular"
+        android:maxLines="1"
+        android:maxWidth="140dp"
+        android:textColor="@color/brand_pink"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="@id/ivRowIcon"
+        app:layout_constraintEnd_toStartOf="@id/ivRowArrow"
+        app:layout_constraintTop_toTopOf="@id/ivRowIcon"
+        tools:text="Da dầu" />
+
+    <ImageView
+        android:id="@+id/ivRowArrow"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:src="@drawable/ic_left_chevron"
+        android:rotation="180"
+        app:layout_constraintBottom_toBottomOf="@id/ivRowIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ivRowIcon"
+        app:tint="#D1D1D6"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/rowDivider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/divider_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/tvRowTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvRowCaption" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
