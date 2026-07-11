@@ -24,6 +24,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.VH> {
     public interface OnOrderActionListener {
         void onReview(Order order);
         void onRebuy(Order order);
+        void onCancel(Order order);
     }
 
     private final List<Order> orders = new ArrayList<>();
@@ -95,16 +96,32 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.VH> {
         holder.b.tvOrderStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), textColor));
     }
 
-    /** Hàng nút hành động: Đã giao -> [Đánh giá?]+[Mua lại]; Đã huỷ -> [Xem chi tiết đơn huỷ]+[Mua lại]; còn lại -> ẩn. */
+    /** Hàng nút hành động: Chờ xác nhận/lấy hàng -> [Huỷ đơn]; Đã giao -> [Đánh giá?]+[Mua lại];
+     * Đã huỷ -> [Xem chi tiết đơn huỷ]+[Mua lại]; còn lại -> ẩn. */
     private void applyActionRow(VH holder, Order o) {
         boolean delivered = isIn(o.getStatus(), "delivered", "completed");
         boolean cancelled = isIn(o.getStatus(), "cancelled");
+        boolean cancellable = isIn(o.getStatus(), "pending", "confirmed", "processing");
+
+        if (cancellable) {
+            holder.b.actionRow.setVisibility(android.view.View.VISIBLE);
+            holder.b.btnActionPrimary.setVisibility(android.view.View.GONE);
+            holder.b.btnActionSecondary.setVisibility(android.view.View.VISIBLE);
+            holder.b.btnActionSecondary.setText("Huỷ đơn");
+            holder.b.btnActionSecondary.setStrokeColorResource(R.color.status_red);
+            holder.b.btnActionSecondary.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.status_red));
+            holder.b.btnActionSecondary.setOnClickListener(v -> {
+                if (actionListener != null) actionListener.onCancel(o);
+            });
+            return;
+        }
 
         if (!delivered && !cancelled) {
             holder.b.actionRow.setVisibility(android.view.View.GONE);
             return;
         }
         holder.b.actionRow.setVisibility(android.view.View.VISIBLE);
+        holder.b.btnActionPrimary.setVisibility(android.view.View.VISIBLE);
 
         // Nút phải: "Mua lại" luôn hiện ở cả 2 trạng thái.
         holder.b.btnActionPrimary.setText("Mua lại");

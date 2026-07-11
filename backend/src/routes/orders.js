@@ -133,20 +133,26 @@ router.get("/:id", async (req, res) => {
 // POST /api/orders/:id/cancel  { user_id } -> huỷ đơn (chỉ khi chưa giao cho vận chuyển)
 router.post("/:id/cancel", async (req, res) => {
   try {
-    const order = await Order.findById(oid(req.params.id));
+    const orderId = oid(req.params.id);
+    const order = await Order.findById(orderId).lean();
     if (!order) return res.status(404).json({ error: "Không tìm thấy đơn hàng" });
     if (!["pending", "confirmed", "processing"].includes(order.status)) {
       return res.status(400).json({ error: "Không thể hủy đơn ở trạng thái này" });
     }
-    order.status = "cancelled";
-    await order.save();
+    // Dùng findByIdAndUpdate thay vì find + gán field + save(): document strict:false không
+    // khai báo schema path nào nên Mongoose không tự track thay đổi qua gán trực tiếp + save().
+    const updated = await Order.findByIdAndUpdate(
+      orderId,
+      { $set: { status: "cancelled" } },
+      { new: true }
+    ).lean();
     await OrderStatusHistory.create({
-      order_id: order._id,
+      order_id: orderId,
       status: "cancelled",
       note: "Khách hủy đơn",
       created_at: new Date(),
     });
-    res.json(serialize(order.toObject()));
+    res.json(serialize(updated));
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
