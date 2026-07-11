@@ -5,6 +5,11 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <!-- Brand-coloured window background so activity-launch gaps never flash black. -->
         <item name="android:windowBackground">@color/md_theme_light_background</item>
+        <!-- Lưới an toàn: colorPrimary chưa được set ở trên nên Material3 sẽ tự chọn màu tím
+             mặc định cho status bar nếu 1 Activity nào đó quên gọi StatusBarUtils. Đặt sẵn màu
+             nền nhạt của app ở đây để lỗi đó (nếu xảy ra) không bao giờ lộ ra màu tím lạc quẻ. -->
+        <item name="android:statusBarColor">@color/md_theme_light_background</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.Group6" parent="Base.Theme.Group6" />
@@ -63,7 +68,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">4dp</item>
-        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:fontFamily">@font/poppins_semibold</item>
         <item name="android:textColor">@color/brand_pink</item>
@@ -75,7 +80,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="cardBackgroundColor">@color/white</item>
         <item name="cardCornerRadius">16dp</item>
-        <item name="cardElevation">2dp</item>
+        <item name="cardElevation">0dp</item>
         <item name="strokeWidth">0dp</item>
     </style>
 
@@ -85,7 +90,7 @@
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:minHeight">56dp</item>
-        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:paddingHorizontal">10dp</item>
         <item name="android:paddingVertical">14dp</item>
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:clickable">true</item>
@@ -105,7 +110,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">56dp</item>
-        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:paddingHorizontal">10dp</item>
         <item name="android:paddingVertical">12dp</item>
         <item name="android:fontFamily">@font/poppins_regular</item>
         <item name="android:textColor">@color/text_primary</item>
@@ -115,7 +120,7 @@
     <style name="SettingsDivider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:layout_marginHorizontal">16dp</item>
+        <item name="android:layout_marginHorizontal">10dp</item>
         <item name="android:background">@color/md_theme_light_surfaceVariant</item>
     </style>
 </resources>

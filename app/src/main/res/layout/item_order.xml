@@ -4,11 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginTop="12dp"
+    android:layout_marginHorizontal="10dp"
+    android:layout_marginTop="10dp"
+    android:clickable="true"
+    android:focusable="true"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="14dp"
-    app:cardElevation="1dp"
+    app:cardElevation="0dp"
+    app:rippleColor="@color/ripple_pink"
     app:strokeWidth="0dp">
 
     <LinearLayout
@@ -42,7 +45,7 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:text="Đã giao"
-                android:textColor="@color/brand_pink"
+                android:textColor="@color/white"
                 android:textSize="11sp" />
         </LinearLayout>
 

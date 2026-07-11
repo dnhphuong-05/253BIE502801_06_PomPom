@@ -22,6 +22,7 @@ import com.pompom.group6.R;
 import com.pompom.group6.adapters.ImagePreviewAdapter;
 import com.pompom.group6.database.CommunityDAO;
 import com.pompom.group6.databinding.ActivityAddCommunityPostBinding;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ public class AddCommunityPostActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAddCommunityPostBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        StatusBarUtils.applyWhiteHeader(this);
 
         communityDAO = new CommunityDAO(this);
         initKeywordMap();

@@ -208,6 +208,10 @@ public interface ApiService {
     @POST("api/consultation-requests")
     Call<Void> submitConsultationRequest(@Body com.pompom.group6.network.dto.ConsultationRequestBody body);
 
+    /** Lịch sử yêu cầu tư vấn đã gửi của user — cho màn "Lịch sử tư vấn". */
+    @GET("api/consultation-requests")
+    Call<List<com.pompom.group6.network.dto.ApiConsultationRequest>> getConsultationRequests(@Query("user_id") String userId);
+
     // ---- Community: Story 24h theo bán kính GPS ----
     @GET("api/nearby-posts")
     Call<List<com.pompom.group6.network.dto.ApiNearbyPost>> getNearbyPosts(@Query("lat") double lat,

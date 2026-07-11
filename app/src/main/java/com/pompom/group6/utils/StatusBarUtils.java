@@ -64,6 +64,39 @@ public final class StatusBarUtils {
     }
 
     /**
+     * Cho các màn dùng header/toolbar nền trắng (vd form nhập liệu, tra cứu): tô status bar
+     * trắng cùng màu header (icon tối), thanh điều hướng hệ thống theo nền sáng của màn (icon đen).
+     */
+    public static void applyWhiteHeader(Activity activity) {
+        if (activity == null) return;
+        Window window = activity.getWindow();
+        window.setStatusBarColor(ContextCompat.getColor(activity, R.color.white));
+        window.setNavigationBarColor(ContextCompat.getColor(activity, R.color.md_theme_light_background));
+
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
+        controller.setAppearanceLightStatusBars(true);
+        controller.setAppearanceLightNavigationBars(true);
+    }
+
+    /**
+     * Cho các màn toàn màn hình nền tối (vd xem story/video full-bleed): status bar trong suốt
+     * hoà vào nền tối, icon sáng để vẫn đọc được trên nền đó.
+     */
+    public static void applyDarkImmersive(Activity activity) {
+        if (activity == null) return;
+        Window window = activity.getWindow();
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
+        controller.setAppearanceLightStatusBars(false);
+        controller.setAppearanceLightNavigationBars(false);
+    }
+
+    /**
      * Chèn padding thủ công cho các màn dùng {@code include_screen_header.xml}: đẩy header
      * (nền hồng) xuống dưới status bar mà vẫn tô màu xuyên qua vùng đó, và chừa khoảng dưới
      * để nội dung không bị thanh điều hướng hệ thống che mất.

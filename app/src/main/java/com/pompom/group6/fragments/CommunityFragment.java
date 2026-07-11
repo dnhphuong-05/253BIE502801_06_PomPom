@@ -14,6 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.transition.TransitionManager;
@@ -363,16 +366,41 @@ public class CommunityFragment extends Fragment {
         binding.fabMain.setOnClickListener(v -> {
             if (fabExpanded) collapseSpeedDial(); else expandSpeedDial();
         });
-        binding.fabAddPost.setOnClickListener(v -> {
+        View.OnClickListener addPostListener = v -> {
             collapseSpeedDial();
             startActivity(new Intent(requireContext(), AddCommunityPostActivity.class));
-        });
-        binding.fabConsult.setOnClickListener(v -> {
+        };
+        View.OnClickListener consultListener = v -> {
             collapseSpeedDial();
             startActivity(new Intent(requireContext(), ConsultationRequestActivity.class));
-        });
+        };
+        // Nhãn chữ ("Tạo bài viết"/"Liên hệ tư vấn") trước đây không có listener riêng —
+        // chạm vào nhãn (thay vì đúng nút tròn nhỏ bên cạnh) bị lọt xuống bài viết bên dưới.
+        binding.fabAddPost.setOnClickListener(addPostListener);
+        binding.rowCreatePost.setOnClickListener(addPostListener);
+        binding.fabConsult.setOnClickListener(consultListener);
+        binding.rowConsult.setOnClickListener(consultListener);
 
         setupFabDrag();
+        applyBottomNavClearance();
+    }
+
+    /** Cụm FAB trước đây nằm khuất một phần sau thanh nav dưới (pill nổi cao ~80dp + khoảng nổi
+     * 4dp của MainActivity) — khi thanh nav đang hiện, chạm vào "Tạo bài viết"/"Liên hệ tư vấn"
+     * lọt xuống bài viết bên dưới thay vì trúng nút. Đẩy hẳn cụm FAB lên trên thanh nav bằng
+     * margin đáy tính theo inset hệ thống, độc lập với việc nav đang ẩn hay hiện. */
+    private void applyBottomNavClearance() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.speedDialGroup, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            float density = getResources().getDisplayMetrics().density;
+            int navBarClearance = (int) (84 * density);
+            int baseMargin = (int) (24 * density);
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            params.bottomMargin = baseMargin + navBarClearance + bars.bottom;
+            v.setLayoutParams(params);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(binding.speedDialGroup);
     }
 
     /** Kéo-thả cả cụm nút nổi đi bất kỳ đâu trên màn hình — nhấn nhẹ (không kéo) vẫn mở/đóng dial. */

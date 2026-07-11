@@ -275,6 +275,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".activities.ConsultationHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
             android:name=".activities.AddStoryActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6"

@@ -49,6 +49,7 @@
     <color name="brand_pink">#E8989A</color>
     <color name="brand_pink_light">#FAD6D7</color>
     <color name="brand_background">#FEF0F0</color>
+    <color name="ripple_pink">#33E8989A</color>
 
     <color name="brand_lavender">#C9A4B5</color>
     <color name="brand_lavender_light">#F3DDE6</color>

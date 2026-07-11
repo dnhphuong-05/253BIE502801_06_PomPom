@@ -10,9 +10,9 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_bottom_sheet_rounded"
         android:orientation="vertical"
-        android:paddingHorizontal="20dp"
+        android:paddingHorizontal="10dp"
         android:paddingTop="10dp"
-        android:paddingBottom="20dp">
+        android:paddingBottom="16dp">
 
         <View
             android:layout_width="40dp"

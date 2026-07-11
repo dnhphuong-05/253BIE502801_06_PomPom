@@ -41,7 +41,7 @@ public class Order {
 
     /** Vietnamese label for the raw status string. */
     public String getStatusLabel() {
-        if (status == null) return "Không rõ";
+        if (status == null || status.trim().isEmpty()) return "Không rõ";
         switch (status) {
             case "pending": return "Chờ xác nhận";
             case "confirmed": return "Đã xác nhận";

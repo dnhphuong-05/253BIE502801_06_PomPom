@@ -101,4 +101,27 @@ router.post("/consultation-requests", async (req, res) => {
   }
 });
 
+// GET /api/consultation-requests?user_id=  -> lịch sử yêu cầu tư vấn của user, kèm tên/ảnh chuyên gia
+router.get("/consultation-requests", async (req, res) => {
+  try {
+    const userId = oid(req.query.user_id);
+    if (!userId) return res.status(400).json({ error: "user_id không hợp lệ" });
+
+    const requests = await ConsultationRequest.find({ user_id: userId })
+      .sort({ created_at: -1 })
+      .lean();
+
+    for (const r of requests) {
+      const e = await Expert.findById(r.expert_id).lean();
+      r.expert_name = e?.name || null;
+      r.expert_title = e?.title || null;
+      r.expert_avatar = e?.avatar_url || null;
+    }
+
+    res.json(requests.map(serialize));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

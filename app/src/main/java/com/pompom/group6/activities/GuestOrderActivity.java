@@ -15,6 +15,7 @@ import com.pompom.group6.adapters.GuestOrderAdapter;
 import com.pompom.group6.database.OrderDAO;
 import com.pompom.group6.databinding.ActivityGuestOrderBinding;
 import com.pompom.group6.models.Order;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -42,16 +43,9 @@ public class GuestOrderActivity extends SwipeBackActivity {
     }
 
     private void setupSystemUi() {
-        // Light status bar icons, transparent bar
-        int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-        }
-        getWindow().getDecorView().setSystemUiVisibility(flags);
-        try {
-            getWindow().setNavigationBarColor(android.graphics.Color.WHITE);
-        } catch (Exception ignored) {}
+        // Header của màn này nền trắng — status bar phải trắng theo, không để lộ màu tím
+        // mặc định của theme (trước đây chỉ set icon tối mà quên set màu nền status bar).
+        StatusBarUtils.applyWhiteHeader(this);
     }
 
     private void setupListeners() {
