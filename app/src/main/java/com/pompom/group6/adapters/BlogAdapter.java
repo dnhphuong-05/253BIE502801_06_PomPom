@@ -65,6 +65,8 @@ public class BlogAdapter extends RecyclerView.Adapter<BlogAdapter.BlogViewHolder
             intent.putExtra(ArticleDetailActivity.EXTRA_META, authorName + " • " + authorRole);
             intent.putExtra(ArticleDetailActivity.EXTRA_AUTHOR_AVATAR, authorAvatar);
             intent.putExtra(ArticleDetailActivity.EXTRA_ARTICLE_ID, blog.id);
+            intent.putExtra(ArticleDetailActivity.EXTRA_CATEGORY, blog.category);
+            intent.putExtra(ArticleDetailActivity.EXTRA_READ_TIME, blog.readTime);
             v.getContext().startActivity(intent);
         });
     }

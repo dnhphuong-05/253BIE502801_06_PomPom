@@ -67,6 +67,8 @@ public class ExpertArticleAdapter extends RecyclerView.Adapter<ExpertArticleAdap
             intent.putExtra(ArticleDetailActivity.EXTRA_AUTHOR_AVATAR, article.expertAvatar);
             intent.putExtra(ArticleDetailActivity.EXTRA_EXPERT_ID, article.expertId);
             intent.putExtra(ArticleDetailActivity.EXTRA_ARTICLE_ID, article.id);
+            intent.putExtra(ArticleDetailActivity.EXTRA_CATEGORY, article.category);
+            intent.putExtra(ArticleDetailActivity.EXTRA_READ_TIME, article.readTime);
             v.getContext().startActivity(intent);
         });
     }

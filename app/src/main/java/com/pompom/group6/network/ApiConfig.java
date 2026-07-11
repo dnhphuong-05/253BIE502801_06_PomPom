@@ -20,7 +20,7 @@ public final class ApiConfig {
     // URL prod (Render) — dùng khi commit/push để leader redeploy.
     public static final String BASE_URL = "https://pompom-backend-pha3.onrender.com/";
 
-    // ⚠️ Khi cần test LOCAL trên máy thật: đổi tạm sang dòng dưới + chạy `adb reverse tcp:3000 tcp:3000`.
+    // ⚠️ Test LOCAL trên máy thật: chạy `adb reverse tcp:3000 tcp:3000`.
     //    NHỚ đổi lại URL Render ở trên trước khi commit/push!
     //    - Máy thật qua USB: "http://127.0.0.1:3000/"
     //    - Emulator: "http://10.0.2.2:3000/"
