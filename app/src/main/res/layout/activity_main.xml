@@ -182,11 +182,13 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Floating Mascot -->
+    <!-- Floating Mascot: 56dp (giảm từ 80dp) để bớt che nội dung thẻ/card đang cuộn bên dưới —
+         mascot neo cố định theo màn hình nên luôn nằm đè lên bất kỳ nội dung nào trôi qua góc
+         này; thu nhỏ + nép sát mép là cách giảm thiểu thực tế mà không phải đổi cơ chế neo. -->
     <ImageView
         android:id="@+id/iv_floating_mascot"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:src="@drawable/mascot_pompom"
         android:elevation="20dp"
         android:clickable="true"
@@ -194,7 +196,7 @@
         android:contentDescription="@string/mascot_description"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="10dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

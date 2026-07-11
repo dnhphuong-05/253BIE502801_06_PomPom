@@ -62,6 +62,51 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET /api/products/by-skin-type/:type  -> gợi ý theo loại da (oily/dry/combination/sensitive/normal).
+// Catalog hiện tại là mỹ phẩm trang điểm (chưa có dòng skincare riêng theo loại da), nên dùng
+// heuristic thực tế của ngành làm đẹp: da dầu ưu tiên matte/kiềm dầu/lâu trôi, da khô ưu tiên
+// cushion/dưỡng ẩm, da hỗn hợp lấy hợp của cả hai, da nhạy cảm ưu tiên sản phẩm dịu nhẹ/không cồn.
+// Quét name + description bằng regex, cùng cách tiếp cận với /api/users/:id/skin-concerns-analysis.
+const SKIN_TYPE_KEYWORDS = {
+  oily: ["kiềm dầu", "son lì", "lâu trôi"],
+  dry: ["dưỡng ẩm", "cushion", "dưỡng môi"],
+  combination: ["kiềm dầu", "cushion", "dưỡng ẩm", "son lì"],
+  sensitive: ["dịu nhẹ", "không cồn", "khoáng chất", "thuần chay", "nhạy cảm"],
+};
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+router.get("/by-skin-type/:type", async (req, res) => {
+  try {
+    const type = String(req.params.type || "").toLowerCase();
+    const limit = Math.min(parseInt(req.query.limit, 10) || 12, 30);
+    const keywords = SKIN_TYPE_KEYWORDS[type];
+
+    let products;
+    if (keywords && keywords.length) {
+      const pattern = keywords.map(escapeRegex).join("|");
+      products = await Product.find({
+        is_active: { $ne: false },
+        $or: [{ name: { $regex: pattern, $options: "i" } }, { description: { $regex: pattern, $options: "i" } }],
+      }).limit(limit).lean();
+    } else {
+      // "normal" (hợp mọi sản phẩm) hoặc loại da không có từ khóa riêng -> trả sản phẩm được
+      // đánh giá nhiều nhất thay vì để trống, vẫn là gợi ý thật (không mock).
+      const all = await Product.find({ is_active: { $ne: false } }).lean();
+      const counts = await ProductReview.aggregate([{ $group: { _id: "$product_id", n: { $sum: 1 } } }]);
+      const countMap = new Map(counts.map((c) => [String(c._id), c.n]));
+      products = all
+        .filter((p) => countMap.has(String(p._id)))
+        .sort((a, b) => (countMap.get(String(b._id)) || 0) - (countMap.get(String(a._id)) || 0))
+        .slice(0, limit);
+    }
+
+    products = await Promise.all(products.map(attachThumb));
+    res.json(products.map(serialize));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // GET /api/products/:id  -> product + images + variants + review summary
 router.get("/:id", async (req, res) => {
   try {

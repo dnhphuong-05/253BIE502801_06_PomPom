@@ -116,6 +116,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".activities.SkinRecommendationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
+
+        <activity
             android:name=".activities.CartActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6.Translucent"

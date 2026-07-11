@@ -64,6 +64,11 @@ public class SettingsActivity extends SwipeBackActivity {
     }
 
     private void setupRows() {
+        binding.rowAddress.setOnClickListener(v -> startActivity(new android.content.Intent(this, AddressBookActivity.class)));
+        binding.rowSupportContact.setOnClickListener(v -> startActivity(new android.content.Intent(this, ConsultationRequestActivity.class)));
+        binding.rowLanguage.setOnClickListener(v -> startActivity(new android.content.Intent(this, LanguageActivity.class)));
+        binding.rowPolicyHelp.setOnClickListener(v -> startActivity(new android.content.Intent(this, PolicyHelpActivity.class)));
+
         binding.rowClearCache.setOnClickListener(v -> clearCache());
         binding.rowChangePassword.setOnClickListener(v -> showChangePasswordDialog());
         binding.rowPrivacy.setOnClickListener(v -> showInfoDialog("Chính sách bảo mật",

@@ -80,6 +80,53 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Hỗ trợ & tài khoản — gộp từ card "Cài đặt & hỗ trợ" cũ trên trang Me, giờ chỉ
+                 còn 1 điểm vào duy nhất qua icon ⚙️ trên header. -->
+            <TextView
+                style="@style/SettingsSectionLabel"
+                android:text="Hỗ trợ &amp; tài khoản" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/SettingsCard">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/rowAddress"
+                        style="@style/SettingsRow">
+
+                        <TextView
+                            style="@style/SettingsRowTitle"
+                            android:text="Địa chỉ giao hàng" />
+                    </LinearLayout>
+
+                    <View style="@style/SettingsDivider" />
+
+                    <LinearLayout
+                        android:id="@+id/rowSupportContact"
+                        style="@style/SettingsRow">
+
+                        <TextView
+                            style="@style/SettingsRowTitle"
+                            android:text="Liên hệ tư vấn / CSKH" />
+                    </LinearLayout>
+
+                    <View style="@style/SettingsDivider" />
+
+                    <LinearLayout
+                        android:id="@+id/rowLanguage"
+                        style="@style/SettingsRow">
+
+                        <TextView
+                            style="@style/SettingsRowTitle"
+                            android:text="Ngôn ngữ" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- General section -->
             <TextView
                 style="@style/SettingsSectionLabel"
@@ -136,6 +183,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/rowPolicyHelp"
+                        style="@style/SettingsRow">
+
+                        <TextView
+                            style="@style/SettingsRowTitle"
+                            android:text="Chính sách &amp; trợ giúp" />
+                    </LinearLayout>
+
+                    <View style="@style/SettingsDivider" />
 
                     <LinearLayout
                         android:id="@+id/rowPrivacy"
