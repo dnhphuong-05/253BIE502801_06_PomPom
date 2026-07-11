@@ -230,6 +230,13 @@ public interface ApiService {
     Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityPosts(@Query("limit") Integer limit,
                                                                                  @Query("q") String query);
 
+    /** Tìm bài viết theo chủ đề/nội dung (q) kèm viewer_id để vẫn có is_saved/is_liked/is_following. */
+    @GET("api/community/posts")
+    Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> searchCommunityPosts(
+            @Query("limit") Integer limit,
+            @Query("q") String query,
+            @Query("viewer_id") String viewerId);
+
     /** author_id → tab "Của bạn"; saved_by → tab "Đã lưu"; viewer_id → gắn is_saved/is_liked đúng người xem. */
     @GET("api/community/posts")
     Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityPostsFiltered(
@@ -246,6 +253,11 @@ public interface ApiService {
     @POST("api/community/posts/{id}/hide")
     Call<java.util.Map<String, Boolean>> hidePost(@Path("id") String postId,
                                                   @Body java.util.Map<String, String> body);
+
+    /** Báo cáo bài viết vi phạm — lưu vào hàng đợi kiểm duyệt (không xoá bài). Body: { user_id, reason? } */
+    @POST("api/community/posts/{id}/report")
+    Call<java.util.Map<String, Boolean>> reportPost(@Path("id") String postId,
+                                                    @Body java.util.Map<String, String> body);
 
     @GET("api/community/highlights")
     Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> getCommunityHighlights(@Query("limit") Integer limit);

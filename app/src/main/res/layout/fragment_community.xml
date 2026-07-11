@@ -60,15 +60,17 @@
                         android:contentDescription="@null" />
 
                     <TextView
+                        android:id="@+id/tvNotificationBadge"
                         android:layout_width="14dp"
                         android:layout_height="14dp"
                         android:layout_gravity="top|end"
                         android:background="@drawable/bg_circle_white"
                         android:gravity="center"
-                        android:text="3"
                         android:textColor="@color/brand_pink"
                         android:textSize="8sp"
                         android:textStyle="bold"
+                        android:visibility="gone"
+                        tools:text="3"
                         tools:ignore="SmallSp" />
                 </FrameLayout>
 
@@ -87,67 +89,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- ══ Tag vị trí: bấm để đổi nơi xem bài viết/story theo bán kính ══ -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:paddingHorizontal="16dp"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/btnChangeLocation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingVertical="0dp">
-
-                    <TextView
-                        android:id="@+id/tvLocationTag"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Vị trí hiện tại"
-                        android:textColor="@color/white"
-                        android:textSize="13sp" />
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_marginStart="4dp"
-                        android:contentDescription="@null"
-                        android:src="@drawable/ic_arrow"
-                        app:tint="@color/white" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_regular"
-                        android:text="Hiển thị bài viết trong bán kính 100km"
-                        android:textColor="@color/brand_pink_light"
-                        android:textSize="11sp" />
-
-                    <ImageView
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:layout_marginStart="4dp"
-                        android:contentDescription="@null"
-                        android:src="@drawable/ic_help_circle"
-                        app:tint="@color/brand_pink_light" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- ══ 4 tab nội dung chính ══ -->
+            <!-- ══ 3 tab nội dung chính ══ -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -155,45 +97,17 @@
                 android:paddingHorizontal="4dp">
 
                 <TextView
-                    android:id="@+id/tabReels"
+                    android:id="@+id/tabPosts"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_semibold"
                     android:gravity="center"
-                    android:text="Thước phim"
+                    android:text="Bài viết"
                     android:textColor="@color/white"
-                    android:textSize="14.5sp"
-                    app:layout_constraintEnd_toStartOf="@+id/tabBlog"
-                    app:layout_constraintHorizontal_weight="1"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tabBlog"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
-                    android:gravity="center"
-                    android:text="Blog"
-                    android:textColor="@color/brand_pink_light"
-                    android:textSize="14.5sp"
-                    app:layout_constraintEnd_toStartOf="@+id/tabTips"
-                    app:layout_constraintHorizontal_weight="1"
-                    app:layout_constraintStart_toEndOf="@+id/tabReels"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tabTips"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
-                    android:gravity="center"
-                    android:text="Tips bác sĩ"
-                    android:textColor="@color/brand_pink_light"
                     android:textSize="14.5sp"
                     app:layout_constraintEnd_toStartOf="@+id/tabNearby"
                     app:layout_constraintHorizontal_weight="1"
-                    app:layout_constraintStart_toEndOf="@+id/tabBlog"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
@@ -202,12 +116,26 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_medium"
                     android:gravity="center"
-                    android:text="Tin gần đây"
+                    android:text="Gần đây"
+                    android:textColor="@color/brand_pink_light"
+                    android:textSize="14.5sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tabDiscover"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toEndOf="@+id/tabPosts"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tabDiscover"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_medium"
+                    android:gravity="center"
+                    android:text="Khám phá"
                     android:textColor="@color/brand_pink_light"
                     android:textSize="14.5sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_weight="1"
-                    app:layout_constraintStart_toEndOf="@+id/tabTips"
+                    app:layout_constraintStart_toEndOf="@+id/tabNearby"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <!-- Tab Indicator Underline -->
@@ -217,9 +145,9 @@
                     android:layout_height="3dp"
                     android:layout_marginTop="6dp"
                     android:background="@color/white"
-                    app:layout_constraintEnd_toEndOf="@+id/tabReels"
-                    app:layout_constraintStart_toStartOf="@+id/tabReels"
-                    app:layout_constraintTop_toBottomOf="@+id/tabReels" />
+                    app:layout_constraintEnd_toEndOf="@+id/tabPosts"
+                    app:layout_constraintStart_toStartOf="@+id/tabPosts"
+                    app:layout_constraintTop_toBottomOf="@+id/tabPosts" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -234,242 +162,378 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <!-- Panel: Thước phim -->
+        <!-- Panel: Bài viết (feed cộng đồng UGC, tab mặc định) -->
+        <LinearLayout
+            android:id="@+id/postsTab"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Ô tìm kiếm bài viết theo chủ đề (?q=) -->
             <LinearLayout
-                android:id="@+id/panelReels"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="visible">
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_white_pill_button"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp">
 
-                <!-- Bộ lọc theo nguồn mạng xã hội -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_search"
+                    app:tint="@color/text_secondary" />
+
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingTop="14dp"
-                    android:paddingBottom="4dp"
-                    android:scrollbars="none">
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:fontFamily="@font/poppins_regular"
+                    android:hint="Tìm bài viết, chủ đề..."
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="14sp" />
 
-                    <LinearLayout
+                <ImageView
+                    android:id="@+id/btnClearSearch"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Xoá tìm kiếm"
+                    android:src="@drawable/ic_close"
+                    android:visibility="gone"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefresh"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="8dp">
+
+                <FrameLayout
+                    android:id="@+id/panelPosts"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvFeed"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="90dp" />
+
+                    <TextView
+                        android:id="@+id/tvFeedEmpty"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="16dp">
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/poppins_regular"
+                        android:gravity="center"
+                        android:paddingHorizontal="32dp"
+                        android:text="Chưa có bài viết nào"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+                </FrameLayout>
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/chipSourceAll"
-                            style="@style/ReelSourceChip"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/bg_label_pink"
-                            android:text="Tất cả"
-                            android:textColor="@color/white" />
+        <!-- Panel: Gần đây (story 24h + chọn khu vực theo bán kính GPS) -->
+        <LinearLayout
+            android:id="@+id/panelNearby"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-                        <TextView
-                            android:id="@+id/chipSourceInstagram"
-                            style="@style/ReelSourceChip"
-                            android:layout_marginEnd="8dp"
-                            android:text="Instagram" />
-
-                        <TextView
-                            android:id="@+id/chipSourceTiktok"
-                            style="@style/ReelSourceChip"
-                            android:layout_marginEnd="8dp"
-                            android:text="TikTok" />
-
-                        <TextView
-                            android:id="@+id/chipSourceFacebook"
-                            style="@style/ReelSourceChip"
-                            android:text="Facebook" />
-                    </LinearLayout>
-                </HorizontalScrollView>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvReels"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:clipToPadding="false"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="90dp" />
-            </LinearLayout>
-
-            <!-- Panel: Blog thương hiệu -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvBlogFull"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingTop="16dp"
-                android:paddingBottom="90dp"
-                android:visibility="gone" />
-
-            <!-- Panel: Tips bác sĩ -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvTipsFull"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingTop="16dp"
-                android:paddingBottom="90dp"
-                android:visibility="gone" />
-
-            <!-- Panel: Tin gần đây (feed cộng đồng hiện có: Bài viết/Đã lưu/Của bạn) -->
+            <!-- Tag vị trí: bấm để đổi nơi xem story theo bán kính -->
             <LinearLayout
-                android:id="@+id/panelNearby"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <!-- Stories 24h theo bán kính GPS -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvStories"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:clipToPadding="false"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp" />
-
-                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                    android:id="@+id/swipeRefresh"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginTop="16dp">
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rvFeed"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:clipToPadding="false"
-                            android:paddingBottom="90dp" />
-
-                        <TextView
-                            android:id="@+id/tvFeedEmpty"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:fontFamily="@font/poppins_regular"
-                            android:gravity="center"
-                            android:paddingHorizontal="32dp"
-                            android:text="Chưa có bài viết nào"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            android:visibility="gone" />
-                    </FrameLayout>
-                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-            </LinearLayout>
-
-            <!-- Speed-dial nổi xuyên suốt mọi tab: bấm nút chính để nảy lên 2 lựa chọn -->
-            <LinearLayout
-                android:id="@+id/speedDialGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="24dp"
-                android:gravity="end"
+                android:layout_marginTop="12dp"
+                android:paddingHorizontal="16dp"
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/rowConsult"
+                    android:id="@+id/btnChangeLocation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="14dp"
+                    android:background="?attr/selectableItemBackground"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:visibility="invisible">
+                    android:paddingVertical="0dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginEnd="4dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_pin"
+                        app:tint="@color/brand_pink" />
 
                     <TextView
+                        android:id="@+id/tvLocationTag"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="10dp"
-                        android:background="@drawable/bg_white_pill_button"
                         android:fontFamily="@font/poppins_medium"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="6dp"
-                        android:text="Liên hệ tư vấn"
+                        android:text="Vị trí hiện tại"
                         android:textColor="@color/text_primary"
-                        android:textSize="12.5sp" />
+                        android:textSize="14sp" />
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/fabConsult"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:fabSize="mini"
-                        android:padding="10dp"
-                        android:src="@drawable/ic_chat"
-                        app:shapeAppearanceOverlay="@style/CircleShape"
-                        app:maxImageSize="18dp"
-                        app:backgroundTint="@color/white"
-                        app:tint="@color/brand_pink"
-                        app:borderWidth="0dp"
-                        app:elevation="0dp"
-                        app:pressedTranslationZ="0dp"
-                        app:hoveredFocusedTranslationZ="0dp"
-                        android:contentDescription="Liên hệ tư vấn" />
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginStart="4dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_arrow"
+                        app:tint="@color/text_secondary" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="Story trong bán kính 100km quanh khu vực này"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Stories 24h theo bán kính GPS -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvStories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp" />
+
+            <TextView
+                android:id="@+id/tvNearbyHint"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="center"
+                android:paddingHorizontal="32dp"
+                android:text="Chạm vào một story để xem khoảnh khắc mọi người chia sẻ quanh bạn"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Panel: Khám phá (Blog thương hiệu + Tips bác sĩ, chuyển bằng chip) -->
+        <LinearLayout
+            android:id="@+id/panelDiscover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="14dp"
+                android:paddingBottom="4dp"
+                android:scrollbars="none">
 
                 <LinearLayout
-                    android:id="@+id/rowCreatePost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="14dp"
-                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:visibility="invisible">
+                    android:paddingHorizontal="16dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="10dp"
-                        android:background="@drawable/bg_white_pill_button"
-                        android:fontFamily="@font/poppins_medium"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="6dp"
-                        android:text="Tạo bài viết"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12.5sp" />
+                        android:id="@+id/chipDiscoverBlog"
+                        style="@style/ReelSourceChip"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_label_pink"
+                        android:text="Blog thương hiệu"
+                        android:textColor="@color/white" />
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/fabAddPost"
+                    <TextView
+                        android:id="@+id/chipDiscoverTips"
+                        style="@style/ReelSourceChip"
+                        android:text="Tips bác sĩ" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <!-- Nhóm Blog -->
+                <FrameLayout
+                    android:id="@+id/groupBlog"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvBlogFull"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="90dp" />
+
+                    <TextView
+                        android:id="@+id/tvBlogStatus"
+                        style="@style/CommunityPanelStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:fabSize="mini"
-                        android:padding="10dp"
-                        android:src="@drawable/ic_plus"
-                        app:shapeAppearanceOverlay="@style/CircleShape"
-                        app:maxImageSize="18dp"
-                        app:backgroundTint="@color/white"
-                        app:tint="@color/brand_pink"
-                        app:borderWidth="0dp"
-                        app:elevation="0dp"
-                        app:pressedTranslationZ="0dp"
-                        app:hoveredFocusedTranslationZ="0dp"
-                        android:contentDescription="Tạo bài viết mới" />
-                </LinearLayout>
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        tools:text="Đang tải..." />
+                </FrameLayout>
+
+                <!-- Nhóm Tips -->
+                <FrameLayout
+                    android:id="@+id/groupTips"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvTipsFull"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="90dp" />
+
+                    <TextView
+                        android:id="@+id/tvTipsStatus"
+                        style="@style/CommunityPanelStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        tools:text="Đang tải..." />
+                </FrameLayout>
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- Speed-dial nổi xuyên suốt mọi tab: bấm nút chính để nảy lên 2 lựa chọn -->
+        <LinearLayout
+            android:id="@+id/speedDialGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/rowConsult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="invisible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/bg_white_pill_button"
+                    android:fontFamily="@font/poppins_medium"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:text="Liên hệ tư vấn"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12.5sp" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fabMain"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:layout_gravity="end"
-                    android:padding="16dp"
-                    android:src="@drawable/ic_plus"
+                    android:id="@+id/fabConsult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fabSize="mini"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_chat"
                     app:shapeAppearanceOverlay="@style/CircleShape"
-                    app:maxImageSize="20dp"
-                    app:backgroundTint="@color/brand_pink"
-                    app:tint="@color/white"
+                    app:maxImageSize="18dp"
+                    app:backgroundTint="@color/white"
+                    app:tint="@color/brand_pink"
+                    app:borderWidth="0dp"
                     app:elevation="0dp"
                     app:pressedTranslationZ="0dp"
                     app:hoveredFocusedTranslationZ="0dp"
-                    android:contentDescription="Tạo bài viết / Liên hệ tư vấn" />
-
+                    android:contentDescription="Liên hệ tư vấn" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowCreatePost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="invisible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/bg_white_pill_button"
+                    android:fontFamily="@font/poppins_medium"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:text="Tạo bài viết"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12.5sp" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabAddPost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fabSize="mini"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_plus"
+                    app:shapeAppearanceOverlay="@style/CircleShape"
+                    app:maxImageSize="18dp"
+                    app:backgroundTint="@color/white"
+                    app:tint="@color/brand_pink"
+                    app:borderWidth="0dp"
+                    app:elevation="0dp"
+                    app:pressedTranslationZ="0dp"
+                    app:hoveredFocusedTranslationZ="0dp"
+                    android:contentDescription="Tạo bài viết mới" />
+            </LinearLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabMain"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="end"
+                android:padding="16dp"
+                android:src="@drawable/ic_plus"
+                app:shapeAppearanceOverlay="@style/CircleShape"
+                app:maxImageSize="20dp"
+                app:backgroundTint="@color/brand_pink"
+                app:tint="@color/white"
+                app:elevation="0dp"
+                app:pressedTranslationZ="0dp"
+                app:hoveredFocusedTranslationZ="0dp"
+                android:contentDescription="Tạo bài viết / Liên hệ tư vấn" />
+
+        </LinearLayout>
 
     </com.pompom.group6.utils.SwipeTabFrameLayout>
 
