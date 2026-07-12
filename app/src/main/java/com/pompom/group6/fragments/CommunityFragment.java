@@ -94,6 +94,12 @@ public class CommunityFragment extends Fragment {
     private void setupHeaderIcons() {
         binding.btnNotifications.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), com.pompom.group6.activities.NotificationActivity.class)));
+        // Đã đăng nhập -> tab Me hiển thị Profile; chưa đăng nhập -> tab Me hiển thị màn đăng nhập.
+        binding.ivUserAvatar.setOnClickListener(v -> {
+            if (getActivity() instanceof com.pompom.group6.MainActivity) {
+                ((com.pompom.group6.MainActivity) getActivity()).switchToTab(4);
+            }
+        });
         updateUserAvatar();
     }
 
@@ -103,7 +109,7 @@ public class CommunityFragment extends Fragment {
         if (binding == null) return;
         String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
         if (userOid == null) {
-            binding.ivUserAvatar.setImageResource(R.drawable.ic_user2);
+            resetToDefaultAvatarIcon();
             return;
         }
         com.pompom.group6.network.ApiClient.get().getUser(userOid)
@@ -113,8 +119,11 @@ public class CommunityFragment extends Fragment {
                                            retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
                         if (binding == null) return;
                         String avatarUrl = resp.isSuccessful() && resp.body() != null ? resp.body().avatarUrl : null;
+                        // Bỏ tint trắng (chỉ dùng cho icon khách) trước khi nạp ảnh đại diện thật.
+                        androidx.core.widget.ImageViewCompat.setImageTintList(binding.ivUserAvatar, null);
                         com.bumptech.glide.Glide.with(CommunityFragment.this)
                                 .load(avatarUrl)
+                                .circleCrop()
                                 .placeholder(R.drawable.ic_user2)
                                 .error(R.drawable.ic_user2)
                                 .into(binding.ivUserAvatar);
@@ -123,11 +132,22 @@ public class CommunityFragment extends Fragment {
                 });
     }
 
+    /** ic_user2 vốn cùng tông màu hồng với nền header -> tint trắng để icon khách hiện rõ. */
+    private void resetToDefaultAvatarIcon() {
+        binding.ivUserAvatar.setImageResource(R.drawable.ic_user2);
+        androidx.core.widget.ImageViewCompat.setImageTintList(binding.ivUserAvatar,
+                androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.white));
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         // Cập nhật lại avatar phòng khi user đăng nhập/đổi avatar ở tab khác.
         updateUserAvatar();
+        // Tải lại feed "Tin gần đây" để trạng thái thích/lưu luôn đúng với người dùng hiện
+        // tại — tránh giữ liked=true của lần tải trước đó sau khi đăng xuất/đăng nhập tài
+        // khoản khác ở tab Me trong lúc CommunityFragment vẫn còn sống trong ViewPager2.
+        loadAllPosts();
         // AddStoryActivity chỉ finish() sau khi đăng xong, không báo kết quả về —
         // tải lại hàng story mỗi khi quay lại màn để story mới đăng hiện ra ngay.
         if (LocationHelper.hasPermission(requireContext())) {

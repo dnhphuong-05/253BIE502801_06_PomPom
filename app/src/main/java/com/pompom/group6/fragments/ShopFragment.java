@@ -88,6 +88,12 @@ public class ShopFragment extends Fragment implements CartManager.CartChangeList
         setupSearchIcon();
         setupMarquee();
         setupProfileAvatar();
+        // Đã đăng nhập -> tab Me hiển thị Profile; chưa đăng nhập -> tab Me hiển thị màn đăng nhập.
+        binding.cardAvatarProfile.setOnClickListener(v -> {
+            if (getActivity() instanceof com.pompom.group6.MainActivity) {
+                ((com.pompom.group6.MainActivity) getActivity()).switchToTab(4);
+            }
+        });
         setupGuestOrderFab();
         setupCategories();
         setupProducts();

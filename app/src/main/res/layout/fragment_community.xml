@@ -78,9 +78,7 @@
                     android:layout_height="28dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_user2"
-                    app:shapeAppearanceOverlay="@style/CircleShape"
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="1dp"
+                    app:tint="@color/white"
                     app:layout_constraintBottom_toBottomOf="@id/tvTitle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/tvTitle" />

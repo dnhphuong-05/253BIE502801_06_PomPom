@@ -52,9 +52,7 @@
                 android:layout_height="30dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_user2"
-                app:shapeAppearanceOverlay="@style/CircleShape"
-                app:strokeColor="@color/white"
-                app:strokeWidth="1.2dp"
+                app:tint="@color/white"
                 app:layout_constraintBottom_toBottomOf="@id/tv_hub_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/tv_hub_title" />
