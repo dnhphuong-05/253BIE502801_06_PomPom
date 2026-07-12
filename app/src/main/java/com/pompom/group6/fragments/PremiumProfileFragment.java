@@ -102,7 +102,7 @@ public class PremiumProfileFragment extends Fragment {
         bindOrderStatus(binding.statusPending, R.drawable.ic_time, "Chờ xác nhận", "pending");
         bindOrderStatus(binding.statusPacking, R.drawable.ic_packing, "Chờ lấy hàng", "packing");
         bindOrderStatus(binding.statusShipping, R.drawable.ic_fast_delivery, "Đang giao", "shipping");
-        bindOrderStatus(binding.statusDelivered, R.drawable.ic_bag, "Đã giao", "delivered");
+        bindOrderStatus(binding.statusDelivered, R.drawable.ic_delivery, "Đã giao", "delivered");
         bindOrderStatus(binding.statusReturn, R.drawable.ic_history, "Trả hàng", "return");
     }
 

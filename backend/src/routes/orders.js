@@ -22,40 +22,6 @@ router.get("/", async (req, res) => {
     const orders = await Order.find(filter).sort({ created_at: -1 }).lean();
     if (!orders.length) return res.json([]);
 
-    // Tránh N+1: thay vì mỗi đơn 1 loạt query, gộp bằng $in cho toàn bộ danh sách.
-    // 1) Lấy toàn bộ order items của các đơn trong MỘT query, nhóm theo order_id.
-    const orderIds = orders.map((o) => o._id);
-    const allItems = await OrderItem.find({ order_id: { $in: orderIds } }).lean();
-    const itemsByOrder = new Map();
-    for (const it of allItems) {
-      const key = String(it.order_id);
-      if (!itemsByOrder.has(key)) itemsByOrder.set(key, []);
-      itemsByOrder.get(key).push(it);
-    }
-
-    // 2) Nạp tất cả sản phẩm "đầu đơn" (để preview) trong MỘT query.
-    const firstProductIds = [];
-    for (const o of orders) {
-      const its = itemsByOrder.get(String(o._id));
-      if (its && its.length) firstProductIds.push(its[0].product_id);
-    }
-    const products = await Product.find({ _id: { $in: firstProductIds } }).lean();
-    const productById = new Map(products.map((p) => [String(p._id), p]));
-
-    // 3) Ảnh fallback cho sản phẩm chưa có thumbnail_url — cũng gộp MỘT query.
-    //    Sort theo sort_order tăng dần: lần gặp đầu tiên của mỗi product = ảnh ưu tiên nhất.
-    const missingThumbIds = products.filter((p) => !p.thumbnail_url).map((p) => p._id);
-    const imgByProduct = new Map();
-    if (missingThumbIds.length) {
-      const imgs = await ProductImage.find({ product_id: { $in: missingThumbIds } })
-        .sort({ sort_order: 1 })
-        .lean();
-      for (const img of imgs) {
-        const key = String(img.product_id);
-        if (!imgByProduct.has(key)) imgByProduct.set(key, img.image_url);
-      }
-    }
-
     // Batch mọi truy vấn phụ theo lô thay vì N+1 (mỗi đơn từng gọi 2-3 query tuần tự
     // -> chậm rõ rệt trên Render free tier). Gom hết id cần tra trước, mỗi loại tra 1 lần.
     const orderIds = orders.map((o) => o._id);
