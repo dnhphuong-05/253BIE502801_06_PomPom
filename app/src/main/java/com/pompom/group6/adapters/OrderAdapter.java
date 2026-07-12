@@ -34,10 +34,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.VH> {
     public OrderAdapter() {
     }
 
-    public void setOnOrderCancel(OnOrderCancel listener) {
-        this.cancelListener = listener;
-    }
-
     public OrderAdapter(List<Order> orders) {
         if (orders != null) this.orders.addAll(orders);
     }
@@ -83,13 +79,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.VH> {
             if (o.getOid() == null) return;
             com.pompom.group6.activities.OrderDetailActivity.start(v.getContext(), o.getOid());
         });
-
-        // Nút "Hủy đơn": chỉ đơn còn "pending" (shop chưa xác nhận) mới được hủy.
-        boolean cancellable = "pending".equals(o.getStatus()) && o.getOid() != null;
-        holder.b.btnCancelOrder.setVisibility(cancellable ? View.VISIBLE : View.GONE);
-        holder.b.btnCancelOrder.setOnClickListener(cancellable
-                ? v -> { if (cancelListener != null) cancelListener.onCancel(o); }
-                : null);
     }
 
     /** Màu chip trạng thái: xanh=đã giao/hoàn thành, xám=huỷ, đỏ=trả hàng, hồng=còn lại. */

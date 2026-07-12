@@ -405,11 +405,11 @@ public class CheckoutActivity extends SwipeBackActivity {
 
         CartItemAdapter summary = new CartItemAdapter(items, new CartItemAdapter.CartItemListener() {
             @Override public void onQuantityChanged(CartItem item, int newQty) {
-                cartManager.updateQuantity(item.getProductId(), newQty);
+                cartManager.updateQuantity(item, newQty);
                 refreshOrder();
             }
             @Override public void onRemove(CartItem item) {
-                cartManager.removeItem(item.getProductId());
+                cartManager.removeItem(item);
                 refreshOrder();
             }
         });
