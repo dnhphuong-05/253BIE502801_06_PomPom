@@ -21,7 +21,7 @@
             android:clipToPadding="false"
             android:paddingHorizontal="4dp"
             android:paddingTop="8dp"
-            android:paddingBottom="16dp" />
+            android:paddingBottom="10dp" />
 
         <include
             android:id="@+id/emptyState"

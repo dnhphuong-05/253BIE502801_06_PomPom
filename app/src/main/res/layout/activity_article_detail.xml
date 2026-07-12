@@ -5,136 +5,241 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/md_theme_light_background">
+    android:background="@color/white">
 
-    <include
-        android:id="@+id/header"
-        layout="@layout/include_screen_header" />
-
-    <androidx.core.widget.NestedScrollView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_weight="1">
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="24dp">
-
-            <ImageView
-                android:id="@+id/ivArticleCover"
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/promotion1"
-                tools:ignore="ContentDescription" />
-
-            <TextView
-                android:id="@+id/tvArticleTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="Tiêu đề bài viết"
-                android:textColor="@color/text_primary"
-                android:textSize="19sp" />
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:paddingBottom="24dp">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivArticleAuthorAvatar"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_avatar"
-                    app:shapeAppearanceOverlay="@style/CircleShape" />
+                <!-- ══ Ảnh bìa lớn kiểu hero, chip thể loại + thời gian đọc nổi trên ảnh ══ -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="260dp">
 
-                <TextView
-                    android:id="@+id/tvArticleMeta"
-                    android:layout_width="wrap_content"
+                    <ImageView
+                        android:id="@+id/ivArticleCover"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/promotion1"
+                        tools:ignore="ContentDescription" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="90dp"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/bg_reel_bottom_gradient" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|start"
+                        android:layout_margin="16dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvArticleCategory"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_label_gold"
+                            android:fontFamily="@font/poppins_medium"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="5dp"
+                            android:text="Thương hiệu"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/tvArticleReadTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_circle_translucent_dark"
+                            android:fontFamily="@font/poppins_medium"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="5dp"
+                            android:text="7 phút đọc"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+                    </LinearLayout>
+
+                    <!-- Nút quay lại / chia sẻ nổi trên ảnh -->
+                    <ImageView
+                        android:id="@+id/btnBack"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="top|start"
+                        android:layout_margin="12dp"
+                        android:background="@drawable/bg_circle_translucent_dark"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_left_chevron"
+                        app:tint="@color/white"
+                        tools:ignore="ContentDescription" />
+
+                    <ImageView
+                        android:id="@+id/btnShareArticle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="12dp"
+                        android:background="@drawable/bg_circle_translucent_dark"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_share"
+                        app:tint="@color/white"
+                        tools:ignore="ContentDescription" />
+                </FrameLayout>
+
+                <!-- ══ Sheet nội dung bo góc trên, đè nhẹ lên ảnh bìa ══ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="PomPom Team • Thương hiệu"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:layout_marginTop="-24dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="22dp">
+
+                        <TextView
+                            android:id="@+id/tvArticleTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:lineSpacingExtra="2dp"
+                            android:text="Tiêu đề bài viết"
+                            android:textColor="@color/text_primary"
+                            android:textSize="21sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/ivArticleAuthorAvatar"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/ic_avatar"
+                                app:shapeAppearanceOverlay="@style/CircleShape"
+                                app:strokeColor="@color/pink_light"
+                                app:strokeWidth="1.5dp" />
+
+                            <TextView
+                                android:id="@+id/tvArticleMeta"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_medium"
+                                android:text="PomPom Team • Thương hiệu"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="18dp"
+                            android:background="@color/pink_light" />
+
+                        <TextView
+                            android:id="@+id/tvArticleContent"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="18dp"
+                            android:fontFamily="@font/poppins_regular"
+                            android:lineSpacingExtra="7dp"
+                            android:text="Nội dung bài viết"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnConsultFromArticle"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="24dp"
+                            app:backgroundTint="@color/brand_pink"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="Liên hệ tư vấn"
+                            android:textAllCaps="false"
+                            android:textColor="@color/white"
+                            app:cornerRadius="25dp"
+                            app:icon="@drawable/ic_chat"
+                            app:iconTint="@color/white"
+                            app:iconGravity="textStart"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="24dp"
+                            android:background="@color/md_theme_light_background" />
+
+                        <TextView
+                            android:id="@+id/tvCommentSectionTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="18dp"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="Bình luận"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvComments"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:nestedScrollingEnabled="false" />
+
+                        <TextView
+                            android:id="@+id/tvCommentEmpty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Hãy là người đầu tiên bình luận"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvArticleContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/poppins_regular"
-                android:lineSpacingExtra="4dp"
-                android:text="Nội dung bài viết"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnConsultFromArticle"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
-                app:backgroundTint="@color/brand_pink"
-                android:fontFamily="@font/poppins_medium"
-                android:text="Liên hệ tư vấn"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                app:cornerRadius="24dp"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
-                android:background="@color/pink_light" />
-
-            <TextView
-                android:id="@+id/tvCommentSectionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="Bình luận"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvComments"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:nestedScrollingEnabled="false" />
-
-            <TextView
-                android:id="@+id/tvCommentEmpty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/poppins_regular"
-                android:text="Hãy là người đầu tiên bình luận"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                android:visibility="gone" />
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
 
     <!-- Ô nhập bình luận — cố định dưới cùng, không cuộn theo nội dung -->
     <LinearLayout

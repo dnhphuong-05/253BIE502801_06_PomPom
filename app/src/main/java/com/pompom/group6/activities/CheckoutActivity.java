@@ -404,8 +404,14 @@ public class CheckoutActivity extends SwipeBackActivity {
         List<CartItem> items = cartManager.getItems();
 
         CartItemAdapter summary = new CartItemAdapter(items, new CartItemAdapter.CartItemListener() {
-            @Override public void onQuantityChanged(CartItem item, int newQty) { }
-            @Override public void onRemove(CartItem item) { }
+            @Override public void onQuantityChanged(CartItem item, int newQty) {
+                cartManager.updateQuantity(item.getProductId(), newQty);
+                refreshOrder();
+            }
+            @Override public void onRemove(CartItem item) {
+                cartManager.removeItem(item.getProductId());
+                refreshOrder();
+            }
         });
         binding.rvOrderItems.setLayoutManager(new LinearLayoutManager(this));
         binding.rvOrderItems.setAdapter(summary);
@@ -439,8 +445,8 @@ public class CheckoutActivity extends SwipeBackActivity {
             previewAdapter.setItems(items);
         }
 
-        binding.btnToggleOrder.setVisibility(items.size() > 1 ? View.VISIBLE : View.GONE);
-        if (items.size() <= 1 && orderExpanded) {
+        binding.btnToggleOrder.setVisibility(items.isEmpty() ? View.GONE : View.VISIBLE);
+        if (items.isEmpty() && orderExpanded) {
             orderExpanded = false;
             binding.rvPreviewItems.setVisibility(View.GONE);
             binding.ivToggleArrow.setRotation(90f);

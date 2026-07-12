@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.pompom.group6.R;
 import com.pompom.group6.adapters.CommentAdapter;
+import com.pompom.group6.adapters.PostImageSliderAdapter;
 import com.pompom.group6.databinding.ActivityPostDetailBinding;
 import com.pompom.group6.models.Comment;
 import com.pompom.group6.network.ApiClient;
@@ -143,8 +145,7 @@ public class PostDetailActivity extends SwipeBackActivity {
                 // Số bình luận hiển thị dựa trên danh sách bình luận thật tải được bên dưới
                 // (không dùng comment_count lưu sẵn — có thể lệch với số bản ghi Comment thật).
 
-                String img = p.images != null && !p.images.isEmpty() ? p.images.get(0) : null;
-                Glide.with(PostDetailActivity.this).load(img).into(binding.ivPostImage);
+                bindImages(p.images);
                 Glide.with(PostDetailActivity.this).load(p.authorAvatar).circleCrop()
                         .placeholder(R.drawable.logo_pompom).into(binding.ivAuthorAvatar);
 
@@ -226,6 +227,23 @@ public class PostDetailActivity extends SwipeBackActivity {
                 Toast.makeText(PostDetailActivity.this, "Không gửi được bình luận", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    /** Slider ảnh kiểu Instagram (vuốt + chấm chỉ vị trí) — ẩn hẳn cả khối khi bài không có ảnh
+     * (trước đây luôn hiện 1 ImageView tĩnh dù bài không có ảnh, và chỉ load được ảnh đầu tiên). */
+    private void bindImages(List<String> images) {
+        if (images == null || images.isEmpty()) {
+            binding.layoutPostImages.setVisibility(View.GONE);
+            return;
+        }
+        binding.layoutPostImages.setVisibility(View.VISIBLE);
+        binding.vpPostImages.setAdapter(new PostImageSliderAdapter(images));
+        if (images.size() > 1) {
+            binding.tabIndicator.setVisibility(View.VISIBLE);
+            new TabLayoutMediator(binding.tabIndicator, binding.vpPostImages, (tab, pos) -> {}).attach();
+        } else {
+            binding.tabIndicator.setVisibility(View.GONE);
+        }
     }
 
     private String formatCount(int count) {

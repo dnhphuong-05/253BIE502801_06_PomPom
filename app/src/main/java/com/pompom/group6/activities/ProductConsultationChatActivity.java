@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pompom.group6.adapters.ChatAdapter;
 import com.pompom.group6.databinding.ActivityProductConsultationChatBinding;
 import com.pompom.group6.models.ChatMessage;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class ProductConsultationChatActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityProductConsultationChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        StatusBarUtils.applyPinkHeader(this);
 
         String productName = getIntent().getStringExtra(EXTRA_PRODUCT_NAME);
         String productSku  = getIntent().getStringExtra(EXTRA_PRODUCT_SKU);

@@ -22,6 +22,7 @@ import com.pompom.group6.R;
 import com.pompom.group6.adapters.ImagePreviewAdapter;
 import com.pompom.group6.database.CommunityDAO;
 import com.pompom.group6.databinding.ActivityAddCommunityPostBinding;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,9 @@ import java.util.List;
 import java.util.Map;
 
 public class AddCommunityPostActivity extends SwipeBackActivity {
+
+    /** Nội dung dựng sẵn để prefill khi mở từ luồng khác (VD: đăng đánh giá lên Cộng đồng). */
+    public static final String EXTRA_INITIAL_CONTENT = "extra_initial_content";
 
     private ActivityAddCommunityPostBinding binding;
     private CommunityDAO communityDAO;
@@ -51,6 +55,7 @@ public class AddCommunityPostActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAddCommunityPostBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        StatusBarUtils.applyWhiteHeader(this);
 
         communityDAO = new CommunityDAO(this);
         initKeywordMap();
@@ -61,6 +66,12 @@ public class AddCommunityPostActivity extends SwipeBackActivity {
         setupHashtagAnalysis();
         setupPostActions();
         setupBackNavigation();
+
+        String initialContent = getIntent().getStringExtra(EXTRA_INITIAL_CONTENT);
+        if (!TextUtils.isEmpty(initialContent)) {
+            binding.etContent.setText(initialContent);
+            binding.etContent.setSelection(binding.etContent.getText().length());
+        }
     }
 
     /** Hiển thị đúng tên/avatar người dùng đang đăng nhập, giống HomeFragment/CommunityFragment. */

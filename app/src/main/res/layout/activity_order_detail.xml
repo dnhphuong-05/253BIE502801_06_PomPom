@@ -325,19 +325,23 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Nút hủy đơn: chỉ hiện khi đơn còn "Chờ xác nhận" (pending). -->
+                <!-- Huỷ đơn: chỉ hiện khi đơn còn ở trạng thái chưa bàn giao vận chuyển. -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCancelOrder"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="46dp"
                     android:layout_marginTop="16dp"
                     android:fontFamily="@font/poppins_medium"
-                    android:text="Hủy đơn hàng"
-                    android:textColor="@color/brand_pink"
+                    android:text="Huỷ đơn hàng"
+                    android:textAllCaps="false"
+                    android:textColor="@color/status_red"
+                    android:textSize="14sp"
                     android:visibility="gone"
-                    app:strokeColor="@color/brand_pink"
-                    tools:ignore="HardcodedText" />
+                    app:cornerRadius="10dp"
+                    app:strokeColor="@color/status_red"
+                    tools:ignore="HardcodedText"
+                    tools:visibility="visible" />
             </LinearLayout>
         </ScrollView>
 

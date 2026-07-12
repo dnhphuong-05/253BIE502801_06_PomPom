@@ -4,11 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginTop="12dp"
+    android:layout_marginHorizontal="10dp"
+    android:layout_marginTop="10dp"
+    android:clickable="true"
+    android:focusable="true"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="14dp"
-    app:cardElevation="1dp"
+    app:cardElevation="0dp"
+    app:rippleColor="@color/ripple_pink"
     app:strokeWidth="0dp">
 
     <LinearLayout
@@ -42,7 +45,7 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:text="Đã giao"
-                android:textColor="@color/brand_pink"
+                android:textColor="@color/white"
                 android:textSize="11sp" />
         </LinearLayout>
 
@@ -134,26 +137,48 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- Nút hủy đơn: chỉ hiện với đơn "Chờ xác nhận" (pending). -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancelOrder"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
+        <!-- Nút hành động theo trạng thái — nội dung/màu viền/hiển thị do OrderAdapter set động. -->
+        <LinearLayout
+            android:id="@+id/actionRow"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/poppins_medium"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:paddingHorizontal="18dp"
-            android:paddingVertical="6dp"
-            android:text="Hủy đơn"
-            android:textColor="@color/brand_pink"
-            android:textSize="12sp"
-            android:visibility="gone"
-            app:strokeColor="@color/brand_pink"
-            tools:ignore="HardcodedText" />
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnActionSecondary"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:fontFamily="@font/poppins_medium"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="Xem chi tiết đơn huỷ"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/text_secondary"
+                android:textColor="@color/text_secondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnActionPrimary"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:fontFamily="@font/poppins_medium"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="Mua lại"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/brand_pink"
+                android:textColor="@color/brand_pink" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

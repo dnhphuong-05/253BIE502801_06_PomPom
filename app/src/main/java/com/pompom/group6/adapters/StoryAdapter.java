@@ -58,13 +58,19 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             ApiNearbyPost post = story.getPost();
             holder.tvStoryName.setText(post.userName != null ? post.userName : "Người dùng");
             holder.tvStorySubtitle.setText(timeAgo(post.createdAt));
-            holder.tvStorySubtitle.setTextColor(
-                    holder.itemView.getContext().getResources().getColor(R.color.text_secondary));
 
             Glide.with(holder.itemView.getContext())
                     .load(post.userAvatar)
                     .placeholder(R.drawable.ic_avatar)
                     .into(holder.ivStoryAvatar);
+
+            // Story hiện nội dung (ảnh/video) làm nền thẻ thay vì chỉ avatar tròn — với video dùng
+            // luôn khung hình đầu làm thumbnail, Glide tự lấy frame nếu server không có ảnh riêng.
+            Glide.with(holder.itemView.getContext())
+                    .load(post.mediaUrl)
+                    .placeholder(R.drawable.logo_pompom)
+                    .centerCrop()
+                    .into(holder.ivStoryMedia);
 
             holder.itemView.setOnClickListener(v -> {
                 ArrayList<ApiNearbyPost> posts = new ArrayList<>();
@@ -107,13 +113,14 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     }
 
     public static class StoryViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivStoryAvatar, ivAddStory;
+        ImageView ivStoryAvatar, ivStoryMedia, ivAddStory;
         TextView tvStoryName, tvStorySubtitle, tvLiveBadge;
         View storyContainer, normalStoryLayout;
 
         public StoryViewHolder(@NonNull View itemView) {
             super(itemView);
             ivStoryAvatar = itemView.findViewById(R.id.ivStoryAvatar);
+            ivStoryMedia = itemView.findViewById(R.id.ivStoryMedia);
             ivAddStory = itemView.findViewById(R.id.ivAddStory);
             tvStoryName = itemView.findViewById(R.id.tvStoryName);
             tvStorySubtitle = itemView.findViewById(R.id.tvStorySubtitle);

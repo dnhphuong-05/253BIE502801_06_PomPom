@@ -38,6 +38,8 @@ public class ArticleDetailActivity extends SwipeBackActivity {
     public static final String EXTRA_AUTHOR_AVATAR = "extra_author_avatar";
     public static final String EXTRA_EXPERT_ID = "extra_expert_id";
     public static final String EXTRA_ARTICLE_ID = "extra_article_id";
+    public static final String EXTRA_CATEGORY = "extra_category";
+    public static final String EXTRA_READ_TIME = "extra_read_time";
 
     private ActivityArticleDetailBinding binding;
 
@@ -46,11 +48,9 @@ public class ArticleDetailActivity extends SwipeBackActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityArticleDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        StatusBarUtils.applyPinkHeader(this);
-        StatusBarUtils.applyHeaderContentInsets(this, binding.header.getRoot(), binding.getRoot());
+        StatusBarUtils.applyWhiteHeader(this);
 
-        binding.header.btnBack.setOnClickListener(v -> finish());
-        binding.header.tvHeaderTitle.setText("Bài viết");
+        binding.btnBack.setOnClickListener(v -> finish());
 
         String title = getIntent().getStringExtra(EXTRA_TITLE);
         String coverImage = getIntent().getStringExtra(EXTRA_COVER_IMAGE);
@@ -59,12 +59,35 @@ public class ArticleDetailActivity extends SwipeBackActivity {
         String authorAvatar = getIntent().getStringExtra(EXTRA_AUTHOR_AVATAR);
         String expertId = getIntent().getStringExtra(EXTRA_EXPERT_ID);
         String articleId = getIntent().getStringExtra(EXTRA_ARTICLE_ID);
+        String category = getIntent().getStringExtra(EXTRA_CATEGORY);
+        int readTime = getIntent().getIntExtra(EXTRA_READ_TIME, 0);
 
         binding.tvArticleTitle.setText(title);
         binding.tvArticleMeta.setText(meta);
         binding.tvArticleContent.setText(contentHtml != null
                 ? Html.fromHtml(contentHtml, Html.FROM_HTML_MODE_LEGACY)
                 : "");
+
+        if (category != null && !category.isEmpty()) {
+            binding.tvArticleCategory.setText(category);
+            binding.tvArticleCategory.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvArticleCategory.setVisibility(View.GONE);
+        }
+        if (readTime > 0) {
+            binding.tvArticleReadTime.setText(readTime + " phút đọc");
+            binding.tvArticleReadTime.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvArticleReadTime.setVisibility(View.GONE);
+        }
+
+        binding.btnShareArticle.setOnClickListener(v -> {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, title + " - PomPom Beauty");
+            startActivity(Intent.createChooser(shareIntent, "Chia sẻ bài viết"));
+        });
 
         Glide.with(this).load(coverImage).placeholder(R.drawable.logo_pompom).into(binding.ivArticleCover);
         Glide.with(this).load(authorAvatar).placeholder(R.drawable.ic_avatar).into(binding.ivArticleAuthorAvatar);

@@ -197,6 +197,12 @@
             android:theme="@style/Theme.Group6" />
 
         <activity
+            android:name=".activities.OrderReviewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".activities.MyStoriesActivity"
             android:exported="false"
             android:theme="@style/Theme.Group6" />
@@ -273,6 +279,11 @@
             android:exported="false"
             android:theme="@style/Theme.Group6"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.ConsultationHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group6" />
 
         <activity
             android:name=".activities.AddStoryActivity"

@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="12dp"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:layout_marginEnd="10dp">
 
     <FrameLayout
         android:id="@+id/storyContainer"
-        android:layout_width="70dp"
-        android:layout_height="95dp"
+        android:layout_width="84dp"
+        android:layout_height="128dp"
         android:background="@drawable/bg_pill_grey"
         android:backgroundTint="#FFF0F2"
         android:visibility="gone"
@@ -52,23 +50,42 @@
         </LinearLayout>
     </FrameLayout>
 
-    <LinearLayout
+    <!-- Thẻ story kiểu Facebook: ảnh/video nội dung làm nền đầy thẻ, avatar chỉ là huy hiệu nhỏ
+         góc trên — trước đây avatar tròn to chiếm hết thẻ, không thấy được nội dung story. -->
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/normalStoryLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
+        android:layout_width="84dp"
+        android:layout_height="128dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp"
         tools:visibility="visible">
 
         <FrameLayout
-            android:layout_width="60dp"
-            android:layout_height="60dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/ivStoryMedia"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/pink_light"
+                android:scaleType="centerCrop"
+                android:src="@drawable/logo_pompom"
+                tools:ignore="ContentDescription" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/bg_reel_bottom_gradient" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivStoryAvatar"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="2dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="top|start"
+                android:layout_margin="8dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_avatar"
                 app:shapeAppearanceOverlay="@style/CircleShape"
@@ -88,7 +105,8 @@
                 android:id="@+id/tvLiveBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
+                android:layout_gravity="top|end"
+                android:layout_margin="6dp"
                 android:background="@drawable/bg_label_pink"
                 android:paddingHorizontal="6dp"
                 android:paddingVertical="2dp"
@@ -98,35 +116,40 @@
                 android:textStyle="bold"
                 android:visibility="gone"
                 tools:ignore="SmallSp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                android:paddingHorizontal="8dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:id="@+id/tvStoryName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:maxLines="1"
+                    android:text="Huyền My"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    tools:ignore="SmallSp" />
+
+                <TextView
+                    android:id="@+id/tvStorySubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_regular"
+                    android:maxLines="1"
+                    android:text="Đang live"
+                    android:textColor="#E6FFFFFF"
+                    android:textSize="9sp"
+                    tools:ignore="SmallSp" />
+            </LinearLayout>
         </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/tvStoryName"
-            android:layout_width="72dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/poppins_semibold"
-            android:gravity="center"
-            android:maxLines="1"
-            android:text="Huyền My"
-            android:textColor="@color/text_primary"
-            android:textSize="11sp"
-            tools:ignore="SmallSp" />
-
-        <TextView
-            android:id="@+id/tvStorySubtitle"
-            android:layout_width="72dp"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:fontFamily="@font/poppins_regular"
-            android:gravity="center"
-            android:maxLines="1"
-            android:text="Đang live"
-            android:textColor="@color/brand_pink"
-            android:textSize="10sp"
-            tools:ignore="SmallSp" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

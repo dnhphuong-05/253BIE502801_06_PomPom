@@ -115,14 +115,15 @@ public interface ApiService {
     Call<List<ApiOrder>> getOrders(@Query("user_id") String userId);
 
     @GET("api/orders/{id}")
-    Call<com.pompom.group6.network.dto.ApiOrderDetail> getOrder(@Path("id") String orderId);
+    Call<com.pompom.group6.network.dto.ApiOrderDetail> getOrder(@Path("id") String orderId,
+                                                                 @Query("user_id") String userId);
 
     @POST("api/orders")
     Call<ApiOrder> createOrder(@Body com.pompom.group6.network.dto.OrderRequest body);
 
-    /** Khách hủy đơn khi shop chưa xác nhận (chỉ đơn "pending"). */
+    /** Huỷ đơn — chỉ cho phép khi đơn chưa được bàn giao vận chuyển. */
     @POST("api/orders/{id}/cancel")
-    Call<Void> cancelOrder(@Path("id") String orderId, @Query("user_id") String userId);
+    Call<ApiOrder> cancelOrder(@Path("id") String orderId, @Body Map<String, String> body);
 
     @GET("api/orders")
     Call<List<ApiOrder>> getOrdersByPhone(@Query("phone") String phone);
@@ -212,6 +213,10 @@ public interface ApiService {
 
     @POST("api/consultation-requests")
     Call<Void> submitConsultationRequest(@Body com.pompom.group6.network.dto.ConsultationRequestBody body);
+
+    /** Lịch sử yêu cầu tư vấn đã gửi của user — cho màn "Lịch sử tư vấn". */
+    @GET("api/consultation-requests")
+    Call<List<com.pompom.group6.network.dto.ApiConsultationRequest>> getConsultationRequests(@Query("user_id") String userId);
 
     // ---- Community: Story 24h theo bán kính GPS ----
     @GET("api/nearby-posts")

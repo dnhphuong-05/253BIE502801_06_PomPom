@@ -3,8 +3,10 @@ package com.pompom.group6.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,7 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
 import com.pompom.group6.activities.AccountInfoActivity;
-import com.pompom.group6.activities.ConsultationRequestActivity;
+import com.pompom.group6.activities.ConsultationHistoryActivity;
 import com.pompom.group6.activities.MyReviewsActivity;
 import com.pompom.group6.activities.MyStoriesActivity;
 import com.pompom.group6.activities.OrdersActivity;
@@ -77,6 +79,8 @@ public class PremiumProfileFragment extends Fragment {
         // để tránh cộng dồn 2 lần inset (khiến header bị đẩy xuống quá xa).
 
         setupStaticActions();
+        addPressFeedback(binding.cardMyOrders);
+        addPressFeedback(binding.avatarContainer);
         loadProfile();
     }
 
@@ -108,7 +112,44 @@ public class PremiumProfileFragment extends Fragment {
         if (binding == null) return;
         binding.skeletonView.setVisibility(loading ? View.VISIBLE : View.GONE);
         binding.errorView.setVisibility(error ? View.VISIBLE : View.GONE);
-        binding.contentView.setVisibility(!loading && !error ? View.VISIBLE : View.GONE);
+
+        boolean showContent = !loading && !error;
+        if (showContent && binding.contentView.getVisibility() != View.VISIBLE) {
+            // Mượt hoá lần hiện nội dung đầu tiên (fade + trượt nhẹ lên) thay vì bật GONE->VISIBLE
+            // đột ngột; các lần refresh sau đó content đã VISIBLE nên không lặp lại animation.
+            binding.contentView.setAlpha(0f);
+            binding.contentView.setTranslationY(dp(16));
+            binding.contentView.setVisibility(View.VISIBLE);
+            binding.contentView.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(280)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        } else if (!showContent) {
+            binding.contentView.setVisibility(View.GONE);
+        }
+    }
+
+    private float dp(int value) {
+        return value * getResources().getDisplayMetrics().density;
+    }
+
+    /** Hiệu ứng nhấn nhẹ (scale xuống 0.97) cho card/khu vực không có ripple viền tròn/bo góc
+     * rõ ràng — trả về false để không chặn click listener đã gắn riêng trên view. */
+    private void addPressFeedback(View view) {
+        view.setOnTouchListener((v, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.animate().scaleX(0.97f).scaleY(0.97f).setDuration(120).start();
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    break;
+            }
+            return false;
+        });
     }
 
     private void loadProfile() {
@@ -244,7 +285,7 @@ public class PremiumProfileFragment extends Fragment {
         bindInfoRow(binding.rowSaved, R.drawable.ic_bookmark, "Nội dung đã lưu",
                 countLabel(u.savedCount, "mục"), v -> open(SavedPostsActivity.class));
         bindInfoRow(binding.rowConsultation, R.drawable.ic_steth, "Lịch sử tư vấn",
-                countLabel(u.consultationCount, "lượt"), v -> open(ConsultationRequestActivity.class));
+                countLabel(u.consultationCount, "lượt"), v -> open(ConsultationHistoryActivity.class));
     }
 
     /** Hàng thông tin (icon + tiêu đề + giá trị/gợi ý). value==null -> "Thêm thông tin" (pink). */

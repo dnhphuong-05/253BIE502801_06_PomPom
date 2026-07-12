@@ -14,6 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.transition.TransitionManager;
@@ -93,6 +96,12 @@ public class CommunityFragment extends Fragment {
     private void setupHeaderIcons() {
         binding.btnNotifications.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), com.pompom.group6.activities.NotificationActivity.class)));
+        // Đã đăng nhập -> tab Me hiển thị Profile; chưa đăng nhập -> tab Me hiển thị màn đăng nhập.
+        binding.ivUserAvatar.setOnClickListener(v -> {
+            if (getActivity() instanceof com.pompom.group6.MainActivity) {
+                ((com.pompom.group6.MainActivity) getActivity()).switchToTab(4);
+            }
+        });
         updateUserAvatar();
         updateNotificationBadge();
     }
@@ -135,7 +144,7 @@ public class CommunityFragment extends Fragment {
         if (binding == null) return;
         String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
         if (userOid == null) {
-            binding.ivUserAvatar.setImageResource(R.drawable.ic_user2);
+            resetToDefaultAvatarIcon();
             return;
         }
         com.pompom.group6.network.ApiClient.get().getUser(userOid)
@@ -145,8 +154,11 @@ public class CommunityFragment extends Fragment {
                                            retrofit2.Response<com.pompom.group6.network.dto.ApiUser> resp) {
                         if (binding == null) return;
                         String avatarUrl = resp.isSuccessful() && resp.body() != null ? resp.body().avatarUrl : null;
+                        // Bỏ tint trắng (chỉ dùng cho icon khách) trước khi nạp ảnh đại diện thật.
+                        androidx.core.widget.ImageViewCompat.setImageTintList(binding.ivUserAvatar, null);
                         com.bumptech.glide.Glide.with(CommunityFragment.this)
                                 .load(avatarUrl)
+                                .circleCrop()
                                 .placeholder(R.drawable.ic_user2)
                                 .error(R.drawable.ic_user2)
                                 .into(binding.ivUserAvatar);
@@ -155,16 +167,25 @@ public class CommunityFragment extends Fragment {
                 });
     }
 
+    /** ic_user2 vốn cùng tông màu hồng với nền header -> tint trắng để icon khách hiện rõ. */
+    private void resetToDefaultAvatarIcon() {
+        binding.ivUserAvatar.setImageResource(R.drawable.ic_user2);
+        androidx.core.widget.ImageViewCompat.setImageTintList(binding.ivUserAvatar,
+                androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.white));
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         // Cập nhật lại avatar phòng khi user đăng nhập/đổi avatar ở tab khác.
         updateUserAvatar();
-        // Cập nhật lại badge phòng khi vừa đọc thông báo ở màn khác.
-        updateNotificationBadge();
-        // Chỉ tải lại story khi user đã mở tab "Gần đây" trước đó (và đã cấp quyền vị trí) —
-        // AddStoryActivity finish() không báo kết quả về, nên cần tải lại để story mới hiện ra ngay.
-        if (nearbyInitialized && LocationHelper.hasPermission(requireContext())) {
+        // Tải lại feed "Tin gần đây" để trạng thái thích/lưu luôn đúng với người dùng hiện
+        // tại — tránh giữ liked=true của lần tải trước đó sau khi đăng xuất/đăng nhập tài
+        // khoản khác ở tab Me trong lúc CommunityFragment vẫn còn sống trong ViewPager2.
+        loadAllPosts();
+        // AddStoryActivity chỉ finish() sau khi đăng xong, không báo kết quả về —
+        // tải lại hàng story mỗi khi quay lại màn để story mới đăng hiện ra ngay.
+        if (LocationHelper.hasPermission(requireContext())) {
             fetchNearbyStories();
         }
     }
@@ -447,13 +468,74 @@ public class CommunityFragment extends Fragment {
         binding.fabMain.setOnClickListener(v -> {
             if (fabExpanded) collapseSpeedDial(); else expandSpeedDial();
         });
-        binding.fabAddPost.setOnClickListener(v -> {
+        View.OnClickListener addPostListener = v -> {
             collapseSpeedDial();
             startActivity(new Intent(requireContext(), AddCommunityPostActivity.class));
-        });
-        binding.fabConsult.setOnClickListener(v -> {
+        };
+        View.OnClickListener consultListener = v -> {
             collapseSpeedDial();
             startActivity(new Intent(requireContext(), ConsultationRequestActivity.class));
+        };
+        // Nhãn chữ ("Tạo bài viết"/"Liên hệ tư vấn") trước đây không có listener riêng —
+        // chạm vào nhãn (thay vì đúng nút tròn nhỏ bên cạnh) bị lọt xuống bài viết bên dưới.
+        binding.fabAddPost.setOnClickListener(addPostListener);
+        binding.rowCreatePost.setOnClickListener(addPostListener);
+        binding.fabConsult.setOnClickListener(consultListener);
+        binding.rowConsult.setOnClickListener(consultListener);
+
+        setupFabDrag();
+        applyBottomNavClearance();
+    }
+
+    /** Cụm FAB trước đây nằm khuất một phần sau thanh nav dưới (pill nổi cao ~80dp + khoảng nổi
+     * 4dp của MainActivity) — khi thanh nav đang hiện, chạm vào "Tạo bài viết"/"Liên hệ tư vấn"
+     * lọt xuống bài viết bên dưới thay vì trúng nút. Đẩy hẳn cụm FAB lên trên thanh nav bằng
+     * margin đáy tính theo inset hệ thống, độc lập với việc nav đang ẩn hay hiện. */
+    private void applyBottomNavClearance() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.speedDialGroup, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            float density = getResources().getDisplayMetrics().density;
+            int navBarClearance = (int) (84 * density);
+            int baseMargin = (int) (24 * density);
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            params.bottomMargin = baseMargin + navBarClearance + bars.bottom;
+            v.setLayoutParams(params);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(binding.speedDialGroup);
+    }
+
+    /** Kéo-thả cả cụm nút nổi đi bất kỳ đâu trên màn hình — nhấn nhẹ (không kéo) vẫn mở/đóng dial. */
+    private void setupFabDrag() {
+        binding.fabMain.setOnTouchListener(new View.OnTouchListener() {
+            private float dX, dY, startX, startY;
+            private static final int CLICK_THRESHOLD = 10;
+
+            @Override
+            public boolean onTouch(View view, android.view.MotionEvent event) {
+                View group = binding.speedDialGroup;
+                switch (event.getAction()) {
+                    case android.view.MotionEvent.ACTION_DOWN:
+                        dX = group.getTranslationX() - event.getRawX();
+                        dY = group.getTranslationY() - event.getRawY();
+                        startX = event.getRawX();
+                        startY = event.getRawY();
+                        return true;
+                    case android.view.MotionEvent.ACTION_MOVE:
+                        group.setTranslationX(event.getRawX() + dX);
+                        group.setTranslationY(event.getRawY() + dY);
+                        return true;
+                    case android.view.MotionEvent.ACTION_UP:
+                        float diffX = Math.abs(event.getRawX() - startX);
+                        float diffY = Math.abs(event.getRawY() - startY);
+                        if (diffX < CLICK_THRESHOLD && diffY < CLICK_THRESHOLD) {
+                            view.performClick();
+                        }
+                        return true;
+                    default:
+                        return false;
+                }
+            }
         });
     }
 

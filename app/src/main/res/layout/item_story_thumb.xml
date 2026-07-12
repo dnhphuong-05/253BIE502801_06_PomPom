@@ -6,8 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
+    android:clickable="true"
+    android:focusable="true"
     app:cardCornerRadius="12dp"
     app:cardElevation="0dp"
+    app:rippleColor="@color/ripple_pink"
     app:strokeColor="@color/divider_light"
     app:strokeWidth="1dp">
 

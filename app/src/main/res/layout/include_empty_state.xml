@@ -28,4 +28,25 @@
         android:text="Không có dữ liệu"
         android:textColor="@color/text_secondary"
         android:textSize="14sp" />
+
+    <!-- CTA tuỳ chọn: ẩn mặc định, chỉ hiện khi màn nào đó set text + bật visibility
+         (vd "Lịch sử tư vấn" -> "Gửi yêu cầu tư vấn mới"). Không ảnh hưởng các màn khác
+         vì id này không được tham chiếu ở nơi khác. -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEmptyCta"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/poppins_medium"
+        android:minWidth="200dp"
+        android:paddingHorizontal="20dp"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        android:visibility="gone"
+        app:backgroundTint="@color/brand_pink"
+        app:cornerRadius="22dp"
+        app:rippleColor="@color/ripple_pink"
+        tools:text="Gửi yêu cầu tư vấn mới"
+        tools:visibility="visible" />
 </LinearLayout>

@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
@@ -94,7 +96,8 @@ public class OrderDetailActivity extends SwipeBackActivity {
             return;
         }
         showState(true, false);
-        ApiClient.get().getOrder(orderId).enqueue(new Callback<ApiOrderDetail>() {
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
+        ApiClient.get().getOrder(orderId, userOid).enqueue(new Callback<ApiOrderDetail>() {
             @Override
             public void onResponse(@NonNull Call<ApiOrderDetail> call, @NonNull Response<ApiOrderDetail> resp) {
                 if (binding == null) return;
@@ -123,6 +126,7 @@ public class OrderDetailActivity extends SwipeBackActivity {
 
         buildTimeline(o);
         buildItems(o);
+        setupCancelButton(o.status);
 
         binding.tvSubtotal.setText(money(o.totalAmount));
         binding.tvShipping.setText(o.shippingFee > 0 ? money(o.shippingFee) : "Miễn phí");
@@ -292,6 +296,52 @@ public class OrderDetailActivity extends SwipeBackActivity {
                     .into(row.ivProduct);
             binding.itemsContainer.addView(row.getRoot());
         }
+    }
+
+    /** Chỉ cho huỷ khi đơn chưa được bàn giao vận chuyển. */
+    private void setupCancelButton(String status) {
+        boolean cancellable = isIn(status, "pending", "confirmed", "processing");
+        binding.btnCancelOrder.setVisibility(cancellable ? View.VISIBLE : View.GONE);
+        if (cancellable) {
+            binding.btnCancelOrder.setOnClickListener(v -> confirmCancel());
+        }
+    }
+
+    private void confirmCancel() {
+        new AlertDialog.Builder(this)
+                .setTitle("Huỷ đơn hàng?")
+                .setMessage("Bạn có chắc chắn muốn huỷ đơn hàng này không?")
+                .setPositiveButton("Huỷ đơn", (dialog, which) -> doCancel())
+                .setNegativeButton("Không", null)
+                .show();
+    }
+
+    private void doCancel() {
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        if (userOid != null) body.put("user_id", userOid);
+        binding.btnCancelOrder.setEnabled(false);
+        ApiClient.get().cancelOrder(orderId, body).enqueue(new Callback<com.pompom.group6.network.dto.ApiOrder>() {
+            @Override
+            public void onResponse(@NonNull Call<com.pompom.group6.network.dto.ApiOrder> call,
+                                    @NonNull Response<com.pompom.group6.network.dto.ApiOrder> resp) {
+                if (binding == null) return;
+                if (resp.isSuccessful()) {
+                    Toast.makeText(OrderDetailActivity.this, "Đã huỷ đơn hàng", Toast.LENGTH_SHORT).show();
+                    load();
+                } else {
+                    binding.btnCancelOrder.setEnabled(true);
+                    Toast.makeText(OrderDetailActivity.this, "Không thể huỷ đơn ở trạng thái này", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<com.pompom.group6.network.dto.ApiOrder> call, @NonNull Throwable t) {
+                if (binding == null) return;
+                binding.btnCancelOrder.setEnabled(true);
+                Toast.makeText(OrderDetailActivity.this, "Không kết nối được máy chủ", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // ------------------------------------------------------------------ helpers

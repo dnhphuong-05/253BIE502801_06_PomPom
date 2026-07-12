@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.pompom.group6.R;
 import com.pompom.group6.databinding.ActivityStoryViewerBinding;
 import com.pompom.group6.network.dto.ApiNearbyPost;
+import com.pompom.group6.utils.StatusBarUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,8 +54,9 @@ public class StoryViewerActivity extends SwipeBackActivity {
         binding = ActivityStoryViewerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        // Nền toàn màn hình đen — status bar trong suốt hoà vào nền, icon sáng để đọc được
+        // (trước đây chỉ set layout fullscreen mà quên set màu, để lộ màu tím mặc định của theme).
+        StatusBarUtils.applyDarkImmersive(this);
 
         //noinspection unchecked
         posts = (ArrayList<ApiNearbyPost>) getIntent().getSerializableExtra(EXTRA_POSTS);

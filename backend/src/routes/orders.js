@@ -1,6 +1,6 @@
 const express = require("express");
 const { Types } = require("mongoose");
-const { Order, OrderItem, Product, ProductImage, Cart, CartItem, OrderStatusHistory, User } = require("../models");
+const { Order, OrderItem, Product, ProductImage, Cart, CartItem, OrderStatusHistory, User, ProductReview } = require("../models");
 const { serialize } = require("../serialize");
 
 const router = express.Router();
@@ -56,16 +56,49 @@ router.get("/", async (req, res) => {
       }
     }
 
+    // Batch mọi truy vấn phụ theo lô thay vì N+1 (mỗi đơn từng gọi 2-3 query tuần tự
+    // -> chậm rõ rệt trên Render free tier). Gom hết id cần tra trước, mỗi loại tra 1 lần.
+    const orderIds = orders.map((o) => o._id);
+    const allItems = orderIds.length ? await OrderItem.find({ order_id: { $in: orderIds } }).lean() : [];
+    const productIds = [...new Set(allItems.map((it) => String(it.product_id)))].map(oid).filter(Boolean);
+    const products = productIds.length ? await Product.find({ _id: { $in: productIds } }).lean() : [];
+    const productsById = new Map(products.map((p) => [String(p._id), p]));
+    const missingThumbIds = products.filter((p) => !p.thumbnail_url).map((p) => p._id);
+    const fallbackImages = missingThumbIds.length
+      ? await ProductImage.find({ product_id: { $in: missingThumbIds } }).sort({ sort_order: 1 }).lean()
+      : [];
+    const fallbackImageByProduct = new Map();
+    for (const img of fallbackImages) {
+      const key = String(img.product_id);
+      if (!fallbackImageByProduct.has(key)) fallbackImageByProduct.set(key, img.image_url);
+    }
+
+    const itemsByOrder = new Map();
+    for (const it of allItems) {
+      const key = String(it.order_id);
+      if (!itemsByOrder.has(key)) itemsByOrder.set(key, []);
+      itemsByOrder.get(key).push(it);
+    }
+
+    // Đơn nào đã được đánh giá đủ (mọi sản phẩm) -> ẩn nút "Đánh giá", chỉ còn "Mua lại".
+    const reviewedKeys = new Set();
+    if (filter.user_id && orderIds.length) {
+      const reviews = await ProductReview.find({ user_id: filter.user_id, order_id: { $in: orderIds } }).lean();
+      for (const r of reviews) reviewedKeys.add(`${r.order_id}|${r.product_id}`);
+    }
+
     for (const o of orders) {
-      const its = itemsByOrder.get(String(o._id)) || [];
-      o.item_count = its.length;
+      const items = itemsByOrder.get(String(o._id)) || [];
+      o.item_count = items.length;
       o.first_item_name = null;
       o.first_item_image = null;
-      if (its.length) {
-        const p = productById.get(String(its[0].product_id));
+      o.item_product_ids = items.map((it) => ({ product_id: it.product_id, quantity: it.quantity }));
+      o.is_reviewed = items.length > 0 && items.every((it) => reviewedKeys.has(`${o._id}|${it.product_id}`));
+      if (items.length) {
+        const p = productsById.get(String(items[0].product_id));
         if (p) {
           o.first_item_name = p.name || null;
-          o.first_item_image = p.thumbnail_url || imgByProduct.get(String(p._id)) || null;
+          o.first_item_image = p.thumbnail_url || fallbackImageByProduct.get(String(p._id)) || null;
         }
       }
     }
@@ -95,44 +128,20 @@ router.get("/counts", async (req, res) => {
   res.json(Object.fromEntries(rows.map((r) => [r._id, r.count])));
 });
 
-// POST /api/orders/:id/cancel?user_id=  -> khách tự hủy đơn khi shop CHƯA xác nhận.
-// Theo logic thực tế: chỉ cho phép hủy khi đơn còn "pending". Đã confirmed/processing/... -> từ chối.
-router.post("/:id/cancel", async (req, res) => {
-  try {
-    const id = oid(req.params.id);
-    if (!id) return res.status(400).json({ error: "order id không hợp lệ" });
-
-    const order = await Order.findById(id).lean();
-    if (!order) return res.status(404).json({ error: "Không tìm thấy đơn hàng" });
-
-    // Nếu client gửi user_id thì kiểm tra quyền: chỉ chủ đơn mới được hủy.
-    const uid = oid(req.query.user_id);
-    if (uid && order.user_id && String(order.user_id) !== String(uid)) {
-      return res.status(403).json({ error: "Bạn không có quyền hủy đơn này" });
-    }
-
-    // Chỉ được hủy khi đơn CHƯA được shop xác nhận.
-    if (order.status !== "pending") {
-      return res.status(409).json({ error: "Đơn đã được xử lý, không thể hủy" });
-    }
-
-    const now = new Date();
-    // strict:false schema -> dùng updateOne thay vì .save() để chắc chắn ghi được.
-    await Order.updateOne({ _id: id }, { status: "cancelled", updated_at: now });
-    await OrderStatusHistory.create({ order_id: id, status: "cancelled", note: "Khách hủy đơn", created_at: now });
-
-    res.json({ ok: true, status: "cancelled" });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// GET /api/orders/:id  -> order + line items (with product name/thumbnail)
+// GET /api/orders/:id?user_id=  -> order + line items (with product name/thumbnail/is_reviewed)
 router.get("/:id", async (req, res) => {
   try {
     const order = await Order.findById(oid(req.params.id)).lean();
     if (!order) return res.status(404).json({ error: "Không tìm thấy đơn hàng" });
     const items = await OrderItem.find({ order_id: order._id }).lean();
+
+    const userId = oid(req.query.user_id);
+    const reviewedProductIds = new Set();
+    if (userId) {
+      const reviews = await ProductReview.find({ user_id: userId, order_id: order._id }).lean();
+      for (const r of reviews) reviewedProductIds.add(String(r.product_id));
+    }
+
     for (const it of items) {
       const p = await Product.findById(it.product_id).lean();
       it.product_name = p?.name || null;
@@ -141,8 +150,10 @@ router.get("/:id", async (req, res) => {
         const img = await ProductImage.findOne({ product_id: p._id }).sort({ sort_order: 1 }).lean();
         it.product_thumbnail = img?.image_url || null;
       }
+      it.is_reviewed = reviewedProductIds.has(String(it.product_id));
     }
     order.items = items;
+    order.is_reviewed = items.length > 0 && items.every((it) => it.is_reviewed);
 
     // Lịch sử trạng thái để dựng timeline theo dõi đơn (cũ -> mới).
     order.status_history = await OrderStatusHistory
@@ -151,6 +162,34 @@ router.get("/:id", async (req, res) => {
       .lean();
 
     res.json(serialize(order));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/orders/:id/cancel  { user_id } -> huỷ đơn (chỉ khi chưa giao cho vận chuyển)
+router.post("/:id/cancel", async (req, res) => {
+  try {
+    const orderId = oid(req.params.id);
+    const order = await Order.findById(orderId).lean();
+    if (!order) return res.status(404).json({ error: "Không tìm thấy đơn hàng" });
+    if (!["pending", "confirmed", "processing"].includes(order.status)) {
+      return res.status(400).json({ error: "Không thể hủy đơn ở trạng thái này" });
+    }
+    // Dùng findByIdAndUpdate thay vì find + gán field + save(): document strict:false không
+    // khai báo schema path nào nên Mongoose không tự track thay đổi qua gán trực tiếp + save().
+    const updated = await Order.findByIdAndUpdate(
+      orderId,
+      { $set: { status: "cancelled" } },
+      { new: true }
+    ).lean();
+    await OrderStatusHistory.create({
+      order_id: orderId,
+      status: "cancelled",
+      note: "Khách hủy đơn",
+      created_at: new Date(),
+    });
+    res.json(serialize(updated));
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

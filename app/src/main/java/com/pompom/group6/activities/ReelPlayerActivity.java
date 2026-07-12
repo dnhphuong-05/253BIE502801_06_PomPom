@@ -68,10 +68,12 @@ public class ReelPlayerActivity extends SwipeBackActivity {
             }
         });
 
-        // Chừa khoảng cho caption/tag không bị thanh điều hướng hệ thống che mất.
+        // Chừa khoảng cho caption/tag không bị thanh điều hướng hệ thống che mất, và thanh tiến
+        // trình trên cùng không bị status bar che.
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            int bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
-            adapter.setBottomInset(bottom);
+            androidx.core.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            adapter.setBottomInset(bars.bottom);
+            adapter.setTopInset(bars.top);
             return insets;
         });
         ViewCompat.requestApplyInsets(binding.getRoot());
