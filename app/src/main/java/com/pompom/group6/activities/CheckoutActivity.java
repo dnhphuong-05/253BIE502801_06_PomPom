@@ -470,7 +470,7 @@ public class CheckoutActivity extends SwipeBackActivity {
         });
         content.findViewById(R.id.btnConfirmRemove).setOnClickListener(v -> {
             dialog.dismiss();
-            cartManager.removeItem(item.getProductId());
+            cartManager.removeItem(item);
             refreshOrder();
         });
         dialog.setOnCancelListener(d -> {

@@ -224,6 +224,34 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/rowTax"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="Thuế (VAT 8%)"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:id="@+id/tvTax"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="0đ"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                tools:ignore="HardcodedText" />
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:id="@+id/rowDiscount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

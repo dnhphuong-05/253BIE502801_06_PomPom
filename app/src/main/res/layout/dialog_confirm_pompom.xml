@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popup xác nhận / thông tin DÙNG CHUNG theo concept PomPom
+     (nền bo góc hồng nhạt, icon tròn, poppins, nút hồng). Nội dung set động qua PomPomDialog. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_pompom"
+    android:orientation="vertical"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="18dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center_horizontal"
+        app:cardBackgroundColor="@color/brand_background"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="0dp">
+
+        <TextView
+            android:id="@+id/tvPompomIcon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="💬"
+            android:textSize="24sp"
+            tools:ignore="HardcodedText" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/tvPompomTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="14dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:gravity="center"
+        android:text="Tiêu đề"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/tvPompomMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="@font/poppins_regular"
+        android:gravity="center"
+        android:lineSpacingExtra="2dp"
+        android:text="Nội dung"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPompomCancel"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_medium"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Huỷ"
+            android:textAllCaps="false"
+            android:textColor="@color/brand_pink"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/brand_pink"
+            tools:ignore="HardcodedText" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPompomConfirm"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_semibold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Đồng ý"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/brand_pink"
+            app:cornerRadius="12dp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+</LinearLayout>

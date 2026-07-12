@@ -130,6 +130,13 @@ public class OrderDetailActivity extends SwipeBackActivity {
 
         binding.tvSubtotal.setText(money(o.totalAmount));
         binding.tvShipping.setText(o.shippingFee > 0 ? money(o.shippingFee) : "Miễn phí");
+        // Thuế: ẩn với đơn cũ (chưa có tax_amount) để không hiện "0đ" thừa.
+        if (o.taxAmount > 0) {
+            binding.rowTax.setVisibility(View.VISIBLE);
+            binding.tvTax.setText(money(o.taxAmount));
+        } else {
+            binding.rowTax.setVisibility(View.GONE);
+        }
         if (o.discountAmount > 0) {
             binding.rowDiscount.setVisibility(View.VISIBLE);
             binding.tvDiscount.setText("-" + money(o.discountAmount));
@@ -138,6 +145,46 @@ public class OrderDetailActivity extends SwipeBackActivity {
         }
         binding.tvTotal.setText(money(o.finalAmount));
         binding.tvPayment.setText("Phương thức: " + (o.paymentMethod != null ? o.paymentMethod : "COD"));
+
+        // Nút hủy đơn: chỉ đơn còn "pending" (shop chưa xác nhận) mới hủy được.
+        boolean cancellable = isIn(o.status, "pending");
+        binding.btnCancelOrder.setVisibility(cancellable ? View.VISIBLE : View.GONE);
+        binding.btnCancelOrder.setOnClickListener(cancellable ? v -> confirmCancel() : null);
+    }
+
+    /** Hỏi xác nhận trước khi hủy đơn. */
+    private void confirmCancel() {
+        com.pompom.group6.utils.PomPomDialog.confirm(this, "📦", "Hủy đơn hàng",
+                "Bạn có chắc muốn hủy đơn này?\nĐơn chỉ hủy được khi shop chưa xác nhận.",
+                "Hủy đơn", "Không", this::doCancel);
+    }
+
+    /** Gọi backend hủy đơn; thành công -> tải lại để cập nhật trạng thái & timeline. */
+    private void doCancel() {
+        if (orderId == null) return;
+        String userOid = com.pompom.group6.network.Session.getUserOid(this);
+        ApiClient.get().cancelOrder(orderId, userOid).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> resp) {
+                if (binding == null) return;
+                if (resp.isSuccessful()) {
+                    android.widget.Toast.makeText(OrderDetailActivity.this, "Đã hủy đơn hàng",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                    load();
+                } else {
+                    android.widget.Toast.makeText(OrderDetailActivity.this,
+                            "Không thể hủy — đơn có thể đã được xác nhận",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                if (binding == null) return;
+                android.widget.Toast.makeText(OrderDetailActivity.this, "Lỗi kết nối, thử lại",
+                        android.widget.Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /** Chip trạng thái: xanh khi đã giao/hoàn thành, xám khi hủy, hồng khi đang xử lý. */

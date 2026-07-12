@@ -27,7 +27,6 @@ import com.pompom.group6.activities.ConsultationRequestActivity;
 import com.pompom.group6.adapters.BlogAdapter;
 import com.pompom.group6.adapters.CommunityPostAdapter;
 import com.pompom.group6.adapters.ExpertArticleAdapter;
-import com.pompom.group6.adapters.ReelAdapter;
 import com.pompom.group6.adapters.StoryAdapter;
 import com.pompom.group6.databinding.FragmentCommunityBinding;
 import com.pompom.group6.models.CommunityPost;
@@ -35,7 +34,6 @@ import com.pompom.group6.models.Story;
 import com.pompom.group6.network.dto.ApiBlog;
 import com.pompom.group6.network.dto.ApiExpertArticle;
 import com.pompom.group6.network.dto.ApiNearbyPost;
-import com.pompom.group6.network.dto.ApiReel;
 import com.pompom.group6.utils.LocationHelper;
 import com.pompom.group6.utils.SwipeTabFrameLayout;
 
@@ -44,19 +42,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Màn Community: 4 tab nội dung — Thước phim / Blog thương hiệu / Tips bác sĩ / Tin gần đây.
- * "Tin gần đây" tái sử dụng nguyên feed cộng đồng hiện có (Bài viết/Đã lưu/Của bạn, story 24h theo GPS).
+ * Màn Community sau khi rút gọn còn 3 tab tập trung vào cộng đồng thật:
+ *  - "Bài viết": feed UGC (mọi bài viết cộng đồng, mới nhất trước) — tab mặc định.
+ *  - "Gần đây": story 24h theo bán kính GPS + chọn khu vực xem.
+ *  - "Khám phá": nội dung biên tập (Blog thương hiệu / Tips bác sĩ), chuyển bằng chip.
+ * Tab "Thước phim" (reels đăng lại từ mạng xã hội) đã bị bỏ. Quyền GPS chỉ xin khi mở tab "Gần đây".
  */
 public class CommunityFragment extends Fragment {
 
-    private static final String[] TAB_ORDER = {"Reels", "Blog", "Tips", "Nearby"};
+    private static final String[] TAB_ORDER = {"Posts", "Nearby", "Discover"};
 
     private FragmentCommunityBinding binding;
     private CommunityPostAdapter postAdapter;
-    private String currentTopTab = "Reels";
-    private final List<ApiReel> allReels = new ArrayList<>();
-    private String currentReelSource = null; // null = "Tất cả"
+    private String currentTopTab = "Posts";
+    private String currentDiscoverSection = "Blog";
     private boolean fabExpanded = false;
+    private boolean nearbyInitialized = false;
+    private String currentQuery = null;
 
     private final ActivityResultLauncher<String> requestLocationPermission =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -78,13 +80,13 @@ public class CommunityFragment extends Fragment {
         setupTopTabs();
         setupTabSwipeGesture();
         setupFeedRecyclerView();
-        setupStories();
         setupRefreshLayout();
         setupFabs();
-        setupReelSourceFilter();
+        setupDiscoverToggle();
+        setupLocationTag();
+        setupSearch();
         setupHeaderIcons();
 
-        loadReels();
         loadBlogs();
         loadTips();
         loadAllPosts();
@@ -101,6 +103,39 @@ public class CommunityFragment extends Fragment {
             }
         });
         updateUserAvatar();
+        updateNotificationBadge();
+    }
+
+    /** Badge chuông = số thông báo CHƯA đọc thật của user (trước đây bị gán cứng "3").
+     * Ẩn hẳn khi chưa đăng nhập hoặc không có thông báo mới; hiện "9+" khi vượt 9. */
+    private void updateNotificationBadge() {
+        if (binding == null) return;
+        String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
+        if (userOid == null) {
+            binding.tvNotificationBadge.setVisibility(View.GONE);
+            return;
+        }
+        com.pompom.group6.network.ApiClient.get().getNotifications(userOid)
+                .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiNotification>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiNotification>> call,
+                                           retrofit2.Response<List<com.pompom.group6.network.dto.ApiNotification>> resp) {
+                        if (binding == null) return;
+                        int unread = 0;
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            for (com.pompom.group6.network.dto.ApiNotification n : resp.body()) {
+                                if (!n.isRead) unread++;
+                            }
+                        }
+                        if (unread <= 0) {
+                            binding.tvNotificationBadge.setVisibility(View.GONE);
+                        } else {
+                            binding.tvNotificationBadge.setText(unread > 9 ? "9+" : String.valueOf(unread));
+                            binding.tvNotificationBadge.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiNotification>> call, Throwable t) {}
+                });
     }
 
     /** Lấy avatar mới nhất từ backend (giống HomeFragment) thay vì dùng bản lưu tạm lúc đăng nhập,
@@ -155,23 +190,21 @@ public class CommunityFragment extends Fragment {
         }
     }
 
-    // ── Tab trên cùng: Thước phim / Blog thương hiệu / Tips bác sĩ / Tin gần đây ──
+    // ── Tab trên cùng: Bài viết / Gần đây / Khám phá ──
 
     private void setupTopTabs() {
-        binding.tabReels.setOnClickListener(v -> selectTopTab("Reels", binding.tabReels));
-        binding.tabBlog.setOnClickListener(v -> selectTopTab("Blog", binding.tabBlog));
-        binding.tabTips.setOnClickListener(v -> selectTopTab("Tips", binding.tabTips));
+        binding.tabPosts.setOnClickListener(v -> selectTopTab("Posts", binding.tabPosts));
         binding.tabNearby.setOnClickListener(v -> selectTopTab("Nearby", binding.tabNearby));
+        binding.tabDiscover.setOnClickListener(v -> selectTopTab("Discover", binding.tabDiscover));
     }
 
     private void selectTopTab(String tab, TextView tabView) {
         if (currentTopTab.equals(tab)) return;
         collapseSpeedDial();
 
-        resetTabUI(binding.tabReels);
-        resetTabUI(binding.tabBlog);
-        resetTabUI(binding.tabTips);
+        resetTabUI(binding.tabPosts);
         resetTabUI(binding.tabNearby);
+        resetTabUI(binding.tabDiscover);
 
         tabView.setTextColor(getResources().getColor(R.color.white));
         tabView.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -187,6 +220,9 @@ public class CommunityFragment extends Fragment {
 
         currentTopTab = tab;
         showPanel(tab);
+
+        // GPS lazy: chỉ khởi tạo story/xin quyền khi user thật sự mở tab "Gần đây".
+        if ("Nearby".equals(tab)) ensureNearbyLoaded();
     }
 
     private void resetTabUI(TextView tabView) {
@@ -196,12 +232,11 @@ public class CommunityFragment extends Fragment {
 
     /** Chuyển panel kèm hiệu ứng mờ dần (crossfade) cho mượt thay vì đổi visibility đột ngột. */
     private void showPanel(String tab) {
-        View next = "Reels".equals(tab) ? binding.panelReels
-                : "Blog".equals(tab) ? binding.rvBlogFull
-                : "Tips".equals(tab) ? binding.rvTipsFull
-                : binding.panelNearby;
+        View next = "Posts".equals(tab) ? binding.postsTab
+                : "Nearby".equals(tab) ? binding.panelNearby
+                : binding.panelDiscover;
 
-        for (View panel : new View[]{binding.panelReels, binding.rvBlogFull, binding.rvTipsFull, binding.panelNearby}) {
+        for (View panel : new View[]{binding.postsTab, binding.panelNearby, binding.panelDiscover}) {
             if (panel == next) {
                 panel.setVisibility(View.VISIBLE);
                 panel.setAlpha(0f);
@@ -218,7 +253,7 @@ public class CommunityFragment extends Fragment {
         }
     }
 
-    /** Vuốt ngang trên nội dung để chuyển qua lại 4 tab, giống lướt trang. */
+    /** Vuốt ngang trên nội dung để chuyển qua lại 3 tab, giống lướt trang. */
     private void setupTabSwipeGesture() {
         binding.tabContent.setExcludedView(binding.rvStories);
         binding.tabContent.setOnSwipeListener(new SwipeTabFrameLayout.OnSwipeListener() {
@@ -236,47 +271,27 @@ public class CommunityFragment extends Fragment {
 
     private TextView tabViewFor(String tab) {
         switch (tab) {
-            case "Reels": return binding.tabReels;
-            case "Blog": return binding.tabBlog;
-            case "Tips": return binding.tabTips;
-            default: return binding.tabNearby;
+            case "Posts": return binding.tabPosts;
+            case "Nearby": return binding.tabNearby;
+            default: return binding.tabDiscover;
         }
     }
 
-    // ── Thước phim: video đăng lại từ Instagram/Facebook/TikTok ──
+    // ── Khám phá: Blog thương hiệu / Tips bác sĩ (chuyển bằng chip) ──
 
-    private void loadReels() {
-        binding.rvReels.setLayoutManager(new LinearLayoutManager(requireContext()));
-        com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.rvReels, this);
-        com.pompom.group6.network.ApiClient.get().getReels(20)
-                .enqueue(new retrofit2.Callback<List<ApiReel>>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<List<ApiReel>> call, retrofit2.Response<List<ApiReel>> resp) {
-                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        allReels.clear();
-                        allReels.addAll(resp.body());
-                        applyReelSourceFilter();
-                    }
-                    @Override public void onFailure(retrofit2.Call<List<ApiReel>> call, Throwable t) {}
-                });
+    private void setupDiscoverToggle() {
+        binding.chipDiscoverBlog.setOnClickListener(v -> selectDiscoverSection("Blog"));
+        binding.chipDiscoverTips.setOnClickListener(v -> selectDiscoverSection("Tips"));
     }
 
-    /** Bộ lọc theo nguồn mạng xã hội (Tất cả/Instagram/TikTok/Facebook) — lọc cục bộ trên danh sách đã tải. */
-    private void setupReelSourceFilter() {
-        binding.chipSourceAll.setOnClickListener(v -> selectReelSource(null, binding.chipSourceAll));
-        binding.chipSourceInstagram.setOnClickListener(v -> selectReelSource("instagram", binding.chipSourceInstagram));
-        binding.chipSourceTiktok.setOnClickListener(v -> selectReelSource("tiktok", binding.chipSourceTiktok));
-        binding.chipSourceFacebook.setOnClickListener(v -> selectReelSource("facebook", binding.chipSourceFacebook));
-    }
-
-    private void selectReelSource(String source, TextView chip) {
-        if ((source == null && currentReelSource == null) || (source != null && source.equals(currentReelSource))) return;
-        currentReelSource = source;
-        setChipSelected(binding.chipSourceAll, chip == binding.chipSourceAll);
-        setChipSelected(binding.chipSourceInstagram, chip == binding.chipSourceInstagram);
-        setChipSelected(binding.chipSourceTiktok, chip == binding.chipSourceTiktok);
-        setChipSelected(binding.chipSourceFacebook, chip == binding.chipSourceFacebook);
-        applyReelSourceFilter();
+    private void selectDiscoverSection(String section) {
+        if (currentDiscoverSection.equals(section)) return;
+        currentDiscoverSection = section;
+        boolean blog = "Blog".equals(section);
+        binding.groupBlog.setVisibility(blog ? View.VISIBLE : View.GONE);
+        binding.groupTips.setVisibility(blog ? View.GONE : View.VISIBLE);
+        setChipSelected(binding.chipDiscoverBlog, blog);
+        setChipSelected(binding.chipDiscoverTips, !blog);
     }
 
     private void setChipSelected(TextView chip, boolean selected) {
@@ -284,13 +299,19 @@ public class CommunityFragment extends Fragment {
         chip.setTextColor(getResources().getColor(selected ? R.color.white : R.color.text_secondary));
     }
 
-    private void applyReelSourceFilter() {
+    /** Hiện thông báo trạng thái (đang tải / rỗng / lỗi) và ẩn danh sách. */
+    private void showPanelStatus(TextView status, View list, String text) {
         if (binding == null) return;
-        List<ApiReel> filtered = new ArrayList<>();
-        for (ApiReel r : allReels) {
-            if (currentReelSource == null || currentReelSource.equalsIgnoreCase(r.source)) filtered.add(r);
-        }
-        binding.rvReels.setAdapter(new ReelAdapter(filtered));
+        status.setText(text);
+        status.setVisibility(View.VISIBLE);
+        list.setVisibility(View.GONE);
+    }
+
+    /** Hiện danh sách và ẩn thông báo trạng thái. */
+    private void showPanelList(TextView status, View list) {
+        if (binding == null) return;
+        status.setVisibility(View.GONE);
+        list.setVisibility(View.VISIBLE);
     }
 
     // ── Blog thương hiệu ──
@@ -298,14 +319,26 @@ public class CommunityFragment extends Fragment {
     private void loadBlogs() {
         binding.rvBlogFull.setLayoutManager(new LinearLayoutManager(requireContext()));
         com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.rvBlogFull, this);
+        showPanelStatus(binding.tvBlogStatus, binding.rvBlogFull, "Đang tải...");
         com.pompom.group6.network.ApiClient.get().getBlogs(50)
                 .enqueue(new retrofit2.Callback<List<ApiBlog>>() {
                     @Override
                     public void onResponse(retrofit2.Call<List<ApiBlog>> call, retrofit2.Response<List<ApiBlog>> resp) {
-                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        if (binding == null) return;
+                        if (!resp.isSuccessful() || resp.body() == null) {
+                            showPanelStatus(binding.tvBlogStatus, binding.rvBlogFull, "Không tải được blog, vui lòng thử lại sau");
+                            return;
+                        }
+                        if (resp.body().isEmpty()) {
+                            showPanelStatus(binding.tvBlogStatus, binding.rvBlogFull, "Chưa có blog nào");
+                            return;
+                        }
                         binding.rvBlogFull.setAdapter(new BlogAdapter(resp.body(), true));
+                        showPanelList(binding.tvBlogStatus, binding.rvBlogFull);
                     }
-                    @Override public void onFailure(retrofit2.Call<List<ApiBlog>> call, Throwable t) {}
+                    @Override public void onFailure(retrofit2.Call<List<ApiBlog>> call, Throwable t) {
+                        if (binding != null) showPanelStatus(binding.tvBlogStatus, binding.rvBlogFull, "Không kết nối được máy chủ");
+                    }
                 });
     }
 
@@ -314,32 +347,73 @@ public class CommunityFragment extends Fragment {
     private void loadTips() {
         binding.rvTipsFull.setLayoutManager(new LinearLayoutManager(requireContext()));
         com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.rvTipsFull, this);
+        showPanelStatus(binding.tvTipsStatus, binding.rvTipsFull, "Đang tải...");
         com.pompom.group6.network.ApiClient.get().getExpertArticles(50)
                 .enqueue(new retrofit2.Callback<List<ApiExpertArticle>>() {
                     @Override
                     public void onResponse(retrofit2.Call<List<ApiExpertArticle>> call,
                                            retrofit2.Response<List<ApiExpertArticle>> resp) {
-                        if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
+                        if (binding == null) return;
+                        if (!resp.isSuccessful() || resp.body() == null) {
+                            showPanelStatus(binding.tvTipsStatus, binding.rvTipsFull, "Không tải được tips, vui lòng thử lại sau");
+                            return;
+                        }
+                        if (resp.body().isEmpty()) {
+                            showPanelStatus(binding.tvTipsStatus, binding.rvTipsFull, "Chưa có tips nào");
+                            return;
+                        }
                         binding.rvTipsFull.setAdapter(new ExpertArticleAdapter(resp.body(), true));
+                        showPanelList(binding.tvTipsStatus, binding.rvTipsFull);
                     }
-                    @Override public void onFailure(retrofit2.Call<List<ApiExpertArticle>> call, Throwable t) {}
+                    @Override public void onFailure(retrofit2.Call<List<ApiExpertArticle>> call, Throwable t) {
+                        if (binding != null) showPanelStatus(binding.tvTipsStatus, binding.rvTipsFull, "Không kết nối được máy chủ");
+                    }
                 });
     }
 
-    /** Feed "Tin gần đây": mọi bài viết cộng đồng thật, mới nhất trước — không còn lọc theo tab phụ
-     * (Bài viết/Đã lưu/Của bạn); mục "Đã lưu" sẽ chuyển sang màn Profile ở bản sau. */
+    /** Feed "Bài viết": mọi bài viết cộng đồng (hoặc kết quả tìm kiếm khi currentQuery khác rỗng). */
     private void loadAllPosts() {
         String userOid = com.pompom.group6.network.Session.getUserOid(requireContext());
-        com.pompom.group6.network.ApiClient.get().getCommunityPostsFiltered(50, null, null, userOid)
+        boolean searching = currentQuery != null && !currentQuery.isEmpty();
+        String emptyText = searching ? "Không tìm thấy bài viết phù hợp" : "Chưa có bài viết nào";
+        com.pompom.group6.network.ApiClient.get().searchCommunityPosts(50, searching ? currentQuery : null, userOid)
                 .enqueue(new retrofit2.Callback<List<com.pompom.group6.network.dto.ApiCommunityPost>>() {
                     @Override
                     public void onResponse(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call,
                                            retrofit2.Response<List<com.pompom.group6.network.dto.ApiCommunityPost>> resp) {
                         if (binding == null || !resp.isSuccessful() || resp.body() == null) return;
-                        bindPostList(mapPosts(resp.body()), "Chưa có bài viết nào");
+                        bindPostList(mapPosts(resp.body()), emptyText);
                     }
                     @Override public void onFailure(retrofit2.Call<List<com.pompom.group6.network.dto.ApiCommunityPost>> call, Throwable t) {}
                 });
+    }
+
+    /** Tìm bài viết theo chủ đề: gõ rồi bấm nút Search trên bàn phím; nút "x" để xoá và về feed đầy đủ. */
+    private void setupSearch() {
+        binding.etSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                currentQuery = binding.etSearch.getText().toString().trim();
+                binding.btnClearSearch.setVisibility(currentQuery.isEmpty() ? View.GONE : View.VISIBLE);
+                hideKeyboard();
+                loadAllPosts();
+                return true;
+            }
+            return false;
+        });
+        binding.btnClearSearch.setOnClickListener(v -> {
+            binding.etSearch.setText("");
+            currentQuery = null;
+            binding.btnClearSearch.setVisibility(View.GONE);
+            hideKeyboard();
+            loadAllPosts();
+        });
+    }
+
+    private void hideKeyboard() {
+        if (binding == null) return;
+        android.view.inputmethod.InputMethodManager imm =
+                (android.view.inputmethod.InputMethodManager) requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+        if (imm != null) imm.hideSoftInputFromWindow(binding.etSearch.getWindowToken(), 0);
     }
 
     private List<CommunityPost> mapPosts(List<com.pompom.group6.network.dto.ApiCommunityPost> apiPosts) {
@@ -354,6 +428,14 @@ public class CommunityFragment extends Fragment {
             cp.setAuthorId(a.userId);
             cp.setShareCount(a.shareCount);
             cp.setCreatedAt(a.createdAt);
+            cp.setFollowing(a.isFollowing);
+            if (a.previewComments != null) {
+                List<CommunityPost.PreviewComment> pc = new java.util.ArrayList<>();
+                for (com.pompom.group6.network.dto.ApiCommunityPost.PreviewComment c : a.previewComments) {
+                    pc.add(new CommunityPost.PreviewComment(c.authorName, c.content));
+                }
+                cp.setPreviewComments(pc);
+            }
             posts.add(cp);
         }
         return posts;
@@ -375,7 +457,7 @@ public class CommunityFragment extends Fragment {
         });
     }
 
-    /** Nút tròn nổi: bấm để nảy lên 2 lựa chọn "Tạo bài viết" / "Liên hệ tư vấn"; kéo được tự do. */
+    /** Nút tròn nổi: bấm để nảy lên 2 lựa chọn "Tạo bài viết" / "Liên hệ tư vấn". */
     private void setupFabs() {
         // Vài thiết bị/theme Material3 vẫn tự áp animator đổi elevation khi nhấn/giữ dù đã khai
         // báo app:elevation="0dp" trong XML — tắt hẳn bằng code để bóng không còn "giới hạn cứng".
@@ -501,10 +583,16 @@ public class CommunityFragment extends Fragment {
         com.pompom.group6.utils.BottomNavScrollHelper.attach(binding.rvFeed, this);
     }
 
+    /** Khởi tạo hàng Story lần đầu user mở tab "Gần đây" — mới xin quyền GPS ở đây (lazy). */
+    private void ensureNearbyLoaded() {
+        if (nearbyInitialized) return;
+        nearbyInitialized = true;
+        setupStories();
+    }
+
     /** Hàng Story 24h theo bán kính GPS — luôn có ô "Đăng story" đầu tiên. */
     private void setupStories() {
         binding.rvStories.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        setupLocationTag();
         if (LocationHelper.hasPermission(requireContext())) {
             fetchNearbyStories();
         } else {
@@ -568,14 +656,18 @@ public class CommunityFragment extends Fragment {
     };
     private boolean locationPickedManually = false;
 
-    /** Tag vị trí dưới tiêu đề "Cộng đồng" — bấm để chọn khu vực khác và xem story/bài viết
-     * quanh khu vực đó thay vì GPS thật của máy. */
+    /** Tag vị trí trong tab "Gần đây" — bấm để chọn khu vực khác và xem story quanh khu vực đó
+     * thay vì GPS thật của máy. */
     private void setupLocationTag() {
         binding.btnChangeLocation.setOnClickListener(v -> {
-            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                    .setTitle("Chọn khu vực xem bài viết")
-                    .setItems(PRESET_CITY_NAMES, (dialog, which) -> selectCity(which))
-                    .show();
+            // Tick sẵn khu vực đang xem (nếu đang khớp một thành phố trong danh sách).
+            int current = -1;
+            String shown = binding.tvLocationTag.getText() != null ? binding.tvLocationTag.getText().toString() : "";
+            for (int i = 0; i < PRESET_CITY_NAMES.length; i++) {
+                if (PRESET_CITY_NAMES[i].equals(shown)) { current = i; break; }
+            }
+            com.pompom.group6.utils.PomPomDialog.pickList(requireContext(),
+                    "Chọn khu vực xem bài viết", PRESET_CITY_NAMES, current, this::selectCity);
         });
     }
 

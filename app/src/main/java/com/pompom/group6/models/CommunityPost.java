@@ -20,6 +20,20 @@ public class CommunityPost {
     private String authorId; // ObjectId thật của tác giả (khác userId int cũ) — dùng để theo dõi
     private int shareCount;
     private String createdAt;
+    // Trạng thái theo dõi tác giả do server trả sẵn trong danh sách feed (null = chưa biết).
+    private Boolean following;
+    // Vài bình luận mới nhất để hiển thị preview ngay trên card.
+    private List<PreviewComment> previewComments;
+
+    /** Bình luận rút gọn (tên tác giả + nội dung) cho preview trên card feed. */
+    public static class PreviewComment {
+        public final String authorName;
+        public final String content;
+        public PreviewComment(String authorName, String content) {
+            this.authorName = authorName;
+            this.content = content;
+        }
+    }
 
     public CommunityPost(String postId, int userId, String content, String imageUrl, int likeCount, int commentCount, String postType) {
         this.postId = postId;
@@ -72,4 +86,8 @@ public class CommunityPost {
     public void setShareCount(int shareCount) { this.shareCount = shareCount; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public Boolean getFollowing() { return following; }
+    public void setFollowing(Boolean following) { this.following = following; }
+    public List<PreviewComment> getPreviewComments() { return previewComments; }
+    public void setPreviewComments(List<PreviewComment> previewComments) { this.previewComments = previewComments; }
 }

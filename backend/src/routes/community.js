@@ -1,6 +1,6 @@
 const express = require("express");
 const { Types } = require("mongoose");
-const { CommunityPost, Comment, User, Product, Like, SavedPost, HiddenPost, Notification } = require("../models");
+const { CommunityPost, Comment, User, Product, Like, SavedPost, HiddenPost, Notification, Follow, Report } = require("../models");
 const { serialize } = require("../serialize");
 
 const router = express.Router();
@@ -25,29 +25,65 @@ async function notifyPostOwner(postId, actorId, type, message) {
   });
 }
 
+// Gắn tên/avatar tác giả cho danh sách bài — nạp tất cả user trong MỘT query $in (tránh N+1).
 async function withAuthors(posts) {
+  const ids = posts.map((p) => p.user_id).filter(Boolean);
+  const users = ids.length ? await User.find({ _id: { $in: ids } }).lean() : [];
+  const byId = new Map(users.map((u) => [String(u._id), u]));
   for (const p of posts) {
-    const u = await User.findById(p.user_id).lean();
+    const u = byId.get(String(p.user_id));
     p.author_name = u?.full_name || "Người dùng";
     p.author_avatar = u?.avatar_url || null;
   }
   return posts;
 }
 
-// Gắn is_saved/is_liked của viewerId vào từng bài — để nút bookmark/tim hiện đúng
-// trạng thái ngay từ lần tải đầu, không chỉ là toggle tạm trên UI.
+// Gắn is_saved/is_liked/is_following của viewerId vào từng bài — để nút bookmark/tim/theo dõi
+// hiện đúng trạng thái ngay từ lần tải đầu. is_following trả sẵn ở đây giúp app KHÔNG phải gọi
+// getFollowStatus riêng cho từng card (trước đây mỗi bài hiển thị = 1 request, nút bị nhấp nháy).
 async function withViewerState(posts, viewerId) {
   if (!viewerId) return posts;
   const postIds = posts.map((p) => p._id);
-  const [savedIds, likedIds] = await Promise.all([
+  const authorIds = posts.map((p) => p.user_id).filter(Boolean);
+  const [savedIds, likedIds, followingIds] = await Promise.all([
     SavedPost.find({ user_id: viewerId, post_id: { $in: postIds } }).distinct("post_id"),
     Like.find({ user_id: viewerId, post_id: { $in: postIds } }).distinct("post_id"),
+    Follow.find({ follower_id: viewerId, following_id: { $in: authorIds } }).distinct("following_id"),
   ]);
   const savedSet = new Set(savedIds.map(String));
   const likedSet = new Set(likedIds.map(String));
+  const followingSet = new Set(followingIds.map(String));
   for (const p of posts) {
     p.is_saved = savedSet.has(String(p._id));
     p.is_liked = likedSet.has(String(p._id));
+    p.is_following = followingSet.has(String(p.user_id));
+  }
+  return posts;
+}
+
+// Gắn tối đa `limitPer` bình luận mới nhất của mỗi bài (kèm tên tác giả) để card hiển thị
+// preview bình luận ngay trên feed — nạp tất cả trong 2 query $in (tránh N+1), không cần app
+// gọi lấy bình luận cho từng bài.
+async function withPreviewComments(posts, limitPer = 2) {
+  if (!posts.length) return posts;
+  const postIds = posts.map((p) => p._id);
+  const comments = await Comment.find({ post_id: { $in: postIds } }).sort({ created_at: -1 }).lean();
+  const uids = [...new Set(comments.map((c) => String(c.user_id)).filter(Boolean))];
+  const users = uids.length ? await User.find({ _id: { $in: uids } }).lean() : [];
+  const byId = new Map(users.map((u) => [String(u._id), u]));
+  const byPost = new Map();
+  for (const c of comments) {
+    const key = String(c.post_id);
+    const arr = byPost.get(key) || [];
+    if (arr.length < limitPer) {
+      const u = byId.get(String(c.user_id));
+      arr.push({ author_name: u?.full_name || "Người dùng", content: c.content });
+      byPost.set(key, arr);
+    }
+  }
+  for (const p of posts) {
+    // comments sắp xếp mới→cũ; đảo lại để 2 bình luận preview hiện theo thứ tự thời gian.
+    p.preview_comments = (byPost.get(String(p._id)) || []).reverse();
   }
   return posts;
 }
@@ -91,6 +127,7 @@ router.get("/posts", async (req, res) => {
     if (req.query.limit) query = query.limit(parseInt(req.query.limit, 10));
     let posts = await withAuthors(await query.lean());
     posts = await withViewerState(posts, oid(req.query.viewer_id));
+    posts = await withPreviewComments(posts);
     res.json(posts.map(serialize));
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -164,8 +201,12 @@ router.get("/posts/:id/comments", async (req, res) => {
     const comments = await Comment.find({ post_id: oid(req.params.id) })
       .sort({ created_at: 1 })
       .lean();
+    // Nạp tác giả các bình luận trong MỘT query $in (tránh N+1).
+    const ids = comments.map((c) => c.user_id).filter(Boolean);
+    const users = ids.length ? await User.find({ _id: { $in: ids } }).lean() : [];
+    const byId = new Map(users.map((u) => [String(u._id), u]));
     for (const c of comments) {
-      const u = await User.findById(c.user_id).lean();
+      const u = byId.get(String(c.user_id));
       c.author_name = u?.full_name || null;
       c.author_avatar = u?.avatar_url || null;
     }
@@ -276,6 +317,26 @@ router.post("/posts/:id/hide", async (req, res) => {
       await HiddenPost.create({ user_id: uid, post_id: postId, created_at: new Date() });
     }
     res.json({ hidden: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/community/posts/:id/report  { user_id, reason? }  -> lưu báo cáo vi phạm để đội ngũ
+// kiểm duyệt xem xét (không tự xoá bài). App vẫn ẩn bài khỏi feed người báo cáo qua endpoint hide.
+router.post("/posts/:id/report", async (req, res) => {
+  try {
+    const uid = oid(req.body?.user_id);
+    const postId = oid(req.params.id);
+    if (!uid || !postId) return res.status(400).json({ error: "Thiếu user_id" });
+    await Report.create({
+      post_id: postId,
+      reporter_id: uid,
+      reason: req.body?.reason || null,
+      status: "pending",
+      created_at: new Date(),
+    });
+    res.status(201).json({ reported: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

@@ -3,12 +3,12 @@ package com.pompom.group6.activities;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.pompom.group6.R;
 import com.pompom.group6.adapters.AddressAdapter;
 import com.pompom.group6.databinding.ActivityAddressBookBinding;
 import com.pompom.group6.models.Address;
@@ -86,76 +86,61 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
     }
 
     private void showAddDialog() {
-        int pad = (int) (20 * getResources().getDisplayMetrics().density);
-        LinearLayout container = new LinearLayout(this);
-        container.setOrientation(LinearLayout.VERTICAL);
-        container.setPadding(pad, pad / 2, pad, 0);
+        View content = getLayoutInflater().inflate(R.layout.dialog_add_address, null);
+        final EditText etLabel = content.findViewById(R.id.etAddrLabel);
+        final EditText etName = content.findViewById(R.id.etAddrName);
+        final EditText etPhone = content.findViewById(R.id.etAddrPhone);
+        final EditText etLine = content.findViewById(R.id.etAddrLine);
+        final EditText etWard = content.findViewById(R.id.etAddrWard);
+        final EditText etDistrict = content.findViewById(R.id.etAddrDistrict);
+        final EditText etCity = content.findViewById(R.id.etAddrCity);
 
-        final EditText etLabel = field("Nhãn (Nhà, Công ty...)");
-        final EditText etName = field("Tên người nhận");
-        final EditText etPhone = field("Số điện thoại");
-        final EditText etLine = field("Địa chỉ (số nhà, đường)");
-        final EditText etWard = field("Phường/Xã");
-        final EditText etDistrict = field("Quận/Huyện");
-        final EditText etCity = field("Tỉnh/Thành phố");
-        container.addView(etLabel);
-        container.addView(etName);
-        container.addView(etPhone);
-        container.addView(etLine);
-        container.addView(etWard);
-        container.addView(etDistrict);
-        container.addView(etCity);
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(content).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
 
-        androidx.core.widget.NestedScrollView scroll = new androidx.core.widget.NestedScrollView(this);
-        scroll.addView(container);
-
-        new AlertDialog.Builder(this)
-                .setTitle("Thêm địa chỉ")
-                .setView(scroll)
-                .setPositiveButton("Lưu", (d, w) -> {
-                    String name = etName.getText().toString().trim();
-                    String phone = etPhone.getText().toString().trim();
-                    String line = etLine.getText().toString().trim();
-                    if (name.isEmpty() || phone.isEmpty() || line.isEmpty()) {
-                        Toast.makeText(this, "Vui lòng nhập tên, SĐT và địa chỉ", Toast.LENGTH_SHORT).show();
-                        return;
+        content.findViewById(R.id.btnAddrCancel).setOnClickListener(v -> dialog.dismiss());
+        content.findViewById(R.id.btnAddrSave).setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String phone = etPhone.getText().toString().trim();
+            String line = etLine.getText().toString().trim();
+            if (name.isEmpty() || phone.isEmpty() || line.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập tên, SĐT và địa chỉ", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (userOid == null) {
+                Toast.makeText(this, "Bạn cần đăng nhập", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            boolean makeDefault = addresses.isEmpty(); // first address becomes default
+            AddressRequest body = new AddressRequest(
+                    emptyToDefault(etLabel.getText().toString().trim(), "Địa chỉ"),
+                    name, phone, line,
+                    etWard.getText().toString().trim(),
+                    etDistrict.getText().toString().trim(),
+                    etCity.getText().toString().trim(),
+                    makeDefault);
+            ApiClient.get().addAddress(userOid, body).enqueue(new Callback<ApiAddress>() {
+                @Override
+                public void onResponse(Call<ApiAddress> call, Response<ApiAddress> resp) {
+                    if (resp.isSuccessful()) {
+                        Toast.makeText(AddressBookActivity.this, "Đã thêm địa chỉ", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        loadAddresses();
+                    } else {
+                        Toast.makeText(AddressBookActivity.this, "Thêm thất bại", Toast.LENGTH_SHORT).show();
                     }
-                    if (userOid == null) {
-                        Toast.makeText(this, "Bạn cần đăng nhập", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    boolean makeDefault = addresses.isEmpty(); // first address becomes default
-                    AddressRequest body = new AddressRequest(
-                            emptyToDefault(etLabel.getText().toString().trim(), "Địa chỉ"),
-                            name, phone, line,
-                            etWard.getText().toString().trim(),
-                            etDistrict.getText().toString().trim(),
-                            etCity.getText().toString().trim(),
-                            makeDefault);
-                    ApiClient.get().addAddress(userOid, body).enqueue(new Callback<ApiAddress>() {
-                        @Override
-                        public void onResponse(Call<ApiAddress> call, Response<ApiAddress> resp) {
-                            if (resp.isSuccessful()) {
-                                Toast.makeText(AddressBookActivity.this, "Đã thêm địa chỉ", Toast.LENGTH_SHORT).show();
-                                loadAddresses();
-                            } else {
-                                Toast.makeText(AddressBookActivity.this, "Thêm thất bại", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        @Override
-                        public void onFailure(Call<ApiAddress> call, Throwable t) {
-                            Toast.makeText(AddressBookActivity.this, "Không kết nối được máy chủ", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
-    }
+                }
+                @Override
+                public void onFailure(Call<ApiAddress> call, Throwable t) {
+                    Toast.makeText(AddressBookActivity.this, "Không kết nối được máy chủ", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
 
-    private EditText field(String hint) {
-        EditText et = new EditText(this);
-        et.setHint(hint);
-        return et;
+        dialog.show();
     }
 
     private String emptyToDefault(String value, String fallback) {
@@ -164,10 +149,8 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
 
     @Override
     public void onDelete(Address address) {
-        new AlertDialog.Builder(this)
-                .setTitle("Xóa địa chỉ")
-                .setMessage("Bạn có chắc muốn xóa địa chỉ này?")
-                .setPositiveButton("Xóa", (d, w) -> {
+        com.pompom.group6.utils.PomPomDialog.confirm(this, "🗑️", "Xóa địa chỉ",
+                "Bạn có chắc muốn xóa địa chỉ này?", "Xóa", "Hủy", () -> {
                     if (userOid == null) return;
                     ApiClient.get().deleteAddress(userOid, address.getAddressId()).enqueue(new Callback<Void>() {
                         @Override
@@ -179,9 +162,7 @@ public class AddressBookActivity extends SwipeBackActivity implements AddressAda
                         }
                         @Override public void onFailure(Call<Void> call, Throwable t) {}
                     });
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
+                });
     }
 
     @Override

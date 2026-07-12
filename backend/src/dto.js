@@ -14,7 +14,7 @@ const { serialize } = require("./serialize");
 
 // Shapes a User document into the JSON the Android app expects (mirrors UserDAO.getUserById).
 // Mọi số liệu ở màn Profile được đọc TRỰC TIẾP từ các collection thật (không mock):
-//  - followers/following  <- follows (followed_id / follower_id)
+//  - followers/following  <- follows (following_id / follower_id)
 //  - story_count          <- nearbyposts (story 24h) theo user_id
 //  - post_count           <- communityposts theo user_id
 //  - review_count         <- productreviews theo user_id
@@ -43,7 +43,7 @@ async function toUserDto(userDoc) {
   ] = await Promise.all([
     MembershipHistory.findOne({ user_id: uid }).sort({ changed_at: -1 }).lean(),
     UserVoucher.countDocuments({ user_id: uid, used_at: null }),
-    Follow.countDocuments({ followed_id: uid }),
+    Follow.countDocuments({ following_id: uid }),
     Follow.countDocuments({ follower_id: uid }),
     CommunityPost.countDocuments({ user_id: uid }),
     NearbyPost.countDocuments({ user_id: uid }),

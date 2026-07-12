@@ -34,8 +34,9 @@ public class CartManager {
     }
 
     public void addItem(CartItem newItem) {
+        // Gộp theo DÒNG (sản phẩm + biến thể): cùng sản phẩm khác biến thể -> dòng riêng.
         for (CartItem item : cartItems) {
-            if (item.getProductId() == newItem.getProductId()) {
+            if (item.getLineKey().equals(newItem.getLineKey())) {
                 item.setQuantity(item.getQuantity() + newItem.getQuantity());
                 saveToPrefs();
                 notifyListeners();
@@ -47,17 +48,23 @@ public class CartManager {
         notifyListeners();
     }
 
-    public void removeItem(int productId) {
-        cartItems.removeIf(item -> item.getProductId() == productId);
+    /** Xoá đúng một dòng (theo sản phẩm + biến thể). */
+    public void removeItem(CartItem target) {
+        if (target == null) return;
+        String key = target.getLineKey();
+        cartItems.removeIf(item -> item.getLineKey().equals(key));
         saveToPrefs();
         notifyListeners();
     }
 
-    public void updateQuantity(int productId, int newQty) {
+    /** Cập nhật số lượng đúng một dòng (theo sản phẩm + biến thể); newQty<=0 thì xoá dòng. */
+    public void updateQuantity(CartItem target, int newQty) {
+        if (target == null) return;
+        String key = target.getLineKey();
         for (CartItem item : cartItems) {
-            if (item.getProductId() == productId) {
+            if (item.getLineKey().equals(key)) {
                 if (newQty <= 0) {
-                    removeItem(productId);
+                    removeItem(target);
                     return;
                 }
                 item.setQuantity(newQty);
@@ -114,6 +121,8 @@ public class CartManager {
                 obj.put("price", item.getPrice());
                 obj.put("imageUrl", item.getImageUrl() != null ? item.getImageUrl() : "");
                 obj.put("quantity", item.getQuantity());
+                obj.put("variantId", item.getVariantId() != null ? item.getVariantId() : "");
+                obj.put("variantName", item.getVariantName() != null ? item.getVariantName() : "");
                 array.put(obj);
             }
             prefs.edit().putString(KEY_CART, array.toString()).apply();
@@ -139,6 +148,10 @@ public class CartManager {
                 );
                 String oid = obj.optString("productOid", "");
                 if (!oid.isEmpty()) ci.setProductOid(oid);
+                String variantId = obj.optString("variantId", "");
+                if (!variantId.isEmpty()) ci.setVariantId(variantId);
+                String variantName = obj.optString("variantName", "");
+                if (!variantName.isEmpty()) ci.setVariantName(variantName);
                 list.add(ci);
             }
         } catch (JSONException e) {

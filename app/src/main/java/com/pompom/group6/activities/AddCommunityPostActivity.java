@@ -283,11 +283,8 @@ public class AddCommunityPostActivity extends SwipeBackActivity {
     }
 
     private void showDiscardConfirmation() {
-        new AlertDialog.Builder(this)
-                .setTitle("Hủy bài viết?")
-                .setMessage("Bạn có chắc chắn muốn hủy bài viết đang tạo không? Những gì bạn nhập sẽ không được lưu.")
-                .setPositiveButton("Hủy bài", (dialog, which) -> finish())
-                .setNegativeButton("Tiếp tục viết", null)
-                .show();
+        com.pompom.group6.utils.PomPomDialog.confirm(this, "✏️", "Hủy bài viết?",
+                "Bạn có chắc chắn muốn hủy bài viết đang tạo không? Những gì bạn nhập sẽ không được lưu.",
+                "Hủy bài", "Tiếp tục viết", this::finish);
     }
 }
