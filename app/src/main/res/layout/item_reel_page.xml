@@ -17,6 +17,21 @@
         app:resize_mode="zoom"
         app:use_controller="false" />
 
+    <!-- Icon Play giữa màn hình khi video đang tạm dừng — chạm video để phát tiếp, giống
+         YouTube/TikTok. Ẩn khi đang phát. -->
+    <ImageView
+        android:id="@+id/ivReelPlayPause"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:alpha="0.9"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_play_circle"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Thanh tiến trình mảnh trên cùng, không đè lên nội dung dưới đáy giống Reels/TikTok -->
     <ProgressBar
         android:id="@+id/reelProgressBar"
@@ -31,6 +46,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Nhãn thời gian "đã phát / tổng thời lượng" ngay dưới thanh tiến trình, kiểu m:ss -->
+    <TextView
+        android:id="@+id/tvReelTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="10dp"
+        android:fontFamily="@font/poppins_medium"
+        android:shadowColor="#CC000000"
+        android:shadowDx="0"
+        android:shadowDy="1"
+        android:shadowRadius="4"
+        android:text="0:00 / 0:00"
+        android:textColor="@color/white"
+        android:textSize="11sp"
+        app:layout_constraintEnd_toEndOf="@id/reelProgressBar"
+        app:layout_constraintTop_toBottomOf="@id/reelProgressBar" />
 
     <!-- Cột hành động dọc bên phải: thích / bình luận / chia sẻ, giống Reels Facebook — không còn
          lớp phủ tối phía sau; chữ tự có đổ bóng riêng để vẫn đọc được trên nền video sáng. -->

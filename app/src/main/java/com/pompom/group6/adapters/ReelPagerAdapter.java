@@ -128,9 +128,16 @@ public class ReelPagerAdapter extends RecyclerView.Adapter<ReelPagerAdapter.Page
         }
 
         // Không còn thanh điều khiển mặc định của ExoPlayer (đè lên caption) — chạm vào video để
-        // tạm dừng/phát tiếp, giống Reels/TikTok.
+        // tạm dừng/phát tiếp, giống Reels/TikTok. Khi tạm dừng, hiện icon Play giữa màn hình
+        // (giống YouTube) để báo trạng thái và mời chạm lại để phát tiếp.
         holder.binding.playerView.setOnClickListener(v -> {
-            if (player.isPlaying()) player.pause(); else player.play();
+            if (player.isPlaying()) {
+                player.pause();
+                holder.binding.ivReelPlayPause.setVisibility(View.VISIBLE);
+            } else {
+                player.play();
+                holder.binding.ivReelPlayPause.setVisibility(View.GONE);
+            }
         });
 
         if (position == activePosition) {
@@ -293,11 +300,13 @@ public class ReelPagerAdapter extends RecyclerView.Adapter<ReelPagerAdapter.Page
         player.setRepeatMode(Player.REPEAT_MODE_ONE);
         player.prepare();
         player.setPlayWhenReady(true);
+        holder.binding.ivReelPlayPause.setVisibility(View.GONE);
         startProgressUpdates(holder);
     }
 
-    /** Cập nhật thanh tiến trình mảnh trên cùng mỗi 200ms trong lúc reel đang phát — thay cho
-     * thanh điều khiển mặc định của ExoPlayer (trước đây đè lên caption/tên tác giả bên dưới). */
+    /** Cập nhật thanh tiến trình mảnh trên cùng + nhãn "đã phát / tổng thời lượng" mỗi 200ms
+     * trong lúc reel đang phát — thay cho thanh điều khiển mặc định của ExoPlayer (trước đây đè
+     * lên caption/tên tác giả bên dưới). */
     private void startProgressUpdates(PageViewHolder holder) {
         progressHandler.removeCallbacks(progressTick);
         activeHolder = holder;
@@ -309,11 +318,21 @@ public class ReelPagerAdapter extends RecyclerView.Adapter<ReelPagerAdapter.Page
     private void tickProgress() {
         if (activeHolder == null || player == null) return;
         long duration = player.getDuration();
+        long position = player.getCurrentPosition();
         if (duration > 0) {
-            int progress = (int) (1000L * player.getCurrentPosition() / duration);
+            int progress = (int) (1000L * position / duration);
             activeHolder.binding.reelProgressBar.setProgress(Math.min(progress, 1000));
+            activeHolder.binding.tvReelTime.setText(
+                    formatTime(position) + " / " + formatTime(duration));
         }
         progressHandler.postDelayed(progressTick, 200);
+    }
+
+    private String formatTime(long ms) {
+        long totalSeconds = ms / 1000;
+        long minutes = totalSeconds / 60;
+        long seconds = totalSeconds % 60;
+        return String.format(Locale.US, "%d:%02d", minutes, seconds);
     }
 
     static class PageViewHolder extends RecyclerView.ViewHolder {
