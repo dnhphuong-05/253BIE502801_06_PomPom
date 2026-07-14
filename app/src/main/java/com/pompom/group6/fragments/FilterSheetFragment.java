@@ -318,6 +318,11 @@ public class FilterSheetFragment extends Fragment {
     private FilterState collectFilterState() {
         FilterState state = new FilterState();
 
+        // Danh mục được chọn ở dải chip ngang của ShopFragment (màn này không có UI riêng để
+        // đổi danh mục) — phải giữ nguyên từ initialState, nếu không "Áp dụng" sẽ âm thầm xoá
+        // mất lựa chọn danh mục đang có.
+        state.categoryIds = new java.util.HashSet<>(initialState.categoryIds);
+
         // Price range
         try {
             String minStr = etMinPrice.getText().toString().replaceAll("[^0-9]", "");
