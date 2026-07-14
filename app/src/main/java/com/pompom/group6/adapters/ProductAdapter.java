@@ -200,31 +200,41 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             v.getContext().startActivity(intent);
         });
 
-        // Add-to-cart button — opens BottomSheet for variant/qty selection (An toàn không crash)
+        // Icon giỏ hàng — thêm vào giỏ, mở BottomSheet chọn màu/số lượng (An toàn không crash)
         if (h.btnAddToCart != null) {
-            h.btnAddToCart.setOnClickListener(v -> {
-                Context context = v.getContext();
+            h.btnAddToCart.setOnClickListener(v ->
+                    openProductOptionsSheet(v, product, ProductOptionsBottomSheetDialog.ACTION_ADD_TO_CART));
+        }
 
-                // Vòng lặp giải bọc ContextWrapper để tìm FragmentActivity gốc tránh crash
-                while (context instanceof ContextWrapper) {
-                    if (context instanceof FragmentActivity) {
-                        break;
-                    }
-                    context = ((ContextWrapper) context).getBaseContext();
-                }
+        // Nút "Mua ngay" — cùng BottomSheet nhưng đổi nhãn nút hành động thành "Mua ngay" và
+        // chuyển thẳng sang màn thanh toán sau khi thêm vào giỏ (xem ACTION_BUY_NOW).
+        if (h.btnBuyNow != null) {
+            h.btnBuyNow.setOnClickListener(v ->
+                    openProductOptionsSheet(v, product, ProductOptionsBottomSheetDialog.ACTION_BUY_NOW));
+        }
+    }
 
-                if (context instanceof FragmentActivity) {
-                    FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
-                    ProductOptionsBottomSheetDialog.show(fm,
-                            product.getId(),
-                            product.getTitle(),
-                            product.getPrice(),
-                            product.getImageUrl(),
-                            ProductOptionsBottomSheetDialog.ACTION_ADD_TO_CART);
-                } else {
-                    Toast.makeText(v.getContext(), "Không thể mở tùy chọn sản phẩm", Toast.LENGTH_SHORT).show();
-                }
-            });
+    private void openProductOptionsSheet(View v, Product product, int actionType) {
+        Context context = v.getContext();
+
+        // Vòng lặp giải bọc ContextWrapper để tìm FragmentActivity gốc tránh crash
+        while (context instanceof ContextWrapper) {
+            if (context instanceof FragmentActivity) {
+                break;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+
+        if (context instanceof FragmentActivity) {
+            FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
+            ProductOptionsBottomSheetDialog.show(fm,
+                    product.getId(),
+                    product.getTitle(),
+                    product.getPrice(),
+                    product.getImageUrl(),
+                    actionType);
+        } else {
+            Toast.makeText(v.getContext(), "Không thể mở tùy chọn sản phẩm", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -297,6 +307,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView tvTitle, tvPrice, tvOriginalPrice, tvDiscountBadge, tvRatingText, tvReviewCount, tvSalesVolume;
         RatingBar ratingBar;
         View btnAddToCart;
+        View btnBuyNow;
         ImageView ivWishlistHeart;
         MaterialCardView cardWishlist;
 
@@ -312,6 +323,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             tvSalesVolume     = itemView.findViewById(R.id.tvSalesVolume);
             ratingBar         = itemView.findViewById(R.id.ratingBar);
             btnAddToCart      = itemView.findViewById(R.id.btnAddToCart);
+            btnBuyNow         = itemView.findViewById(R.id.btnBuyNow);
             ivWishlistHeart   = itemView.findViewById(R.id.ivWishlistHeart);
             cardWishlist      = itemView.findViewById(R.id.cardWishlist);
         }
