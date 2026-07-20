@@ -12,12 +12,17 @@ const TAX_RATE = 0.08;
 router.get("/", async (req, res) => {
   try {
     const filter = {};
-    if (req.query.user_id) filter.user_id = oid(req.query.user_id);
     if (req.query.status) filter.status = req.query.status;
     if (req.query.phone) {
-      // Đơn của khách theo số điện thoại (join qua users.phone_number).
+      // Đơn theo số điện thoại: khớp cả tài khoản đã đăng ký (join qua users.phone_number)
+      // lẫn đơn đặt bởi khách vãng lai (lưu thẳng guest_phone trên order, không có user_id).
       const users = await User.find({ phone_number: req.query.phone }).select("_id").lean();
-      filter.user_id = { $in: users.map((u) => u._id) };
+      filter.$or = [
+        { user_id: { $in: users.map((u) => u._id) } },
+        { guest_phone: req.query.phone },
+      ];
+    } else if (req.query.user_id) {
+      filter.user_id = oid(req.query.user_id);
     }
     const orders = await Order.find(filter).sort({ created_at: -1 }).lean();
     if (!orders.length) return res.json([]);
@@ -163,22 +168,30 @@ router.post("/:id/cancel", async (req, res) => {
 
 // POST /api/orders  -> create an order.
 // Body: { user_id, address_id?, payment_method?, shipping_fee?, discount_amount?, note?,
-//         items?: [{product_id, variant_id?, quantity}], from_cart?: bool }
+//         items?: [{product_id, variant_id?, quantity}], from_cart?: bool,
+//         guest_name?, guest_phone?, guest_email? }
 // If from_cart is true (or items omitted), lines are pulled from the user's cart and the cart is cleared.
+// Khách vãng lai (chưa đăng nhập): bỏ qua user_id, bắt buộc guest_phone + items tường minh
+// (khách không có giỏ hàng lưu trên server) để còn tra cứu lại đơn qua số điện thoại.
 router.post("/", async (req, res) => {
   try {
     const b = req.body || {};
-    const uid = oid(b.user_id);
-    if (!uid) return res.status(400).json({ error: "user_id không hợp lệ" });
+    const uid = b.user_id ? oid(b.user_id) : null;
+    if (b.user_id && !uid) return res.status(400).json({ error: "user_id không hợp lệ" });
+
+    const guestPhone = typeof b.guest_phone === "string" ? b.guest_phone.trim() : "";
+    if (!uid && !guestPhone) {
+      return res.status(400).json({ error: "Thiếu user_id hoặc số điện thoại khách" });
+    }
 
     // Resolve the line items.
     let sourceItems = [];
     let cart = null;
-    const useCart = b.from_cart === true || !Array.isArray(b.items) || b.items.length === 0;
+    const useCart = !!uid && (b.from_cart === true || !Array.isArray(b.items) || b.items.length === 0);
     if (useCart) {
       cart = await Cart.findOne({ user_id: uid });
       if (cart) sourceItems = await CartItem.find({ cart_id: cart._id }).lean();
-    } else {
+    } else if (Array.isArray(b.items)) {
       sourceItems = b.items.map((i) => ({
         product_id: oid(i.product_id),
         variant_id: i.variant_id ? oid(i.variant_id) : null,
@@ -212,6 +225,9 @@ router.post("/", async (req, res) => {
       order_number: orderNumber,
       user_id: uid,
       session_id: null,
+      guest_name: !uid ? (b.guest_name || null) : null,
+      guest_phone: !uid ? guestPhone : null,
+      guest_email: !uid ? (b.guest_email || null) : null,
       address_id: b.address_id ? oid(b.address_id) : null,
       total_amount: totalAmount,
       tax_amount: taxAmount,

@@ -130,7 +130,7 @@ public class GuestOrderActivity extends SwipeBackActivity {
                             binding.layoutResults.setVisibility(View.VISIBLE);
                             if (adapter == null) {
                                 adapter = new GuestOrderAdapter(orders, order ->
-                                        Toast.makeText(GuestOrderActivity.this, "Chi tiết đơn #" + order.getOrderNumber(), Toast.LENGTH_SHORT).show());
+                                        OrderDetailActivity.start(GuestOrderActivity.this, order.getOid()));
                                 binding.rvOrders.setLayoutManager(new LinearLayoutManager(GuestOrderActivity.this));
                                 binding.rvOrders.setAdapter(adapter);
                             } else {
