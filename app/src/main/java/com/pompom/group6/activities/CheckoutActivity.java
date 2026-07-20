@@ -50,6 +50,9 @@ public class CheckoutActivity extends SwipeBackActivity {
     private static final int STATE_INACTIVE = 0, STATE_ACTIVE = 1, STATE_DONE = 2;
     private static final int LAST_STEP = 3;
     private static final String[] STEP_TITLES = {"Liên hệ", "Giao hàng", "Thanh toán", "Xác nhận"};
+    // Cùng định dạng với màn "Tra cứu đơn hàng" của khách (GuestOrderActivity) để số điện thoại
+    // lưu vào đơn luôn tra cứu lại được sau này.
+    private static final java.util.regex.Pattern PHONE_REGEX = java.util.regex.Pattern.compile("^0[0-9]{9}$");
 
     private ActivityCheckoutBinding binding;
     private CartManager cartManager;
@@ -339,6 +342,11 @@ public class CheckoutActivity extends SwipeBackActivity {
             warnMissing(0, binding.etEmail, binding.tilEmail, "Email"); return;
         }
         if (isEmpty(binding.etPhone)) { warnMissing(0, binding.etPhone, binding.tilPhone, "Số điện thoại"); return; }
+        if (!PHONE_REGEX.matcher(text(binding.etPhone)).matches()) {
+            navigateToField(0, binding.etPhone, binding.tilPhone,
+                    "Số điện thoại không hợp lệ (phải bắt đầu bằng 0, đủ 10 chữ số)");
+            return;
+        }
         if (isEmpty(binding.etFirstName)) { warnMissing(1, binding.etFirstName, binding.tilFirstName, "Tên"); return; }
         if (isEmpty(binding.etLastName)) { warnMissing(1, binding.etLastName, binding.tilLastName, "Họ"); return; }
         if (isEmpty(binding.etAddress)) { warnMissing(1, binding.etAddress, binding.tilAddress, "Địa chỉ"); return; }
@@ -524,8 +532,8 @@ public class CheckoutActivity extends SwipeBackActivity {
             }
         }
 
-        // Khách chưa đăng nhập hoặc giỏ không có sản phẩm cloud → giữ hành vi cũ (đơn demo).
-        if (userOid == null || items.isEmpty()) {
+        // Giỏ không có sản phẩm cloud (dữ liệu demo cũ) → không có gì để đặt thật, giữ hành vi demo.
+        if (items.isEmpty()) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (binding == null) return;
                 binding.loadingOverlay.setVisibility(View.GONE);
@@ -534,8 +542,19 @@ public class CheckoutActivity extends SwipeBackActivity {
             return;
         }
 
-        com.pompom.group6.network.dto.OrderRequest body =
-                new com.pompom.group6.network.dto.OrderRequest(userOid, method, selectedShippingFee, "", items);
+        com.pompom.group6.network.dto.OrderRequest body;
+        if (userOid != null) {
+            body = new com.pompom.group6.network.dto.OrderRequest(userOid, method, selectedShippingFee, "", items);
+        } else {
+            // Khách vãng lai: không có user_id, dùng thông tin liên hệ đã nhập ở bước 1 để
+            // lưu vào đơn — đây cũng là dữ liệu dùng để tra cứu lại đơn theo SĐT sau này.
+            String guestName = (text(binding.etLastName) + " " + text(binding.etFirstName)).trim();
+            body = com.pompom.group6.network.dto.OrderRequest.forGuest(
+                    guestName, text(binding.etPhone), text(binding.etEmail),
+                    method, selectedShippingFee, "", items);
+        }
+
+        final String finalUserOid = userOid;
         com.pompom.group6.network.ApiClient.get().createOrder(body)
                 .enqueue(new retrofit2.Callback<com.pompom.group6.network.dto.ApiOrder>() {
                     @Override
@@ -544,12 +563,14 @@ public class CheckoutActivity extends SwipeBackActivity {
                         if (binding == null) return;
                         binding.loadingOverlay.setVisibility(View.GONE);
                         if (resp.isSuccessful() && resp.body() != null) {
-                            // Đơn đã tạo → xoá giỏ hàng server để không còn tồn ở thiết bị khác.
-                            com.pompom.group6.network.ApiClient.get().clearCart(userOid)
-                                    .enqueue(new retrofit2.Callback<Void>() {
-                                        @Override public void onResponse(retrofit2.Call<Void> c, retrofit2.Response<Void> r) {}
-                                        @Override public void onFailure(retrofit2.Call<Void> c, Throwable t) {}
-                                    });
+                            if (finalUserOid != null) {
+                                // Đơn đã tạo → xoá giỏ hàng server để không còn tồn ở thiết bị khác.
+                                com.pompom.group6.network.ApiClient.get().clearCart(finalUserOid)
+                                        .enqueue(new retrofit2.Callback<Void>() {
+                                            @Override public void onResponse(retrofit2.Call<Void> c, retrofit2.Response<Void> r) {}
+                                            @Override public void onFailure(retrofit2.Call<Void> c, Throwable t) {}
+                                        });
+                            }
                             showSuccessDialog();
                         } else {
                             android.widget.Toast.makeText(CheckoutActivity.this,

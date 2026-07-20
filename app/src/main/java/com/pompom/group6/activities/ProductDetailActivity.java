@@ -233,7 +233,12 @@ public class ProductDetailActivity extends AppCompatActivity
 
         // "Thêm vào giỏ hàng" → BottomSheet with variant/qty picker (fix 1B)
         binding.btnAddToCart.setOnClickListener(v -> {
-            if (currentProduct == null) return;
+            // Sản phẩm cloud nạp bất đồng bộ (loadFromApi) — bấm quá sớm khi currentProduct
+            // chưa kịp gán thì trước đây bottom sheet lặng lẽ không mở, không có phản hồi gì.
+            if (currentProduct == null) {
+                Toast.makeText(this, "Sản phẩm đang tải, vui lòng thử lại sau giây lát", Toast.LENGTH_SHORT).show();
+                return;
+            }
             ProductOptionsBottomSheetDialog.show(getSupportFragmentManager(),
                     currentProduct.getId(),
                     currentProduct.getTitle(),
@@ -249,7 +254,10 @@ public class ProductDetailActivity extends AppCompatActivity
 
         // "Mua ngay" → BottomSheet that goes directly to CheckoutActivity (fix 1B)
         binding.btnBuyNow.setOnClickListener(v -> {
-            if (currentProduct == null) return;
+            if (currentProduct == null) {
+                Toast.makeText(this, "Sản phẩm đang tải, vui lòng thử lại sau giây lát", Toast.LENGTH_SHORT).show();
+                return;
+            }
             ProductOptionsBottomSheetDialog.show(getSupportFragmentManager(),
                     currentProduct.getId(),
                     currentProduct.getTitle(),

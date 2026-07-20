@@ -18,10 +18,11 @@ public final class ApiConfig {
     private ApiConfig() {}
 
     // URL prod (Render) — dùng khi commit/push để leader redeploy.
-    public static final String BASE_URL = "https://pompom-backend-pha3.onrender.com/";
+    // public static final String BASE_URL = "https://pompom-backend-pha3.onrender.com/";
 
     // ⚠️ Test LOCAL trên máy thật: chạy `adb reverse tcp:3000 tcp:3000`.
     //    NHỚ đổi lại URL Render ở trên trước khi commit/push!
     //    - Emulator thì dùng: "http://10.0.2.2:3000/"
-    // public static final String BASE_URL = "http://127.0.0.1:3000/";
+
+    public static final String BASE_URL = "https://pompom-backend-pha3.onrender.com/";
 }
